@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Пользователь</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            color: #202124;
+            background: #f4f6f8;
+        }
+
+        main {
+            width: min(680px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 48px 0;
+        }
+
+        a {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #1f6feb;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        section {
+            background: #ffffff;
+            border: 1px solid #d8dde3;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        h1 {
+            margin: 0 0 20px;
+            font-size: 28px;
+        }
+
+        dl {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 12px 18px;
+            margin: 0;
+        }
+
+        dt {
+            color: #5f6b7a;
+            font-weight: 700;
+        }
+
+        dd {
+            margin: 0;
+        }
+
+        .message {
+            color: #5f6b7a;
+        }
+
+        @media (max-width: 560px) {
+            main {
+                padding: 28px 0;
+            }
+
+            dl {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            dd {
+                margin-bottom: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+    <a href="/">Назад к списку</a>
+
+    <section>
+        <h1 id="title">Пользователь</h1>
+        <div id="content" class="message">Загрузка...</div>
+    </section>
+</main>
+
+<script>
+    const title = document.querySelector("#title");
+    const content = document.querySelector("#content");
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+
+    function formatDate(value) {
+        if (!value) {
+            return "";
+        }
+
+        return new Intl.DateTimeFormat("ru-RU", {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }).format(new Date(value));
+    }
+
+    async function loadUser() {
+        if (!id) {
+            content.textContent = "Не указан id пользователя";
+            return;
+        }
+
+        const response = await fetch(`/users/${id}`);
+        if (!response.ok) {
+            content.textContent = "Пользователь не найден";
+            return;
+        }
+
+        const user = await response.json();
+        title.textContent = user.username;
+        content.className = "";
+        content.innerHTML = `
+            <dl>
+                <dt>ID</dt>
+                <dd>${user.id}</dd>
+                <dt>Имя</dt>
+                <dd>${user.username}</dd>
+                <dt>Email</dt>
+                <dd>${user.email}</dd>
+                <dt>Создан</dt>
+                <dd>${formatDate(user.createdAt)}</dd>
+            </dl>
+        `;
+    }
+
+    loadUser();
+</script>
+</body>
+</html>

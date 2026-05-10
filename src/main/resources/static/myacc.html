@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Мой аккаунт</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            color: #202124;
+            background: #f4f6f8;
+        }
+
+        main {
+            width: min(680px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 48px 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        a {
+            color: #1f6feb;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        section {
+            background: #ffffff;
+            border: 1px solid #d8dde3;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        h1 {
+            margin: 0 0 20px;
+            font-size: 28px;
+        }
+
+        dl {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 12px 18px;
+            margin: 0;
+        }
+
+        dt {
+            color: #5f6b7a;
+            font-weight: 700;
+        }
+
+        dd {
+            margin: 0;
+        }
+
+        button {
+            border: 0;
+            background: transparent;
+            color: #b42318;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 700;
+            padding: 0;
+        }
+
+        .message {
+            color: #5f6b7a;
+        }
+
+        @media (max-width: 560px) {
+            main {
+                padding: 28px 0;
+            }
+
+            nav {
+                display: grid;
+            }
+
+            dl {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            dd {
+                margin-bottom: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+    <nav>
+        <a href="/">На главную</a>
+        <button id="logout" type="button">Выйти</button>
+    </nav>
+
+    <section>
+        <h1 id="title">Мой аккаунт</h1>
+        <div id="content" class="message">Загрузка...</div>
+    </section>
+</main>
+
+<script>
+    const title = document.querySelector("#title");
+    const content = document.querySelector("#content");
+    const logoutButton = document.querySelector("#logout");
+
+    function formatDate(value) {
+        if (!value) {
+            return "";
+        }
+
+        return new Intl.DateTimeFormat("ru-RU", {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }).format(new Date(value));
+    }
+
+    async function loadAccount() {
+        const response = await fetch("/me");
+        if (response.status === 401) {
+            window.location.href = "/login";
+            return;
+        }
+
+        if (!response.ok) {
+            content.textContent = "Не удалось загрузить аккаунт";
+            return;
+        }
+
+        const user = await response.json();
+        title.textContent = `Мой аккаунт: ${user.username}`;
+        content.className = "";
+        content.innerHTML = `
+            <dl>
+                <dt>ID</dt>
+                <dd>${user.id}</dd>
+                <dt>Имя</dt>
+                <dd>${user.username}</dd>
+                <dt>Email</dt>
+                <dd>${user.email}</dd>
+                <dt>Создан</dt>
+                <dd>${formatDate(user.createdAt)}</dd>
+            </dl>
+        `;
+    }
+
+    logoutButton.addEventListener("click", async () => {
+        await fetch("/logout", {
+            method: "POST"
+        });
+        window.location.href = "/login";
+    });
+
+    loadAccount();
+</script>
+</body>
+</html>

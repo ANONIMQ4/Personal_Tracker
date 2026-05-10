@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Вход</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            color: #202124;
+            background: #f4f6f8;
+        }
+
+        main {
+            width: min(420px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 48px 0;
+        }
+
+        nav {
+            margin-bottom: 20px;
+        }
+
+        a {
+            color: #1f6feb;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        section {
+            background: #ffffff;
+            border: 1px solid #d8dde3;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        h1 {
+            margin: 0 0 18px;
+            font-size: 28px;
+        }
+
+        label {
+            display: block;
+            margin: 14px 0 6px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        input {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid #c8d0d9;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font: inherit;
+        }
+
+        button {
+            width: 100%;
+            min-height: 42px;
+            margin-top: 18px;
+            border: 0;
+            border-radius: 6px;
+            background: #1f6feb;
+            color: #ffffff;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            cursor: wait;
+            opacity: 0.7;
+        }
+
+        .message {
+            min-height: 20px;
+            margin-top: 12px;
+            color: #b42318;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <nav>
+        <a href="/">На главную</a>
+    </nav>
+
+    <section>
+        <h1>Вход</h1>
+        <form id="login-form">
+            <label for="login">Username или email</label>
+            <input id="login" name="login" autocomplete="username" required>
+
+            <label for="password">Пароль</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required>
+
+            <button type="submit">Войти</button>
+            <div id="message" class="message" aria-live="polite"></div>
+        </form>
+    </section>
+</main>
+
+<script>
+    const form = document.querySelector("#login-form");
+    const message = document.querySelector("#message");
+    const button = form.querySelector("button");
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        message.textContent = "";
+        button.disabled = true;
+
+        const formData = new FormData(form);
+        const credentials = {
+            login: formData.get("login"),
+            password: formData.get("password")
+        };
+
+        try {
+            const response = await fetch("/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(credentials)
+            });
+
+            if (!response.ok) {
+                throw new Error("Неверный логин или пароль");
+            }
+
+            window.location.href = "/myacc";
+        } catch (error) {
+            message.textContent = error.message;
+        } finally {
+            button.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>

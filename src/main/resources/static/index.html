@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Personal Tracker</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            color: #202124;
+            background: #f4f6f8;
+        }
+
+        main {
+            width: min(920px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 48px 0;
+        }
+
+        h1 {
+            margin: 0 0 24px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .topbar h1 {
+            margin: 0;
+        }
+
+        .topbar nav {
+            display: flex;
+            gap: 14px;
+            font-weight: 700;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(280px, 360px) 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        section {
+            background: #ffffff;
+            border: 1px solid #d8dde3;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        h2 {
+            margin: 0 0 16px;
+            font-size: 18px;
+        }
+
+        label {
+            display: block;
+            margin: 14px 0 6px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid #c8d0d9;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font: inherit;
+        }
+
+        button {
+            width: 100%;
+            min-height: 42px;
+            margin-top: 18px;
+            border: 0;
+            border-radius: 6px;
+            background: #1f6feb;
+            color: #ffffff;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            cursor: wait;
+            opacity: 0.7;
+        }
+
+        .message {
+            min-height: 20px;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .message.error {
+            color: #b42318;
+        }
+
+        .message.success {
+            color: #067647;
+        }
+
+        ul {
+            display: grid;
+            gap: 10px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        li {
+            border: 1px solid #e2e7ee;
+            border-radius: 8px;
+            padding: 12px;
+            background: #fbfcfe;
+        }
+
+        .username {
+            display: block;
+            font-weight: 700;
+        }
+
+        .email {
+            display: block;
+            margin-top: 4px;
+            color: #5f6b7a;
+            font-size: 14px;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        li:hover {
+            border-color: #9db9e8;
+        }
+
+        @media (max-width: 720px) {
+            main {
+                padding: 28px 0;
+            }
+
+            .topbar {
+                display: grid;
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+    <div class="topbar">
+        <h1>Personal Tracker</h1>
+        <nav>
+            <a href="/login">Вход</a>
+            <a href="/myacc">Мой аккаунт</a>
+        </nav>
+    </div>
+
+    <div class="layout">
+        <section>
+            <h2>Регистрация</h2>
+            <form id="registration-form">
+                <label for="username">Имя пользователя</label>
+                <input id="username" name="username" autocomplete="username" required>
+
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" autocomplete="email" required>
+
+                <label for="password">Пароль</label>
+                <input id="password" name="password" type="password" autocomplete="new-password" required>
+
+                <button type="submit">Зарегистрироваться</button>
+                <div id="message" class="message" aria-live="polite"></div>
+            </form>
+        </section>
+
+        <section>
+            <h2>Пользователи</h2>
+            <ul id="users"></ul>
+        </section>
+    </div>
+</main>
+
+<script>
+    const form = document.querySelector("#registration-form");
+    const message = document.querySelector("#message");
+    const usersList = document.querySelector("#users");
+    const button = form.querySelector("button");
+
+    async function loadUsers() {
+        const response = await fetch("/users");
+        const users = await response.json();
+
+        usersList.innerHTML = "";
+        users.forEach((user) => {
+            const item = document.createElement("li");
+            item.innerHTML = `
+                <a href="/user.html?id=${user.id}">
+                    <span class="username">${user.username}</span>
+                    <span class="email">${user.email}</span>
+                </a>
+            `;
+            usersList.appendChild(item);
+        });
+    }
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        message.textContent = "";
+        message.className = "message";
+        button.disabled = true;
+
+        const formData = new FormData(form);
+        const user = {
+            username: formData.get("username"),
+            email: formData.get("email"),
+            password: formData.get("password")
+        };
+
+        try {
+            const response = await fetch("/users", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(user)
+            });
+
+            if (!response.ok) {
+                throw new Error("Пользователь с таким именем или email уже существует");
+            }
+
+            form.reset();
+            message.textContent = "Пользователь зарегистрирован";
+            message.classList.add("success");
+            await loadUsers();
+        } catch (error) {
+            message.textContent = error.message;
+            message.classList.add("error");
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+    loadUsers();
+</script>
+</body>
+</html>
