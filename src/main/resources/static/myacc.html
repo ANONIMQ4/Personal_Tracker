@@ -18,7 +18,7 @@
         }
 
         main {
-            width: min(680px, calc(100% - 32px));
+            width: min(1120px, calc(100% - 32px));
             margin: 0 auto;
             padding: 48px 0;
         }
@@ -41,6 +41,7 @@
             border: 1px solid #d8dde3;
             border-radius: 8px;
             padding: 24px;
+            margin-bottom: 20px;
         }
 
         h1 {
@@ -74,8 +75,444 @@
             padding: 0;
         }
 
+        form {
+            display: grid;
+            gap: 12px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            border: 1px solid #c8d0d9;
+            border-radius: 6px;
+            padding: 10px;
+            background: #ffffff;
+            font: inherit;
+        }
+
+        label {
+            color: #5f6b7a;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .manual-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .finance-tools {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(260px, 1fr));
+            gap: 12px;
+            align-items: start;
+        }
+
+        .finance-panel {
+            display: grid;
+            border: 1px solid #e2e7ee;
+            border-radius: 8px;
+            background: #fbfcfe;
+        }
+
+        .finance-panel-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 48px;
+            padding: 0 14px;
+            color: #202124;
+            text-align: left;
+        }
+
+        .finance-panel-toggle::after {
+            content: "+";
+            color: #5f6b7a;
+            font-size: 20px;
+        }
+
+        .finance-panel.open .finance-panel-toggle::after {
+            content: "−";
+        }
+
+        .finance-panel-content {
+            display: none;
+            padding: 0 14px 14px;
+        }
+
+        .finance-panel.open .finance-panel-content {
+            display: block;
+        }
+
+        .finance-panel form {
+            gap: 10px;
+        }
+
+        .finance-panel .primary-button {
+            min-height: 36px;
+        }
+
+        .file-drop-zone {
+            display: grid;
+            place-items: center;
+            min-height: 116px;
+            border: 2px dashed #c8d0d9;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #5f6b7a;
+            cursor: pointer;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .file-drop-zone.drag-over {
+            border-color: #1f6feb;
+            background: #eef5ff;
+            color: #244066;
+        }
+
+        .file-drop-zone input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .file-drop-title {
+            display: block;
+            color: #202124;
+            font-weight: 700;
+        }
+
+        .file-drop-subtitle {
+            display: block;
+            margin-top: 4px;
+            font-size: 13px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .primary-button {
+            width: fit-content;
+            min-height: 40px;
+            border-radius: 6px;
+            background: #1f6feb;
+            color: #ffffff;
+            padding: 0 16px;
+        }
+
+        .danger-button {
+            width: fit-content;
+            min-height: 40px;
+            border-radius: 6px;
+            background: #b42318;
+            color: #ffffff;
+            padding: 0 16px;
+        }
+
+        .text-danger-button {
+            border-radius: 6px;
+            color: #7b8794;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 8px;
+        }
+
+        .text-danger-button:hover {
+            background: #fff1f0;
+            color: #b42318;
+        }
+
         .message {
             color: #5f6b7a;
+        }
+
+        .message.error {
+            color: #b42318;
+        }
+
+        .message.success {
+            color: #067647;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .summary-card {
+            border: 1px solid #e2e7ee;
+            border-radius: 8px;
+            padding: 14px;
+            background: #fbfcfe;
+        }
+
+        .summary-label {
+            color: #5f6b7a;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .summary-value {
+            display: block;
+            margin-top: 6px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .expense-chart {
+            display: grid;
+            gap: 18px;
+            margin-bottom: 18px;
+            border: 1px solid #e2e7ee;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fbfcfe;
+        }
+
+        .chart-total {
+            display: block;
+            color: #2f3136;
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .chart-title {
+            display: block;
+            margin-top: 8px;
+            color: #3b3d42;
+            font-size: 18px;
+        }
+
+        .chart-area {
+            display: grid;
+            place-items: center;
+            min-height: 320px;
+        }
+
+        .donut-wrap {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+
+        .donut {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #edf1f6;
+            box-shadow: 0 18px 34px rgba(31, 111, 235, 0.12);
+        }
+
+        .donut::after {
+            content: "";
+            position: absolute;
+            inset: 58px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: inset 0 0 18px rgba(38, 54, 82, 0.06);
+        }
+
+        .donut-percent {
+            position: absolute;
+            color: #b7bec8;
+            font-size: 18px;
+            font-weight: 700;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+        }
+
+        .category-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .category-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 36px;
+            border-radius: 999px;
+            padding: 6px 12px 6px 6px;
+            background: var(--pill-bg);
+            color: #2f3136;
+            font-weight: 700;
+        }
+
+        .category-dot {
+            display: inline-grid;
+            place-items: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--dot-color);
+            color: #ffffff;
+            font-size: 15px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .table-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .period-selector {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .period-tabs {
+            display: grid;
+            gap: 8px;
+        }
+
+        .period-years,
+        .period-months {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .period-months {
+            border-top: 1px solid #e2e7ee;
+            padding-top: 10px;
+        }
+
+        .period-tab {
+            min-height: 36px;
+            border: 1px solid #c8d0d9;
+            border-radius: 6px;
+            color: #244066;
+            padding: 0 12px;
+        }
+
+        .period-tab.active {
+            border-color: #1f6feb;
+            background: #1f6feb;
+            color: #ffffff;
+        }
+
+        .period-tab:disabled {
+            color: #a8b2bf;
+            cursor: default;
+            opacity: 0.55;
+        }
+
+        .custom-period {
+            display: none;
+            grid-template-columns: repeat(2, minmax(180px, 1fr)) auto;
+            gap: 12px;
+            align-items: end;
+        }
+
+        .custom-period.visible {
+            display: grid;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #e2e7ee;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            color: #5f6b7a;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .amount-negative {
+            color: #b42318;
+            font-weight: 700;
+        }
+
+        .amount-positive {
+            color: #067647;
+            font-weight: 700;
+        }
+
+        .broker-upload {
+            display: grid;
+            grid-template-columns: minmax(240px, 1fr) auto;
+            gap: 12px;
+            align-items: end;
+            margin-bottom: 16px;
+        }
+
+        .broker-section {
+            margin-top: 16px;
+        }
+
+        .broker-section h2 {
+            margin: 0 0 10px;
+            font-size: 20px;
+        }
+
+        .broker-list {
+            border: 1px solid #e2e7ee;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .broker-row {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr 1fr 1fr;
+            gap: 12px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #e2e7ee;
+            align-items: center;
+        }
+
+        .broker-row:last-child {
+            border-bottom: 0;
+        }
+
+        .broker-head {
+            color: #5f6b7a;
+            font-size: 13px;
+            font-weight: 700;
+            background: #fbfcfe;
+        }
+
+        .broker-name {
+            font-weight: 700;
+        }
+
+        .broker-ticker,
+        .broker-muted {
+            color: #7b8794;
+            margin-top: 4px;
         }
 
         @media (max-width: 560px) {
@@ -85,6 +522,44 @@
 
             nav {
                 display: grid;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .donut-wrap {
+                width: 240px;
+                height: 240px;
+            }
+
+            .donut::after {
+                inset: 48px;
+            }
+
+            .manual-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .finance-tools {
+                grid-template-columns: 1fr;
+            }
+
+            .table-actions {
+                display: grid;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .custom-period {
+                grid-template-columns: 1fr;
+            }
+
+            .broker-upload,
+            .broker-row {
+                grid-template-columns: 1fr;
             }
 
             dl {
@@ -109,12 +584,260 @@
         <h1 id="title">Мой аккаунт</h1>
         <div id="content" class="message">Загрузка...</div>
     </section>
+
+    <section>
+        <h1>Финансы</h1>
+        <div class="finance-tools">
+            <div class="finance-panel" data-panel="upload">
+                <button class="finance-panel-toggle" type="button">Загрузить файл</button>
+                <div class="finance-panel-content">
+                    <form id="upload-form">
+                        <label id="file-drop-zone" class="file-drop-zone" for="finance-file">
+                            <input id="finance-file" name="files" type="file" accept=".xlsx,.xls" multiple required>
+                            <span>
+                                <span class="file-drop-title">Перетащи файлы сюда</span>
+                                <span id="file-drop-subtitle" class="file-drop-subtitle">или нажми, чтобы выбрать XLS/XLSX</span>
+                            </span>
+                        </label>
+                        <button class="primary-button" type="submit">Загрузить операции</button>
+                        <div id="upload-message" class="message" aria-live="polite"></div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="finance-panel" data-panel="manual">
+                <button class="finance-panel-toggle" type="button">Добавить вручную</button>
+                <div class="finance-panel-content">
+                    <form id="manual-form">
+                        <div class="manual-grid">
+                            <label>
+                                Тип
+                                <select id="manual-type" name="type" required>
+                                    <option value="expense">Расход</option>
+                                    <option value="income">Доход</option>
+                                </select>
+                            </label>
+
+                            <label>
+                                Сумма
+                                <input id="manual-amount" name="amount" type="number" step="0.01" min="0.01" required>
+                            </label>
+
+                            <label>
+                                Валюта
+                                <input id="manual-currency" name="currency" value="RUB" maxlength="10" required>
+                            </label>
+
+                            <label>
+                                Категория
+                                <input id="manual-category" name="category" placeholder="Прочий расход">
+                            </label>
+
+                            <label class="full-width">
+                                Описание
+                                <input id="manual-description" name="description" placeholder="Например: обед, зарплата, перевод">
+                            </label>
+                        </div>
+                        <button class="primary-button" type="submit">Добавить</button>
+                        <div id="manual-message" class="message" aria-live="polite"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h1>Брокерский счет</h1>
+        <form id="broker-upload-form" class="broker-upload">
+            <label>
+                Скриншот портфеля
+                <input id="broker-screenshot" name="screenshot" type="file" accept="image/*" required>
+            </label>
+            <button class="primary-button" type="submit">Распознать</button>
+            <div id="broker-message" class="message full-width" aria-live="polite"></div>
+        </form>
+        <div id="broker-holdings" class="message">Загрузка...</div>
+    </section>
+
+    <section>
+        <h1>Операции</h1>
+        <div class="period-selector">
+            <div id="period-tabs" class="period-tabs" aria-label="Периоды операций"></div>
+            <form id="custom-period-form" class="custom-period">
+                <label>
+                    С
+                    <input id="period-from" name="from" type="date" required>
+                </label>
+                <label>
+                    По
+                    <input id="period-to" name="to" type="date" required>
+                </label>
+                <button class="primary-button" type="submit">Показать</button>
+            </form>
+        </div>
+        <div class="summary">
+            <div class="summary-card">
+                <span class="summary-label">Доходы</span>
+                <span id="income" class="summary-value">0 RUB</span>
+            </div>
+            <div class="summary-card">
+                <span class="summary-label">Расходы</span>
+                <span id="expenses" class="summary-value">0 RUB</span>
+            </div>
+            <div class="summary-card">
+                <span class="summary-label">Баланс</span>
+                <span id="balance" class="summary-value">0 RUB</span>
+            </div>
+        </div>
+        <div class="expense-chart">
+            <div>
+                <span id="chart-total" class="chart-total">0 ₽</span>
+                <span class="chart-title">Траты</span>
+            </div>
+            <div class="chart-area">
+                <div id="donut-wrap" class="donut-wrap">
+                    <div id="donut" class="donut"></div>
+                </div>
+            </div>
+            <div id="category-pills" class="category-pills"></div>
+        </div>
+        <div class="table-actions">
+            <button id="delete-selected" class="danger-button" type="button">Удалить выбранные</button>
+            <span id="delete-message" class="message" aria-live="polite"></span>
+        </div>
+        <div class="controls">
+            <label>
+                Тип операций
+                <select id="operation-type-filter">
+                    <option value="all">Доходы и расходы</option>
+                    <option value="income">Только доходы</option>
+                    <option value="expense">Только расходы</option>
+                </select>
+            </label>
+            <label>
+                Сортировка
+                <select id="sort-mode">
+                    <option value="date-desc">По дате: сначала новые</option>
+                    <option value="date-asc">По дате: сначала давние</option>
+                    <option value="amount-desc">По сумме: сначала большие</option>
+                    <option value="amount-asc">По сумме: сначала маленькие</option>
+                </select>
+            </label>
+            <label>
+                Категория
+                <select id="category-filter">
+                    <option value="all">Все категории</option>
+                </select>
+            </label>
+            <label id="transfer-person-control" hidden>
+                Кому/от кого
+                <select id="transfer-person-filter">
+                    <option value="all">Все</option>
+                </select>
+            </label>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>
+                        <input id="select-all" type="checkbox" aria-label="Выбрать все операции">
+                    </th>
+                    <th>Дата</th>
+                    <th>Тип</th>
+                    <th>Категория</th>
+                    <th>Описание</th>
+                    <th>Сумма</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody id="operations">
+                <tr>
+                    <td colspan="7" class="message">Загрузка...</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
 </main>
 
 <script>
     const title = document.querySelector("#title");
     const content = document.querySelector("#content");
     const logoutButton = document.querySelector("#logout");
+    const uploadForm = document.querySelector("#upload-form");
+    const uploadMessage = document.querySelector("#upload-message");
+    const financeFile = document.querySelector("#finance-file");
+    const fileDropZone = document.querySelector("#file-drop-zone");
+    const fileDropSubtitle = document.querySelector("#file-drop-subtitle");
+    const financePanels = document.querySelectorAll(".finance-panel");
+    const manualForm = document.querySelector("#manual-form");
+    const manualMessage = document.querySelector("#manual-message");
+    const manualType = document.querySelector("#manual-type");
+    const manualCategory = document.querySelector("#manual-category");
+    const brokerUploadForm = document.querySelector("#broker-upload-form");
+    const brokerMessage = document.querySelector("#broker-message");
+    const brokerHoldings = document.querySelector("#broker-holdings");
+    const operationsBody = document.querySelector("#operations");
+    const selectAll = document.querySelector("#select-all");
+    const sortMode = document.querySelector("#sort-mode");
+    const operationTypeFilter = document.querySelector("#operation-type-filter");
+    const categoryFilter = document.querySelector("#category-filter");
+    const transferPersonControl = document.querySelector("#transfer-person-control");
+    const transferPersonFilter = document.querySelector("#transfer-person-filter");
+    const periodTabs = document.querySelector("#period-tabs");
+    const customPeriodForm = document.querySelector("#custom-period-form");
+    const deleteSelectedButton = document.querySelector("#delete-selected");
+    const deleteMessage = document.querySelector("#delete-message");
+    const income = document.querySelector("#income");
+    const expenses = document.querySelector("#expenses");
+    const balance = document.querySelector("#balance");
+    const chartTotal = document.querySelector("#chart-total");
+    const donutWrap = document.querySelector("#donut-wrap");
+    const donut = document.querySelector("#donut");
+    const categoryPills = document.querySelector("#category-pills");
+    let allOperations = [];
+    let selectedPeriod = { type: "all", key: null, from: null, to: null };
+    const chartColors = ["#4fc3d8", "#ff8c6b", "#54d39a", "#f284df", "#5b5ff0", "#b6d1df", "#f2c94c", "#8b6fd8"];
+    const categoryColors = {
+        "Переводы": "#4fc3d8",
+        "Супермаркеты": "#ff8c6b",
+        "Медицина": "#54d39a",
+        "Цифровые товары": "#f284df",
+        "Связь": "#5b5ff0",
+        "Ж/д билеты": "#8b6fd8",
+        "Образование": "#e77973",
+        "Красота": "#df73b0",
+        "Транспорт": "#d96bd8",
+        "Услуги банка": "#5b5ff0",
+        "Сервис": "#54d39a",
+        "Аптеки": "#54d39a",
+        "Маркетплейсы": "#8b6fd8",
+        "Фастфуд": "#f2c94c",
+        "Остальное": "#b6d1df"
+    };
+    const categoryIcons = {
+        "Переводы": "↔",
+        "Супермаркеты": "🛒",
+        "Медицина": "+",
+        "Цифровые товары": "▣",
+        "Связь": "◌",
+        "Ж/д билеты": "▸",
+        "Остальное": "…"
+    };
+
+    function getCategoryColor(categoryName) {
+        if (categoryColors[categoryName]) {
+            return categoryColors[categoryName];
+        }
+
+        let hash = 0;
+        for (const character of categoryName) {
+            hash = character.charCodeAt(0) + ((hash << 5) - hash);
+        }
+        return chartColors[Math.abs(hash) % chartColors.length];
+    }
 
     function formatDate(value) {
         if (!value) {
@@ -156,6 +879,780 @@
         `;
     }
 
+    function formatMoney(value, currency = "RUB") {
+        return new Intl.NumberFormat("ru-RU", {
+            style: "currency",
+            currency
+        }).format(value || 0);
+    }
+
+    function formatWholeMoney(value) {
+        return new Intl.NumberFormat("ru-RU", {
+            maximumFractionDigits: 0
+        }).format(value || 0) + " ₽";
+    }
+
+    function formatOperationDate(value) {
+        if (!value) {
+            return "";
+        }
+
+        return new Intl.DateTimeFormat("ru-RU", {
+            dateStyle: "short",
+            timeStyle: "short"
+        }).format(new Date(value));
+    }
+
+    function toDateInputValue(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+
+    function getOperationTime(operation) {
+        return operation.operationDate ? new Date(operation.operationDate).getTime() : 0;
+    }
+
+    function getOperationAmount(operation) {
+        return Number(operation.operationAmount || 0);
+    }
+
+    function compareOperations(first, second) {
+        switch (sortMode.value) {
+            case "date-asc":
+                return getOperationTime(first) - getOperationTime(second);
+            case "amount-desc":
+                return Math.abs(getOperationAmount(second)) - Math.abs(getOperationAmount(first));
+            case "amount-asc":
+                return Math.abs(getOperationAmount(first)) - Math.abs(getOperationAmount(second));
+            case "date-desc":
+            default:
+                return getOperationTime(second) - getOperationTime(first);
+        }
+    }
+
+    function getSortedOperations() {
+        return [...allOperations].sort(compareOperations);
+    }
+
+    function isMatchingOperationType(operation) {
+        const amount = getOperationAmount(operation);
+        if (operationTypeFilter.value === "income") {
+            return amount >= 0;
+        }
+        if (operationTypeFilter.value === "expense") {
+            return amount < 0;
+        }
+        return true;
+    }
+
+    function isMatchingCategory(operation) {
+        return categoryFilter.value === "all" || (operation.category || "Без категории") === categoryFilter.value;
+    }
+
+    function isMatchingTransferPerson(operation) {
+        if (categoryFilter.value !== "Переводы" || transferPersonFilter.value === "all") {
+            return true;
+        }
+        return (operation.description || "Без описания") === transferPersonFilter.value;
+    }
+
+    function updateCategoryFilterOptions(operations) {
+        const selectedCategory = categoryFilter.value;
+        const categories = Array.from(new Set(
+            operations
+                .filter(isMatchingOperationType)
+                .map((operation) => operation.category || "Без категории")
+        )).sort((first, second) => first.localeCompare(second, "ru"));
+
+        categoryFilter.innerHTML = "";
+        categoryFilter.append(new Option("Все категории", "all"));
+        categories.forEach((category) => {
+            categoryFilter.append(new Option(category, category));
+        });
+
+        categoryFilter.value = categories.includes(selectedCategory) ? selectedCategory : "all";
+    }
+
+    function updateTransferPersonFilterOptions(operations) {
+        const isTransferCategory = categoryFilter.value === "Переводы";
+        transferPersonControl.hidden = !isTransferCategory;
+
+        if (!isTransferCategory) {
+            transferPersonFilter.value = "all";
+            return;
+        }
+
+        const selectedPerson = transferPersonFilter.value;
+        const people = Array.from(new Set(
+            operations
+                .filter(isMatchingOperationType)
+                .filter((operation) => (operation.category || "Без категории") === "Переводы")
+                .map((operation) => operation.description || "Без описания")
+        )).sort((first, second) => first.localeCompare(second, "ru"));
+
+        transferPersonFilter.innerHTML = "";
+        transferPersonFilter.append(new Option("Все", "all"));
+        people.forEach((person) => {
+            transferPersonFilter.append(new Option(person, person));
+        });
+
+        transferPersonFilter.value = people.includes(selectedPerson) ? selectedPerson : "all";
+    }
+
+    function getMonthKey(operation) {
+        const date = operation.operationDate ? new Date(operation.operationDate) : null;
+        return date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}` : "no-date";
+    }
+
+    function getOperationYear(operation) {
+        const date = operation.operationDate ? new Date(operation.operationDate) : null;
+        return date ? date.getFullYear() : null;
+    }
+
+    function getMonthLabel(monthKey) {
+        if (monthKey === "no-date") {
+            return "Без даты";
+        }
+
+        const [year, month] = monthKey.split("-").map(Number);
+        return new Intl.DateTimeFormat("ru-RU", {
+            month: "long",
+            year: "numeric"
+        }).format(new Date(year, month - 1, 1));
+    }
+
+    function getShortMonthLabel(monthIndex) {
+        const label = new Intl.DateTimeFormat("ru-RU", {
+            month: "short"
+        }).format(new Date(2026, monthIndex, 1));
+        const cleanLabel = label.replace(".", "");
+        return cleanLabel.charAt(0).toUpperCase() + cleanLabel.slice(1);
+    }
+
+    function getYears() {
+        return Array.from(new Set(allOperations.map(getOperationYear).filter(Boolean)))
+            .sort((first, second) => second - first);
+    }
+
+    function getMonthKeysForYear(year) {
+        const keys = Array.from(new Set(allOperations
+            .filter((operation) => getOperationYear(operation) === year)
+            .map(getMonthKey)));
+        return keys.sort((first, second) => second.localeCompare(first));
+    }
+
+    function isInSelectedPeriod(operation) {
+        if (selectedPeriod.type === "all") {
+            return true;
+        }
+
+        if (selectedPeriod.type === "year") {
+            return getOperationYear(operation) === selectedPeriod.year;
+        }
+
+        if (selectedPeriod.type === "custom") {
+            const time = getOperationTime(operation);
+            return time >= selectedPeriod.from.getTime() && time <= selectedPeriod.to.getTime();
+        }
+
+        return getMonthKey(operation) === selectedPeriod.key;
+    }
+
+    function getCurrentPeriodOperations() {
+        return getSortedOperations().filter(isInSelectedPeriod);
+    }
+
+    function getVisibleOperations() {
+        return getCurrentPeriodOperations()
+            .filter(isMatchingOperationType)
+            .filter(isMatchingCategory)
+            .filter(isMatchingTransferPerson);
+    }
+
+    function renderPeriodTabs() {
+        const years = getYears();
+        periodTabs.innerHTML = "";
+
+        if (years.length === 0) {
+            selectedPeriod = { type: "all", key: null, from: null, to: null };
+            return;
+        }
+
+        if (selectedPeriod.type === "year" && !years.includes(selectedPeriod.year)) {
+            selectedPeriod = { type: "all", key: null, from: null, to: null };
+        }
+
+        if (selectedPeriod.type === "month") {
+            const [year] = selectedPeriod.key ? selectedPeriod.key.split("-").map(Number) : [];
+            const monthKeys = year ? getMonthKeysForYear(year) : [];
+            if (!selectedPeriod.key || !monthKeys.includes(selectedPeriod.key)) {
+                selectedPeriod = { type: "all", key: null, from: null, to: null };
+            }
+        }
+
+        const yearsRow = document.createElement("div");
+        yearsRow.className = "period-years";
+        periodTabs.appendChild(yearsRow);
+        const currentYear = selectedPeriod.year || (selectedPeriod.key ? Number(selectedPeriod.key.split("-")[0]) : null);
+
+        const allButton = document.createElement("button");
+        allButton.type = "button";
+        allButton.className = `period-tab${selectedPeriod.type === "all" ? " active" : ""}`;
+        allButton.dataset.periodType = "all";
+        allButton.textContent = "Все";
+        yearsRow.appendChild(allButton);
+
+        years.forEach((year) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = `period-tab${selectedPeriod.type !== "all" && currentYear === year ? " active" : ""}`;
+            button.dataset.periodType = "year";
+            button.dataset.year = String(year);
+            button.textContent = String(year);
+            yearsRow.appendChild(button);
+        });
+
+        const customButton = document.createElement("button");
+        customButton.type = "button";
+        customButton.className = `period-tab${selectedPeriod.type === "custom" ? " active" : ""}`;
+        customButton.dataset.periodType = "custom";
+        customButton.textContent = "Свой период";
+        yearsRow.appendChild(customButton);
+
+        if (selectedPeriod.type !== "all" && currentYear) {
+            const monthsRow = document.createElement("div");
+            monthsRow.className = "period-months";
+            periodTabs.appendChild(monthsRow);
+
+            const monthKeys = getMonthKeysForYear(currentYear);
+
+            monthKeys.forEach((monthKey) => {
+                const [, month] = monthKey.split("-").map(Number);
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = `period-tab${selectedPeriod.type === "month" && monthKey === selectedPeriod.key ? " active" : ""}`;
+                button.dataset.periodType = "month";
+                button.dataset.periodKey = monthKey;
+                button.dataset.year = String(currentYear);
+                button.textContent = getShortMonthLabel(month - 1);
+                monthsRow.appendChild(button);
+            });
+        }
+
+        customPeriodForm.classList.toggle("visible", selectedPeriod.type === "custom");
+    }
+
+    function appendOperationRow(operation) {
+        const amount = getOperationAmount(operation);
+        const row = document.createElement("tr");
+        const amountClass = amount < 0 ? "amount-negative" : "amount-positive";
+        const type = amount < 0 ? "Расход" : "Доход";
+        row.innerHTML = `
+            <td>
+                <input class="operation-checkbox" type="checkbox" value="${operation.id}" aria-label="Выбрать операцию">
+            </td>
+            <td>${formatOperationDate(operation.operationDate)}</td>
+            <td>${type}</td>
+            <td>${operation.category || ""}</td>
+            <td>${operation.description || ""}</td>
+            <td class="${amountClass}">${formatMoney(amount, operation.operationCurrency || "RUB")}</td>
+            <td>
+                <button class="text-danger-button delete-one" type="button" data-id="${operation.id}">Удалить</button>
+            </td>
+        `;
+        operationsBody.appendChild(row);
+    }
+
+    function getExpenseCategories(operations) {
+        const totals = new Map();
+
+        operations.forEach((operation) => {
+            const amount = getOperationAmount(operation);
+            if (amount >= 0) {
+                return;
+            }
+
+            const category = operation.category || "Без категории";
+            totals.set(category, (totals.get(category) || 0) + Math.abs(amount));
+        });
+
+        const categories = Array.from(totals.entries())
+            .map(([name, amount]) => ({ name, amount }))
+            .sort((first, second) => second.amount - first.amount);
+
+        if (categories.length <= 6) {
+            return categories;
+        }
+
+        const visible = categories.slice(0, 5);
+        const otherAmount = categories.slice(5).reduce((sum, category) => sum + category.amount, 0);
+        visible.push({ name: "Остальное", amount: otherAmount });
+        return visible;
+    }
+
+    function renderExpenseChart(operations) {
+        const categories = getExpenseCategories(operations);
+        const total = categories.reduce((sum, category) => sum + category.amount, 0);
+
+        chartTotal.textContent = formatWholeMoney(total);
+        categoryPills.innerHTML = "";
+        donutWrap.querySelectorAll(".donut-percent").forEach((label) => label.remove());
+
+        if (total === 0) {
+            donut.style.background = "#edf1f6";
+            categoryPills.innerHTML = `<span class="message">В этом месяце расходов нет</span>`;
+            return;
+        }
+
+        let currentPercent = 0;
+        const gradientStops = [];
+
+        categories.forEach((category) => {
+            const percent = category.amount / total * 100;
+            const color = getCategoryColor(category.name);
+            const start = currentPercent;
+            const end = currentPercent + percent;
+            const mid = (start + end) / 2;
+            gradientStops.push(`${color} ${start}% ${end}%`);
+            currentPercent = end;
+
+            const angle = (mid / 100 * 360) - 90;
+            const radians = angle * Math.PI / 180;
+            const roundedPercent = Math.round(percent);
+            if (roundedPercent >= 3) {
+                const label = document.createElement("span");
+                label.className = "donut-percent";
+                label.textContent = `${roundedPercent}%`;
+                label.style.left = `${50 + Math.cos(radians) * 58}%`;
+                label.style.top = `${50 + Math.sin(radians) * 58}%`;
+                donutWrap.appendChild(label);
+            }
+
+            const pill = document.createElement("span");
+            pill.className = "category-pill";
+            pill.style.setProperty("--dot-color", color);
+            pill.style.setProperty("--pill-bg", `${color}18`);
+            pill.innerHTML = `
+                <span class="category-dot">${categoryIcons[category.name] || "•"}</span>
+                <span>${category.name} ${formatWholeMoney(category.amount)}</span>
+            `;
+            categoryPills.appendChild(pill);
+        });
+
+        donut.style.background = `conic-gradient(${gradientStops.join(", ")})`;
+    }
+
+    async function loadOperations() {
+        const response = await fetch("/finance/operations");
+        if (response.status === 401) {
+            window.location.href = "/login";
+            return;
+        }
+
+        allOperations = await response.json();
+        renderPeriodTabs();
+        renderOperations();
+    }
+
+    async function loadBrokerHoldings() {
+        const response = await fetch("/broker/holdings");
+        if (response.status === 401) {
+            window.location.href = "/login";
+            return;
+        }
+
+        if (!response.ok) {
+            brokerHoldings.textContent = "Не удалось загрузить брокерский счет";
+            return;
+        }
+
+        renderBrokerHoldings(await response.json());
+    }
+
+    function renderBrokerHoldings(holdings) {
+        if (holdings.length === 0) {
+            brokerHoldings.className = "message";
+            brokerHoldings.textContent = "Загрузи скриншот портфеля, чтобы добавить позиции";
+            return;
+        }
+
+        const groups = new Map();
+        holdings.forEach((holding) => {
+            const type = holding.holdingType || "Активы";
+            if (!groups.has(type)) {
+                groups.set(type, []);
+            }
+            groups.get(type).push(holding);
+        });
+
+        brokerHoldings.className = "";
+        brokerHoldings.innerHTML = Array.from(groups.entries()).map(([type, items]) => `
+            <div class="broker-section">
+                <h2>${type}</h2>
+                <div class="broker-list">
+                    <div class="broker-row broker-head">
+                        <span>Название</span>
+                        <span>Цена</span>
+                        <span>Стоимость</span>
+                        <span>За все время</span>
+                    </div>
+                    ${items.map((holding) => `
+                        <div class="broker-row">
+                            <div>
+                                <div class="broker-name">${holding.name || ""}</div>
+                                <div class="broker-ticker">${holding.ticker || ""}</div>
+                            </div>
+                            <div>${holding.priceText || "—"}</div>
+                            <div>
+                                <div>${holding.valueText || "—"}</div>
+                                <div class="broker-muted">${holding.quantityText || ""}</div>
+                            </div>
+                            <div class="${Number(holding.profitAmount || 0) < 0 ? "amount-negative" : "amount-positive"}">
+                                <div>${holding.profitText || "—"}</div>
+                                <div>${holding.profitPercent == null ? "" : `${holding.profitPercent}%`}</div>
+                            </div>
+                        </div>
+                    `).join("")}
+                </div>
+            </div>
+        `).join("");
+    }
+
+    function renderOperations() {
+        const periodOperations = getCurrentPeriodOperations();
+        updateCategoryFilterOptions(periodOperations);
+        updateTransferPersonFilterOptions(periodOperations);
+        const operations = getVisibleOperations();
+        let incomeTotal = 0;
+        let expenseTotal = 0;
+
+        operationsBody.innerHTML = "";
+        selectAll.checked = false;
+
+        if (operations.length === 0) {
+            operationsBody.innerHTML = `<tr><td colspan="7" class="message">Операций пока нет</td></tr>`;
+        }
+
+        periodOperations.forEach((operation) => {
+            const amount = Number(operation.operationAmount || 0);
+            if (amount >= 0) {
+                incomeTotal += amount;
+            } else {
+                expenseTotal += Math.abs(amount);
+            }
+        });
+
+        operations.forEach(appendOperationRow);
+        renderExpenseChart(periodOperations);
+
+        income.textContent = formatMoney(incomeTotal);
+        expenses.textContent = formatMoney(expenseTotal);
+        balance.textContent = formatMoney(incomeTotal - expenseTotal);
+    }
+
+    function getSelectedOperationIds() {
+        return Array.from(document.querySelectorAll(".operation-checkbox:checked"))
+            .map((checkbox) => Number(checkbox.value));
+    }
+
+    async function deleteOperations(ids) {
+        const response = await fetch("/finance/operations", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ ids })
+        });
+
+        if (!response.ok) {
+            throw new Error("Не удалось удалить операции");
+        }
+
+        return response.json();
+    }
+
+    function toggleFinancePanel(panel) {
+        const shouldOpen = !panel.classList.contains("open");
+        financePanels.forEach((financePanel) => {
+            financePanel.classList.toggle("open", financePanel === panel && shouldOpen);
+        });
+    }
+
+    function updateSelectedFilesText() {
+        const fileCount = financeFile.files.length;
+        if (fileCount === 0) {
+            fileDropSubtitle.textContent = "или нажми, чтобы выбрать XLS/XLSX";
+            return;
+        }
+
+        fileDropSubtitle.textContent = fileCount === 1
+            ? financeFile.files[0].name
+            : `Выбрано файлов: ${fileCount}`;
+    }
+
+    function setDroppedFiles(files) {
+        const acceptedFiles = Array.from(files).filter((file) => /\.(xlsx|xls)$/i.test(file.name));
+        const transfer = new DataTransfer();
+        acceptedFiles.forEach((file) => transfer.items.add(file));
+        financeFile.files = transfer.files;
+        updateSelectedFilesText();
+    }
+
+    uploadForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        uploadMessage.className = "message";
+        const fileCount = financeFile.files.length;
+        uploadMessage.textContent = fileCount > 1 ? `Загружаю файлов: ${fileCount}...` : "Загружаю файл...";
+
+        const formData = new FormData(uploadForm);
+
+        try {
+            const response = await fetch("/finance/upload", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error("Не удалось загрузить операции");
+            }
+
+            const result = await response.json();
+            uploadForm.reset();
+            updateSelectedFilesText();
+            uploadMessage.textContent = `Загружено операций: ${result.importedCount}. Пропущено дублей: ${result.skippedCount}.`;
+            uploadMessage.classList.add("success");
+            await loadOperations();
+        } catch (error) {
+            uploadMessage.textContent = error.message;
+            uploadMessage.classList.add("error");
+        }
+    });
+
+    financePanels.forEach((panel) => {
+        panel.querySelector(".finance-panel-toggle").addEventListener("click", () => {
+            toggleFinancePanel(panel);
+        });
+    });
+
+    financeFile.addEventListener("change", updateSelectedFilesText);
+
+    fileDropZone.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        fileDropZone.classList.add("drag-over");
+    });
+
+    fileDropZone.addEventListener("dragleave", () => {
+        fileDropZone.classList.remove("drag-over");
+    });
+
+    fileDropZone.addEventListener("drop", (event) => {
+        event.preventDefault();
+        fileDropZone.classList.remove("drag-over");
+        setDroppedFiles(event.dataTransfer.files);
+    });
+
+    manualForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        manualMessage.className = "message";
+        manualMessage.textContent = "";
+
+        const formData = new FormData(manualForm);
+        const operation = {
+            type: formData.get("type"),
+            amount: Number(formData.get("amount")),
+            currency: formData.get("currency"),
+            category: formData.get("category"),
+            description: formData.get("description")
+        };
+
+        try {
+            const response = await fetch("/finance/operations", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(operation)
+            });
+
+            if (response.status === 409) {
+                throw new Error("Такая операция уже добавлена");
+            }
+
+            if (!response.ok) {
+                throw new Error("Не удалось добавить операцию");
+            }
+
+            manualForm.reset();
+            document.querySelector("#manual-currency").value = "RUB";
+            manualMessage.textContent = "Операция добавлена";
+            manualMessage.classList.add("success");
+            await loadOperations();
+        } catch (error) {
+            manualMessage.textContent = error.message;
+            manualMessage.classList.add("error");
+        }
+    });
+
+    brokerUploadForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        brokerMessage.className = "message";
+        brokerMessage.textContent = "Распознаю скриншот...";
+
+        try {
+            const response = await fetch("/broker/screenshot", {
+                method: "POST",
+                body: new FormData(brokerUploadForm)
+            });
+
+            if (!response.ok) {
+                throw new Error(response.status === 503
+                    ? "OCR недоступен. На сервере нужен tesseract с языками rus+eng"
+                    : "Не удалось распознать скриншот");
+            }
+
+            const result = await response.json();
+            brokerUploadForm.reset();
+            brokerMessage.textContent = `Добавлено позиций: ${result.importedCount}`;
+            brokerMessage.classList.add("success");
+            await loadBrokerHoldings();
+        } catch (error) {
+            brokerMessage.textContent = error.message;
+            brokerMessage.classList.add("error");
+        }
+    });
+
+    manualType.addEventListener("change", () => {
+        manualCategory.placeholder = manualType.value === "income" ? "Прочий доход" : "Прочий расход";
+    });
+
+    selectAll.addEventListener("change", () => {
+        document.querySelectorAll(".operation-checkbox").forEach((checkbox) => {
+            checkbox.checked = selectAll.checked;
+        });
+    });
+
+    sortMode.addEventListener("change", renderOperations);
+    operationTypeFilter.addEventListener("change", renderOperations);
+    categoryFilter.addEventListener("change", renderOperations);
+    transferPersonFilter.addEventListener("change", renderOperations);
+
+    periodTabs.addEventListener("click", (event) => {
+        const button = event.target.closest(".period-tab");
+        if (!button) {
+            return;
+        }
+
+        if (button.dataset.periodType === "all") {
+            selectedPeriod = { type: "all", key: null, from: null, to: null };
+        } else if (button.dataset.periodType === "year") {
+            selectedPeriod = {
+                type: "year",
+                year: Number(button.dataset.year),
+                key: null,
+                from: null,
+                to: null
+            };
+        } else if (button.dataset.periodType === "custom") {
+            const monthOperations = getCurrentPeriodOperations();
+            const times = monthOperations.map(getOperationTime).filter(Boolean);
+            const fallbackFrom = times.length ? new Date(Math.min(...times)) : new Date();
+            const fallbackTo = times.length ? new Date(Math.max(...times)) : new Date();
+            selectedPeriod = {
+                type: "custom",
+                key: null,
+                from: selectedPeriod.from || new Date(fallbackFrom.getFullYear(), fallbackFrom.getMonth(), fallbackFrom.getDate()),
+                to: selectedPeriod.to || new Date(fallbackTo.getFullYear(), fallbackTo.getMonth(), fallbackTo.getDate(), 23, 59, 59, 999)
+            };
+            document.querySelector("#period-from").value = toDateInputValue(selectedPeriod.from);
+            document.querySelector("#period-to").value = toDateInputValue(selectedPeriod.to);
+        } else {
+            selectedPeriod = {
+                type: "month",
+                key: button.dataset.periodKey,
+                year: Number(button.dataset.year),
+                from: null,
+                to: null
+            };
+        }
+
+        renderPeriodTabs();
+        renderOperations();
+    });
+
+    customPeriodForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const formData = new FormData(customPeriodForm);
+        const fromValue = formData.get("from");
+        const toValue = formData.get("to");
+        const from = new Date(`${fromValue}T00:00:00`);
+        const to = new Date(`${toValue}T23:59:59.999`);
+
+        if (to < from) {
+            return;
+        }
+
+        selectedPeriod = {
+            type: "custom",
+            key: null,
+            from,
+            to
+        };
+        renderPeriodTabs();
+        renderOperations();
+    });
+
+    operationsBody.addEventListener("click", async (event) => {
+        const button = event.target.closest(".delete-one");
+        if (!button) {
+            return;
+        }
+
+        deleteMessage.className = "message";
+        deleteMessage.textContent = "";
+
+        if (!confirm("Удалить эту операцию?")) {
+            return;
+        }
+
+        try {
+            const result = await deleteOperations([Number(button.dataset.id)]);
+            deleteMessage.textContent = `Удалено операций: ${result.deletedCount}`;
+            deleteMessage.classList.add("success");
+            await loadOperations();
+        } catch (error) {
+            deleteMessage.textContent = error.message;
+            deleteMessage.classList.add("error");
+        }
+    });
+
+    deleteSelectedButton.addEventListener("click", async () => {
+        deleteMessage.className = "message";
+        deleteMessage.textContent = "";
+
+        const ids = getSelectedOperationIds();
+        if (ids.length === 0) {
+            deleteMessage.textContent = "Выбери хотя бы одну операцию";
+            deleteMessage.classList.add("error");
+            return;
+        }
+
+        if (!confirm(`Удалить выбранные операции: ${ids.length}?`)) {
+            return;
+        }
+
+        try {
+            const result = await deleteOperations(ids);
+            deleteMessage.textContent = `Удалено операций: ${result.deletedCount}`;
+            deleteMessage.classList.add("success");
+            await loadOperations();
+        } catch (error) {
+            deleteMessage.textContent = error.message;
+            deleteMessage.classList.add("error");
+        }
+    });
+
     logoutButton.addEventListener("click", async () => {
         await fetch("/logout", {
             method: "POST"
@@ -164,6 +1661,8 @@
     });
 
     loadAccount();
+    loadBrokerHoldings();
+    loadOperations();
 </script>
 </body>
 </html>
