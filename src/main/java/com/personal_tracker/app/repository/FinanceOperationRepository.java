@@ -20,6 +20,10 @@ public interface FinanceOperationRepository extends JpaRepository<FinanceOperati
             """)
     List<FinanceOperation> findVisibleByUserIdOrderByOperationDateDesc(@Param("userId") Long userId);
 
+    List<FinanceOperation> findByUserIdAndIdIn(Long userId, Collection<Long> ids);
+
+    List<FinanceOperation> findByUserIdAndOperationDateBetween(Long userId, LocalDateTime from, LocalDateTime to);
+
     boolean existsByUserIdAndOperationKey(Long userId, String operationKey);
 
     long deleteByUserIdAndIdIn(Long userId, Collection<Long> ids);

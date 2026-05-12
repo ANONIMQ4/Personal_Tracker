@@ -11,3 +11,6 @@ CREATE TABLE IF NOT EXISTS broker_holdings (
     profit_amount NUMERIC(19, 2),
     profit_percent NUMERIC(10, 4)
 );
+
+ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS account_balance NUMERIC(19, 2) DEFAULT 0;

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+
 @RestController
 public class AuthController {
 
@@ -48,6 +50,23 @@ public class AuthController {
                 .orElseGet(() -> ResponseEntity.status(401).build());
     }
 
+    @PostMapping("/account/balance")
+    public ResponseEntity<User> updateAccountBalance(@RequestBody BalanceRequest request, HttpSession session) {
+        Object userId = session.getAttribute(USER_ID_SESSION_KEY);
+        if (!(userId instanceof Long id)) {
+            return ResponseEntity.status(401).build();
+        }
+
+        try {
+            return ResponseEntity.ok(userService.updateAccountBalance(id, request.accountBalance()));
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     public record LoginRequest(String login, String password) {
+    }
+
+    public record BalanceRequest(BigDecimal accountBalance) {
     }
 }

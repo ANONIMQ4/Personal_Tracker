@@ -3,6 +3,7 @@ package com.personal_tracker.app.service;
 import com.personal_tracker.app.model.FinanceOperation;
 import com.personal_tracker.app.model.User;
 import com.personal_tracker.app.repository.FinanceOperationRepository;
+import com.personal_tracker.app.repository.UserRepository;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -34,9 +35,11 @@ import java.util.Set;
 public class FinanceOperationService {
 
     private final FinanceOperationRepository financeOperationRepository;
+    private final UserRepository userRepository;
 
-    public FinanceOperationService(FinanceOperationRepository financeOperationRepository) {
+    public FinanceOperationService(FinanceOperationRepository financeOperationRepository, UserRepository userRepository) {
         this.financeOperationRepository = financeOperationRepository;
+        this.userRepository = userRepository;
     }
 
     public List<FinanceOperation> getOperations(Long userId) {
@@ -48,7 +51,10 @@ public class FinanceOperationService {
         if (ids == null || ids.isEmpty()) {
             return 0;
         }
-        return financeOperationRepository.deleteByUserIdAndIdIn(userId, ids);
+        List<FinanceOperation> operations = financeOperationRepository.findByUserIdAndIdIn(userId, ids);
+        long deletedCount = financeOperationRepository.deleteByUserIdAndIdIn(userId, ids);
+        adjustBalance(userId, sumAmounts(operations).negate());
+        return deletedCount;
     }
 
     @Transactional
@@ -59,9 +65,13 @@ public class FinanceOperationService {
 
         LocalDateTime fromDateTime = from.atStartOfDay();
         LocalDateTime toDateTime = to.plusDays(1).atStartOfDay().minusNanos(1);
-        return financeOperationRepository.deleteByUserIdAndOperationDateBetween(userId, fromDateTime, toDateTime);
+        List<FinanceOperation> operations = financeOperationRepository.findByUserIdAndOperationDateBetween(userId, fromDateTime, toDateTime);
+        long deletedCount = financeOperationRepository.deleteByUserIdAndOperationDateBetween(userId, fromDateTime, toDateTime);
+        adjustBalance(userId, sumAmounts(operations).negate());
+        return deletedCount;
     }
 
+    @Transactional
     public ImportResult importOperations(User user, MultipartFile file) throws IOException {
         List<FinanceOperation> operations = new ArrayList<>();
         Set<String> operationKeys = new HashSet<>();
@@ -120,9 +130,11 @@ public class FinanceOperationService {
         }
 
         List<FinanceOperation> savedOperations = financeOperationRepository.saveAll(operations);
+        adjustBalance(user, sumAmounts(savedOperations));
         return new ImportResult(savedOperations.size(), skippedCount);
     }
 
+    @Transactional
     public FinanceOperation createManualOperation(
             User user,
             String type,
@@ -155,7 +167,31 @@ public class FinanceOperationService {
             throw new IllegalArgumentException("Такая операция уже добавлена");
         }
 
-        return financeOperationRepository.save(operation);
+        FinanceOperation savedOperation = financeOperationRepository.save(operation);
+        adjustBalance(user, savedOperation.getOperationAmount());
+        return savedOperation;
+    }
+
+    private void adjustBalance(User user, BigDecimal delta) {
+        if (delta == null || delta.signum() == 0) {
+            return;
+        }
+        user.setAccountBalance(user.getAccountBalance().add(delta));
+        userRepository.save(user);
+    }
+
+    private void adjustBalance(Long userId, BigDecimal delta) {
+        if (delta == null || delta.signum() == 0) {
+            return;
+        }
+        userRepository.findById(userId).ifPresent(user -> adjustBalance(user, delta));
+    }
+
+    private BigDecimal sumAmounts(List<FinanceOperation> operations) {
+        return operations.stream()
+                .map(FinanceOperation::getOperationAmount)
+                .filter(amount -> amount != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private void normalizeCategory(FinanceOperation operation) {

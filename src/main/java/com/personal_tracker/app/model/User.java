@@ -3,6 +3,7 @@ package com.personal_tracker.app.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,6 +23,9 @@ public class User {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "account_balance")
+    private BigDecimal accountBalance = BigDecimal.ZERO;
 
     public User() {
     }
@@ -51,5 +55,13 @@ public class User {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public BigDecimal getAccountBalance() {
+        return accountBalance == null ? BigDecimal.ZERO : accountBalance;
+    }
+
+    public void setAccountBalance(BigDecimal accountBalance) {
+        this.accountBalance = accountBalance == null ? BigDecimal.ZERO : accountBalance;
     }
 }

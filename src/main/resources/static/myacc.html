@@ -253,6 +253,13 @@
             background: #fbfcfe;
         }
 
+        .account-balance-form {
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) auto;
+            gap: 12px;
+            align-items: end;
+        }
+
         .summary-label {
             color: #5f6b7a;
             font-size: 13px;
@@ -462,20 +469,42 @@
             font-weight: 700;
         }
 
-        .broker-upload {
+        .broker-form {
             display: grid;
-            grid-template-columns: minmax(240px, 1fr) auto;
+            grid-template-columns: 160px minmax(160px, 1fr) 150px auto;
             gap: 12px;
             align-items: end;
             margin-bottom: 16px;
+        }
+
+        .broker-title {
+            display: flex;
+            gap: 12px;
+            align-items: baseline;
+            flex-wrap: wrap;
+        }
+
+        .broker-total,
+        .broker-section-total {
+            color: #5f6b7a;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .broker-section-title {
+            display: flex;
+            gap: 10px;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin: 0 0 10px;
         }
 
         .broker-section {
             margin-top: 16px;
         }
 
-        .broker-section h2 {
-            margin: 0 0 10px;
+        .broker-section-title h2 {
+            margin: 0;
             font-size: 20px;
         }
 
@@ -487,11 +516,127 @@
 
         .broker-row {
             display: grid;
-            grid-template-columns: 1.6fr 1fr 1fr 1fr;
+            grid-template-columns: 1.5fr 1fr 1.2fr 1.1fr 90px;
             gap: 12px;
             padding: 12px 14px;
             border-bottom: 1px solid #e2e7ee;
             align-items: center;
+        }
+
+        .broker-quantity {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .broker-quantity input {
+            width: 120px;
+            padding: 8px 10px;
+        }
+
+        .broker-quantity-value {
+            font-weight: 700;
+        }
+
+        .broker-quantity-view {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .broker-edit-form {
+            display: none;
+            gap: 8px;
+            align-items: center;
+            justify-content: flex-end;
+            width: 100%;
+        }
+
+        .broker-quantity.editing .broker-edit-form {
+            display: flex;
+        }
+
+        .broker-quantity.editing .broker-quantity-view {
+            display: none;
+        }
+
+        .broker-row > .broker-delete {
+            justify-self: end;
+        }
+
+        .collapsible-sections {
+            display: grid;
+            gap: 24px;
+        }
+
+        .collapsible-sections.all-collapsed {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .collapsible-sections.all-collapsed .collapsible-section {
+            margin: 0;
+        }
+
+        .collapsible-sections.all-collapsed .collapsible-header {
+            margin-bottom: 0;
+        }
+
+        .collapsible-header {
+            display: flex;
+            gap: 16px;
+            align-items: baseline;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .collapsible-header h1 {
+            margin: 0;
+        }
+
+        .section-toggle {
+            border-radius: 6px;
+            color: #5f6b7a;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 6px 10px;
+        }
+
+        .section-toggle:hover {
+            background: #eef2f7;
+            color: #1f2937;
+        }
+
+        .collapsible-section.is-collapsed .collapsible-content {
+            display: none;
+        }
+
+        .collapsible-section.is-open {
+            grid-column: 1 / -1;
+        }
+
+        .operations-list-panel {
+            margin-top: 16px;
+        }
+
+        .operations-list-header {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .operations-list-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .operations-list-panel.is-collapsed .operations-list-content {
+            display: none;
         }
 
         .broker-row:last-child {
@@ -528,6 +673,14 @@
                 grid-template-columns: 1fr;
             }
 
+            .account-balance-form {
+                grid-template-columns: 1fr;
+            }
+
+            .collapsible-sections.all-collapsed {
+                grid-template-columns: 1fr;
+            }
+
             .donut-wrap {
                 width: 240px;
                 height: 240px;
@@ -538,6 +691,10 @@
             }
 
             .manual-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .broker-form {
                 grid-template-columns: 1fr;
             }
 
@@ -557,7 +714,6 @@
                 grid-template-columns: 1fr;
             }
 
-            .broker-upload,
             .broker-row {
                 grid-template-columns: 1fr;
             }
@@ -585,180 +741,222 @@
         <div id="content" class="message">Загрузка...</div>
     </section>
 
-    <section>
-        <h1>Финансы</h1>
-        <div class="finance-tools">
-            <div class="finance-panel" data-panel="upload">
-                <button class="finance-panel-toggle" type="button">Загрузить файл</button>
-                <div class="finance-panel-content">
-                    <form id="upload-form">
-                        <label id="file-drop-zone" class="file-drop-zone" for="finance-file">
-                            <input id="finance-file" name="files" type="file" accept=".xlsx,.xls" multiple required>
-                            <span>
-                                <span class="file-drop-title">Перетащи файлы сюда</span>
-                                <span id="file-drop-subtitle" class="file-drop-subtitle">или нажми, чтобы выбрать XLS/XLSX</span>
-                            </span>
+    <div id="collapsible-sections" class="collapsible-sections">
+        <section class="collapsible-section is-collapsed" data-collapsible-section="operations">
+            <div class="collapsible-header">
+                <h1>Счет</h1>
+                <button class="section-toggle" type="button" data-section-toggle aria-expanded="false">Развернуть</button>
+            </div>
+            <div class="collapsible-content">
+                <div class="summary">
+                    <div class="summary-card">
+                        <span class="summary-label">Баланс счета</span>
+                        <span id="account-balance" class="summary-value">0 RUB</span>
+                    </div>
+                    <form id="account-balance-form" class="summary-card account-balance-form">
+                        <label>
+                            Изменить баланс
+                            <input id="account-balance-input" name="accountBalance" type="number" step="0.01" required>
                         </label>
-                        <button class="primary-button" type="submit">Загрузить операции</button>
-                        <div id="upload-message" class="message" aria-live="polite"></div>
+                        <button class="primary-button" type="submit">Сохранить</button>
+                        <span id="account-balance-message" class="message" aria-live="polite"></span>
                     </form>
                 </div>
-            </div>
+                <div class="finance-tools">
+                    <div class="finance-panel" data-panel="upload">
+                        <button class="finance-panel-toggle" type="button">Загрузить файл</button>
+                        <div class="finance-panel-content">
+                            <form id="upload-form">
+                                <label id="file-drop-zone" class="file-drop-zone" for="finance-file">
+                                    <input id="finance-file" name="files" type="file" accept=".xlsx,.xls" multiple required>
+                                    <span>
+                                        <span class="file-drop-title">Перетащи файлы сюда</span>
+                                        <span id="file-drop-subtitle" class="file-drop-subtitle">или нажми, чтобы выбрать XLS/XLSX</span>
+                                    </span>
+                                </label>
+                                <button class="primary-button" type="submit">Загрузить операции</button>
+                                <div id="upload-message" class="message" aria-live="polite"></div>
+                            </form>
+                        </div>
+                    </div>
 
-            <div class="finance-panel" data-panel="manual">
-                <button class="finance-panel-toggle" type="button">Добавить вручную</button>
-                <div class="finance-panel-content">
-                    <form id="manual-form">
-                        <div class="manual-grid">
+                    <div class="finance-panel" data-panel="manual">
+                        <button class="finance-panel-toggle" type="button">Добавить вручную</button>
+                        <div class="finance-panel-content">
+                            <form id="manual-form">
+                                <div class="manual-grid">
+                                    <label>
+                                        Тип
+                                        <select id="manual-type" name="type" required>
+                                            <option value="expense">Расход</option>
+                                            <option value="income">Доход</option>
+                                        </select>
+                                    </label>
+
+                                    <label>
+                                        Сумма
+                                        <input id="manual-amount" name="amount" type="number" step="0.01" min="0.01" required>
+                                    </label>
+
+                                    <label>
+                                        Валюта
+                                        <input id="manual-currency" name="currency" value="RUB" maxlength="10" required>
+                                    </label>
+
+                                    <label>
+                                        Категория
+                                        <input id="manual-category" name="category" placeholder="Прочий расход">
+                                    </label>
+
+                                    <label class="full-width">
+                                        Описание
+                                        <input id="manual-description" name="description" placeholder="Например: обед, зарплата, перевод">
+                                    </label>
+                                </div>
+                                <button class="primary-button" type="submit">Добавить</button>
+                                <div id="manual-message" class="message" aria-live="polite"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="period-selector">
+                    <div id="period-tabs" class="period-tabs" aria-label="Периоды операций"></div>
+                    <form id="custom-period-form" class="custom-period">
+                        <label>
+                            С
+                            <input id="period-from" name="from" type="date" required>
+                        </label>
+                        <label>
+                            По
+                            <input id="period-to" name="to" type="date" required>
+                        </label>
+                        <button class="primary-button" type="submit">Показать</button>
+                    </form>
+                </div>
+                <div class="summary">
+                    <div class="summary-card">
+                        <span class="summary-label">Доходы</span>
+                        <span id="income" class="summary-value">0 RUB</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Расходы</span>
+                        <span id="expenses" class="summary-value">0 RUB</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Итог периода</span>
+                        <span id="balance" class="summary-value">0 RUB</span>
+                    </div>
+                </div>
+                <div class="expense-chart">
+                    <div>
+                        <span id="chart-total" class="chart-total">0 ₽</span>
+                        <span class="chart-title">Траты</span>
+                    </div>
+                    <div class="chart-area">
+                        <div id="donut-wrap" class="donut-wrap">
+                            <div id="donut" class="donut"></div>
+                        </div>
+                    </div>
+                    <div id="category-pills" class="category-pills"></div>
+                </div>
+                <div id="operations-list-panel" class="operations-list-panel is-collapsed">
+                    <div class="operations-list-header">
+                        <h2>Список операций</h2>
+                        <button id="operations-list-toggle" class="section-toggle" type="button" aria-expanded="false">Развернуть</button>
+                    </div>
+                    <div class="operations-list-content">
+                        <div class="table-actions">
+                            <button id="delete-selected" class="danger-button" type="button">Удалить выбранные</button>
+                            <span id="delete-message" class="message" aria-live="polite"></span>
+                        </div>
+                        <div class="controls">
                             <label>
-                                Тип
-                                <select id="manual-type" name="type" required>
-                                    <option value="expense">Расход</option>
-                                    <option value="income">Доход</option>
+                                Тип операций
+                                <select id="operation-type-filter">
+                                    <option value="all">Доходы и расходы</option>
+                                    <option value="income">Только доходы</option>
+                                    <option value="expense">Только расходы</option>
                                 </select>
                             </label>
-
                             <label>
-                                Сумма
-                                <input id="manual-amount" name="amount" type="number" step="0.01" min="0.01" required>
+                                Сортировка
+                                <select id="sort-mode">
+                                    <option value="date-desc">По дате: сначала новые</option>
+                                    <option value="date-asc">По дате: сначала давние</option>
+                                    <option value="amount-desc">По сумме: сначала большие</option>
+                                    <option value="amount-asc">По сумме: сначала маленькие</option>
+                                </select>
                             </label>
-
-                            <label>
-                                Валюта
-                                <input id="manual-currency" name="currency" value="RUB" maxlength="10" required>
-                            </label>
-
                             <label>
                                 Категория
-                                <input id="manual-category" name="category" placeholder="Прочий расход">
+                                <select id="category-filter">
+                                    <option value="all">Все категории</option>
+                                </select>
                             </label>
-
-                            <label class="full-width">
-                                Описание
-                                <input id="manual-description" name="description" placeholder="Например: обед, зарплата, перевод">
+                            <label id="transfer-person-control" hidden>
+                                Кому/от кого
+                                <select id="transfer-person-filter">
+                                    <option value="all">Все</option>
+                                </select>
                             </label>
                         </div>
-                        <button class="primary-button" type="submit">Добавить</button>
-                        <div id="manual-message" class="message" aria-live="polite"></div>
-                    </form>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>
+                                        <input id="select-all" type="checkbox" aria-label="Выбрать все операции">
+                                    </th>
+                                    <th>Дата</th>
+                                    <th>Тип</th>
+                                    <th>Категория</th>
+                                    <th>Описание</th>
+                                    <th>Сумма</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody id="operations">
+                                <tr>
+                                    <td colspan="7" class="message">Загрузка...</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section>
-        <h1>Брокерский счет</h1>
-        <form id="broker-upload-form" class="broker-upload">
-            <label>
-                Скриншот портфеля
-                <input id="broker-screenshot" name="screenshot" type="file" accept="image/*" required>
-            </label>
-            <button class="primary-button" type="submit">Распознать</button>
-            <div id="broker-message" class="message full-width" aria-live="polite"></div>
-        </form>
-        <div id="broker-holdings" class="message">Загрузка...</div>
-    </section>
-
-    <section>
-        <h1>Операции</h1>
-        <div class="period-selector">
-            <div id="period-tabs" class="period-tabs" aria-label="Периоды операций"></div>
-            <form id="custom-period-form" class="custom-period">
-                <label>
-                    С
-                    <input id="period-from" name="from" type="date" required>
-                </label>
-                <label>
-                    По
-                    <input id="period-to" name="to" type="date" required>
-                </label>
-                <button class="primary-button" type="submit">Показать</button>
-            </form>
-        </div>
-        <div class="summary">
-            <div class="summary-card">
-                <span class="summary-label">Доходы</span>
-                <span id="income" class="summary-value">0 RUB</span>
+        <section class="collapsible-section is-collapsed" data-collapsible-section="broker">
+            <div class="collapsible-header">
+                <h1 class="broker-title">Брокерский счет <span id="broker-total" class="broker-total"></span></h1>
+                <button class="section-toggle" type="button" data-section-toggle aria-expanded="false">Развернуть</button>
             </div>
-            <div class="summary-card">
-                <span class="summary-label">Расходы</span>
-                <span id="expenses" class="summary-value">0 RUB</span>
+            <div class="collapsible-content">
+                <form id="broker-form" class="broker-form">
+                    <label>
+                        Тип
+                        <select id="broker-type" name="holdingType" required>
+                            <option value="Акции">Акции</option>
+                            <option value="Облигации">Облигации</option>
+                            <option value="Валюта">Валюта</option>
+                        </select>
+                    </label>
+                    <label>
+                        Код
+                        <input id="broker-code" name="ticker" placeholder="SBER, RU000A10BK17, USD" required>
+                    </label>
+                    <label>
+                        Количество
+                        <input id="broker-quantity" name="quantityText" type="number" step="0.01" min="0.01" required>
+                    </label>
+                    <button class="primary-button" type="submit">Добавить</button>
+                    <div id="broker-message" class="message full-width" aria-live="polite"></div>
+                </form>
+                <div id="broker-holdings" class="message">Загрузка...</div>
             </div>
-            <div class="summary-card">
-                <span class="summary-label">Баланс</span>
-                <span id="balance" class="summary-value">0 RUB</span>
-            </div>
-        </div>
-        <div class="expense-chart">
-            <div>
-                <span id="chart-total" class="chart-total">0 ₽</span>
-                <span class="chart-title">Траты</span>
-            </div>
-            <div class="chart-area">
-                <div id="donut-wrap" class="donut-wrap">
-                    <div id="donut" class="donut"></div>
-                </div>
-            </div>
-            <div id="category-pills" class="category-pills"></div>
-        </div>
-        <div class="table-actions">
-            <button id="delete-selected" class="danger-button" type="button">Удалить выбранные</button>
-            <span id="delete-message" class="message" aria-live="polite"></span>
-        </div>
-        <div class="controls">
-            <label>
-                Тип операций
-                <select id="operation-type-filter">
-                    <option value="all">Доходы и расходы</option>
-                    <option value="income">Только доходы</option>
-                    <option value="expense">Только расходы</option>
-                </select>
-            </label>
-            <label>
-                Сортировка
-                <select id="sort-mode">
-                    <option value="date-desc">По дате: сначала новые</option>
-                    <option value="date-asc">По дате: сначала давние</option>
-                    <option value="amount-desc">По сумме: сначала большие</option>
-                    <option value="amount-asc">По сумме: сначала маленькие</option>
-                </select>
-            </label>
-            <label>
-                Категория
-                <select id="category-filter">
-                    <option value="all">Все категории</option>
-                </select>
-            </label>
-            <label id="transfer-person-control" hidden>
-                Кому/от кого
-                <select id="transfer-person-filter">
-                    <option value="all">Все</option>
-                </select>
-            </label>
-        </div>
-        <div class="table-wrap">
-            <table>
-                <thead>
-                <tr>
-                    <th>
-                        <input id="select-all" type="checkbox" aria-label="Выбрать все операции">
-                    </th>
-                    <th>Дата</th>
-                    <th>Тип</th>
-                    <th>Категория</th>
-                    <th>Описание</th>
-                    <th>Сумма</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody id="operations">
-                <tr>
-                    <td colspan="7" class="message">Загрузка...</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
+        </section>
+    </div>
 
 </main>
 
@@ -776,8 +974,9 @@
     const manualMessage = document.querySelector("#manual-message");
     const manualType = document.querySelector("#manual-type");
     const manualCategory = document.querySelector("#manual-category");
-    const brokerUploadForm = document.querySelector("#broker-upload-form");
+    const brokerForm = document.querySelector("#broker-form");
     const brokerMessage = document.querySelector("#broker-message");
+    const brokerTotal = document.querySelector("#broker-total");
     const brokerHoldings = document.querySelector("#broker-holdings");
     const operationsBody = document.querySelector("#operations");
     const selectAll = document.querySelector("#select-all");
@@ -790,6 +989,10 @@
     const customPeriodForm = document.querySelector("#custom-period-form");
     const deleteSelectedButton = document.querySelector("#delete-selected");
     const deleteMessage = document.querySelector("#delete-message");
+    const accountBalance = document.querySelector("#account-balance");
+    const accountBalanceForm = document.querySelector("#account-balance-form");
+    const accountBalanceInput = document.querySelector("#account-balance-input");
+    const accountBalanceMessage = document.querySelector("#account-balance-message");
     const income = document.querySelector("#income");
     const expenses = document.querySelector("#expenses");
     const balance = document.querySelector("#balance");
@@ -797,7 +1000,12 @@
     const donutWrap = document.querySelector("#donut-wrap");
     const donut = document.querySelector("#donut");
     const categoryPills = document.querySelector("#category-pills");
+    const collapsibleSectionsWrap = document.querySelector("#collapsible-sections");
+    const collapsibleSections = document.querySelectorAll("[data-collapsible-section]");
+    const operationsListPanel = document.querySelector("#operations-list-panel");
+    const operationsListToggle = document.querySelector("#operations-list-toggle");
     let allOperations = [];
+    let currentAccountBalance = 0;
     let selectedPeriod = { type: "all", key: null, from: null, to: null };
     const chartColors = ["#4fc3d8", "#ff8c6b", "#54d39a", "#f284df", "#5b5ff0", "#b6d1df", "#f2c94c", "#8b6fd8"];
     const categoryColors = {
@@ -839,6 +1047,28 @@
         return chartColors[Math.abs(hash) % chartColors.length];
     }
 
+    function setSectionOpen(section, isOpen) {
+        const contentElement = section.querySelector(".collapsible-content");
+        const toggle = section.querySelector("[data-section-toggle]");
+        section.classList.toggle("is-open", isOpen);
+        section.classList.toggle("is-collapsed", !isOpen);
+        if (contentElement) {
+            contentElement.hidden = !isOpen;
+        }
+        if (toggle) {
+            toggle.textContent = isOpen ? "Свернуть" : "Развернуть";
+            toggle.setAttribute("aria-expanded", String(isOpen));
+        }
+        collapsibleSectionsWrap.classList.toggle(
+            "all-collapsed",
+            Array.from(collapsibleSections).every((item) => item.classList.contains("is-collapsed"))
+        );
+    }
+
+    collapsibleSections.forEach((section) => {
+        setSectionOpen(section, section.classList.contains("is-open"));
+    });
+
     function formatDate(value) {
         if (!value) {
             return "";
@@ -863,6 +1093,9 @@
         }
 
         const user = await response.json();
+        currentAccountBalance = Number(user.accountBalance || 0);
+        accountBalance.textContent = formatMoney(currentAccountBalance);
+        accountBalanceInput.value = currentAccountBalance.toFixed(2);
         title.textContent = `Мой аккаунт: ${user.username}`;
         content.className = "";
         content.innerHTML = `
@@ -1274,7 +1507,8 @@
     function renderBrokerHoldings(holdings) {
         if (holdings.length === 0) {
             brokerHoldings.className = "message";
-            brokerHoldings.textContent = "Загрузи скриншот портфеля, чтобы добавить позиции";
+            brokerHoldings.textContent = "Позиции брокерского счета пока не добавлены";
+            brokerTotal.textContent = "";
             return;
         }
 
@@ -1287,19 +1521,35 @@
             groups.get(type).push(holding);
         });
 
+        const orderedGroups = ["Акции", "Облигации", "Валюта"]
+            .filter((type) => groups.has(type))
+            .map((type) => [type, groups.get(type)]);
+
+        groups.forEach((items, type) => {
+            if (!orderedGroups.some(([orderedType]) => orderedType === type)) {
+                orderedGroups.push([type, items]);
+            }
+        });
+
+        brokerTotal.textContent = formatMoney(holdings.reduce((sum, holding) => sum + moneyValue(holding.valueText), 0));
+
         brokerHoldings.className = "";
-        brokerHoldings.innerHTML = Array.from(groups.entries()).map(([type, items]) => `
+        brokerHoldings.innerHTML = orderedGroups.map(([type, items]) => `
             <div class="broker-section">
-                <h2>${type}</h2>
+                <div class="broker-section-title">
+                    <h2>${type}</h2>
+                    <span class="broker-section-total">${formatMoney(items.reduce((sum, holding) => sum + moneyValue(holding.valueText), 0))}</span>
+                </div>
                 <div class="broker-list">
                     <div class="broker-row broker-head">
                         <span>Название</span>
                         <span>Цена</span>
                         <span>Стоимость</span>
-                        <span>За все время</span>
+                        <span>Количество</span>
+                        <span></span>
                     </div>
                     ${items.map((holding) => `
-                        <div class="broker-row">
+                        <div class="broker-row" data-broker-id="${holding.id}">
                             <div>
                                 <div class="broker-name">${holding.name || ""}</div>
                                 <div class="broker-ticker">${holding.ticker || ""}</div>
@@ -1307,17 +1557,39 @@
                             <div>${holding.priceText || "—"}</div>
                             <div>
                                 <div>${holding.valueText || "—"}</div>
-                                <div class="broker-muted">${holding.quantityText || ""}</div>
+                                <div class="${Number(holding.profitAmount || 0) < 0 ? "amount-negative" : "amount-positive"}">${holding.profitText || ""}</div>
                             </div>
-                            <div class="${Number(holding.profitAmount || 0) < 0 ? "amount-negative" : "amount-positive"}">
-                                <div>${holding.profitText || "—"}</div>
-                                <div>${holding.profitPercent == null ? "" : `${holding.profitPercent}%`}</div>
+                            <div class="broker-quantity">
+                                <div class="broker-quantity-view">
+                                    <span class="broker-quantity-value">${holding.quantityText || "—"}</span>
+                                    <button class="text-danger-button broker-edit" type="button">Изменить</button>
+                                </div>
+                                <div class="broker-edit-form">
+                                    <input class="broker-quantity-input" type="number" step="0.01" min="0.01" value="${quantityValue(holding.quantityText)}">
+                                    <button class="text-danger-button broker-save" type="button">OK</button>
+                                </div>
                             </div>
+                            <button class="text-danger-button broker-delete" type="button">Удалить</button>
                         </div>
                     `).join("")}
                 </div>
             </div>
         `).join("");
+    }
+
+    function quantityValue(quantityText) {
+        return String(quantityText || "")
+            .replace(",", ".")
+            .replace(/[^\d.]/g, "");
+    }
+
+    function moneyValue(valueText) {
+        const normalized = String(valueText || "")
+            .replace(/\s/g, "")
+            .replace(",", ".")
+            .replace(/[^\d.-]/g, "");
+        const value = Number(normalized);
+        return Number.isFinite(value) ? value : 0;
     }
 
     function renderOperations() {
@@ -1400,6 +1672,57 @@
         updateSelectedFilesText();
     }
 
+    collapsibleSections.forEach((section) => {
+        const toggle = section.querySelector("[data-section-toggle]");
+        toggle.addEventListener("click", () => {
+            const shouldOpen = section.classList.contains("is-collapsed");
+            if (!shouldOpen) {
+                setSectionOpen(section, false);
+                return;
+            }
+
+            collapsibleSections.forEach((otherSection) => {
+                setSectionOpen(otherSection, otherSection === section);
+            });
+        });
+    });
+
+    operationsListToggle.addEventListener("click", () => {
+        const shouldOpen = operationsListPanel.classList.contains("is-collapsed");
+        operationsListPanel.classList.toggle("is-collapsed", !shouldOpen);
+        operationsListToggle.textContent = shouldOpen ? "Свернуть" : "Развернуть";
+        operationsListToggle.setAttribute("aria-expanded", String(shouldOpen));
+    });
+
+    accountBalanceForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        accountBalanceMessage.className = "message";
+
+        try {
+            const response = await fetch("/account/balance", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    accountBalance: Number(accountBalanceInput.value || 0)
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error("Не удалось изменить баланс");
+            }
+
+            const user = await response.json();
+            currentAccountBalance = Number(user.accountBalance || 0);
+            accountBalance.textContent = formatMoney(currentAccountBalance);
+            accountBalanceInput.value = currentAccountBalance.toFixed(2);
+            accountBalanceMessage.textContent = "Баланс обновлен";
+            accountBalanceMessage.classList.add("success");
+        } catch (error) {
+            accountBalanceMessage.textContent = error.message;
+            accountBalanceMessage.classList.add("error");
+        }
+    });
+
     uploadForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         uploadMessage.className = "message";
@@ -1423,6 +1746,7 @@
             updateSelectedFilesText();
             uploadMessage.textContent = `Загружено операций: ${result.importedCount}. Пропущено дублей: ${result.skippedCount}.`;
             uploadMessage.classList.add("success");
+            await loadAccount();
             await loadOperations();
         } catch (error) {
             uploadMessage.textContent = error.message;
@@ -1488,6 +1812,7 @@
             document.querySelector("#manual-currency").value = "RUB";
             manualMessage.textContent = "Операция добавлена";
             manualMessage.classList.add("success");
+            await loadAccount();
             await loadOperations();
         } catch (error) {
             manualMessage.textContent = error.message;
@@ -1495,28 +1820,73 @@
         }
     });
 
-    brokerUploadForm.addEventListener("submit", async (event) => {
+    brokerForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         brokerMessage.className = "message";
-        brokerMessage.textContent = "Распознаю скриншот...";
+        brokerMessage.textContent = "Получаю данные с Мосбиржи...";
 
         try {
-            const response = await fetch("/broker/screenshot", {
+            const response = await fetch("/broker/holdings", {
                 method: "POST",
-                body: new FormData(brokerUploadForm)
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(Object.fromEntries(new FormData(brokerForm)))
             });
 
             if (!response.ok) {
-                throw new Error(response.status === 503
-                    ? "OCR недоступен. На сервере нужен tesseract с языками rus+eng"
-                    : "Не удалось распознать скриншот");
+                throw new Error("Не удалось добавить позицию. Проверь код и тип инструмента");
             }
 
-            const result = await response.json();
-            brokerUploadForm.reset();
-            brokerMessage.textContent = `Добавлено позиций: ${result.importedCount}`;
+            brokerForm.reset();
+            brokerMessage.textContent = "Позиция добавлена";
             brokerMessage.classList.add("success");
             await loadBrokerHoldings();
+        } catch (error) {
+            brokerMessage.textContent = error.message;
+            brokerMessage.classList.add("error");
+        }
+    });
+
+    brokerHoldings.addEventListener("click", async (event) => {
+        const row = event.target.closest("[data-broker-id]");
+        if (!row) {
+            return;
+        }
+
+        const holdingId = row.dataset.brokerId;
+        brokerMessage.className = "message";
+
+        try {
+            if (event.target.classList.contains("broker-delete")) {
+                const response = await fetch(`/broker/holdings/${holdingId}`, {method: "DELETE"});
+                if (!response.ok) {
+                    throw new Error("Не удалось удалить позицию");
+                }
+                brokerMessage.textContent = "Позиция удалена";
+                brokerMessage.classList.add("success");
+                await loadBrokerHoldings();
+                return;
+            }
+
+            if (event.target.classList.contains("broker-edit")) {
+                row.querySelector(".broker-quantity").classList.add("editing");
+                row.querySelector(".broker-quantity-input").focus();
+                return;
+            }
+
+            if (event.target.classList.contains("broker-save")) {
+                const quantityText = row.querySelector(".broker-quantity-input").value;
+                const response = await fetch(`/broker/holdings/${holdingId}/quantity`, {
+                    method: "PATCH",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({quantityText})
+                });
+                if (!response.ok) {
+                    throw new Error("Не удалось изменить количество");
+                }
+                brokerMessage.textContent = "Количество обновлено";
+                brokerMessage.classList.add("success");
+                await loadBrokerHoldings();
+            }
         } catch (error) {
             brokerMessage.textContent = error.message;
             brokerMessage.classList.add("error");
@@ -1620,6 +1990,7 @@
             const result = await deleteOperations([Number(button.dataset.id)]);
             deleteMessage.textContent = `Удалено операций: ${result.deletedCount}`;
             deleteMessage.classList.add("success");
+            await loadAccount();
             await loadOperations();
         } catch (error) {
             deleteMessage.textContent = error.message;
@@ -1646,6 +2017,7 @@
             const result = await deleteOperations(ids);
             deleteMessage.textContent = `Удалено операций: ${result.deletedCount}`;
             deleteMessage.classList.add("success");
+            await loadAccount();
             await loadOperations();
         } catch (error) {
             deleteMessage.textContent = error.message;
