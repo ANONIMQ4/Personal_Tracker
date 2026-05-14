@@ -686,6 +686,87 @@
             margin-top: 4px;
         }
 
+        .ai-chat-launcher {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 20;
+            min-height: 44px;
+            border-radius: 999px;
+            background: #1f2937;
+            color: #ffffff;
+            padding: 0 18px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+        }
+
+        .ai-chat {
+            position: fixed;
+            right: 24px;
+            bottom: 82px;
+            z-index: 21;
+            display: none;
+            width: min(420px, calc(100vw - 32px));
+            max-height: min(680px, calc(100vh - 112px));
+            border: 1px solid #d8dde3;
+            border-radius: 10px;
+            background: #ffffff;
+            box-shadow: 0 18px 44px rgba(15, 23, 42, 0.18);
+            overflow: hidden;
+        }
+
+        .ai-chat.open {
+            display: grid;
+            grid-template-rows: auto 1fr;
+        }
+
+        .ai-chat-header {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 1px solid #e2e7ee;
+        }
+
+        .ai-chat-title {
+            font-weight: 800;
+        }
+
+        .ai-chat-body {
+            display: grid;
+            gap: 12px;
+            padding: 14px 16px 16px;
+            overflow: auto;
+        }
+
+        .ai-chat-answer {
+            min-height: 120px;
+            max-height: 260px;
+            overflow: auto;
+            border: 1px solid #e2e7ee;
+            border-radius: 8px;
+            background: #fbfcfe;
+            padding: 12px;
+            white-space: pre-wrap;
+            line-height: 1.45;
+        }
+
+        .ai-chat textarea {
+            min-height: 76px;
+            resize: vertical;
+            border: 1px solid #c8d0d9;
+            border-radius: 6px;
+            padding: 10px;
+            font: inherit;
+        }
+
+        .ai-chat-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
         @media (max-width: 560px) {
             main {
                 padding: 28px 0;
@@ -986,6 +1067,29 @@
 
 </main>
 
+<button id="ai-chat-launcher" class="ai-chat-launcher" type="button">AI аналитик</button>
+<aside id="ai-chat" class="ai-chat" aria-label="Чат с нейросетью">
+    <div class="ai-chat-header">
+        <span class="ai-chat-title">AI аналитик</span>
+        <button id="ai-chat-close" class="text-danger-button" type="button">Закрыть</button>
+    </div>
+    <div class="ai-chat-body">
+        <label>
+            Сценарий
+            <select id="ai-prompt-select"></select>
+        </label>
+        <label>
+            Уточнение
+            <textarea id="ai-message" placeholder="Например: на что обратить внимание в этом месяце?"></textarea>
+        </label>
+        <div class="ai-chat-actions">
+            <button id="ai-send" class="primary-button" type="button">Получить аналитику</button>
+            <span id="ai-status" class="message" aria-live="polite"></span>
+        </div>
+        <div id="ai-answer" class="ai-chat-answer">Выбери сценарий и нажми “Получить аналитику”.</div>
+    </div>
+</aside>
+
 <script>
     const title = document.querySelector("#title");
     const content = document.querySelector("#content");
@@ -1031,6 +1135,14 @@
     const collapsibleSections = document.querySelectorAll("[data-collapsible-section]");
     const operationsListPanel = document.querySelector("#operations-list-panel");
     const operationsListToggle = document.querySelector("#operations-list-toggle");
+    const aiChatLauncher = document.querySelector("#ai-chat-launcher");
+    const aiChat = document.querySelector("#ai-chat");
+    const aiChatClose = document.querySelector("#ai-chat-close");
+    const aiPromptSelect = document.querySelector("#ai-prompt-select");
+    const aiMessage = document.querySelector("#ai-message");
+    const aiSend = document.querySelector("#ai-send");
+    const aiStatus = document.querySelector("#ai-status");
+    const aiAnswer = document.querySelector("#ai-answer");
     let allOperations = [];
     let currentAccountBalance = 0;
     let selectedPeriod = { type: "all", key: null, from: null, to: null };
@@ -1532,6 +1644,24 @@
         renderBrokerHoldings(await response.json());
     }
 
+    async function loadAiPrompts() {
+        const response = await fetch("/ai/prompts");
+        if (response.status === 401) {
+            window.location.href = "/login";
+            return;
+        }
+        if (!response.ok) {
+            aiStatus.textContent = "Не удалось загрузить сценарии";
+            aiStatus.classList.add("error");
+            return;
+        }
+
+        const prompts = await response.json();
+        aiPromptSelect.innerHTML = prompts.map((prompt) => `
+            <option value="${prompt.id}">${prompt.title}</option>
+        `).join("");
+    }
+
     function renderBrokerHoldings(holdings) {
         if (holdings.length === 0) {
             brokerHoldings.className = "message";
@@ -1922,6 +2052,54 @@
         }
     });
 
+    aiChatLauncher.addEventListener("click", () => {
+        aiChat.classList.toggle("open");
+    });
+
+    aiChatClose.addEventListener("click", () => {
+        aiChat.classList.remove("open");
+    });
+
+    aiSend.addEventListener("click", async () => {
+        aiStatus.className = "message";
+        aiStatus.textContent = "Думаю...";
+        aiSend.disabled = true;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 125000);
+
+        try {
+            const response = await fetch("/ai/chat", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                signal: controller.signal,
+                body: JSON.stringify({
+                    promptId: aiPromptSelect.value,
+                    message: aiMessage.value
+                })
+            });
+
+            if (response.status === 503) {
+                throw new Error("LM Studio недоступна. Проверь, что локальный сервер запущен на localhost:1234");
+            }
+            if (!response.ok) {
+                throw new Error("Не удалось получить ответ");
+            }
+
+            const result = await response.json();
+            aiAnswer.textContent = result.answer;
+            aiStatus.textContent = "Готово";
+            aiStatus.classList.add("success");
+        } catch (error) {
+            aiStatus.textContent = error.name === "AbortError"
+                ? "Ответ не пришел за две минуты. Проверь LM Studio или выбери модель поменьше"
+                : error.message;
+            aiStatus.classList.add("error");
+        } finally {
+            clearTimeout(timeoutId);
+            aiSend.disabled = false;
+        }
+    });
+
     manualType.addEventListener("change", () => {
         manualCategory.placeholder = manualType.value === "income" ? "Прочий доход" : "Прочий расход";
     });
@@ -2064,6 +2242,7 @@
     loadAccount();
     loadBrokerHoldings();
     loadOperations();
+    loadAiPrompts();
 </script>
 </body>
 </html>
