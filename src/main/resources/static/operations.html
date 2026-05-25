@@ -589,10 +589,6 @@
             grid-template-columns: 1fr;
         }
 
-        .custom-chart-category-group[data-category-type="expense"] .custom-chart-category-list {
-            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-        }
-
         .custom-chart-category {
             display: inline-flex;
             justify-content: space-between;
@@ -1106,6 +1102,36 @@
             font-size: 20px;
         }
 
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            margin-top: 12px;
+            color: #5f6b7a;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .pagination-button {
+            min-height: 34px;
+            border: 1px solid #c8d0d9;
+            border-radius: 8px;
+            color: #344054;
+            padding: 0 12px;
+        }
+
+        .pagination-button:disabled {
+            cursor: default;
+            opacity: 0.45;
+        }
+
         @media (max-width: 900px) {
             .dashboard-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1171,1280 +1197,145 @@
                 margin-bottom: 12px;
             }
         }
-
-        :root {
-            --space-1: 4px;
-            --space-2: 8px;
-            --space-3: 12px;
-            --space-4: 16px;
-            --space-6: 24px;
-            --space-8: 32px;
-            --radius-sm: 12px;
-            --radius-md: 18px;
-            --radius-lg: 24px;
-            --surface-page: #f5f7fb;
-            --surface-card: rgba(255, 255, 255, 0.92);
-            --surface-muted: #f8fafc;
-            --border-soft: rgba(148, 163, 184, 0.16);
-            --border-subtle: rgba(226, 232, 240, 0.72);
-            --text-main: #182230;
-            --text-secondary: #667085;
-            --text-muted: #98a2b3;
-            --blue: #2f6fed;
-            --blue-soft: #edf4ff;
-            --green: #07864f;
-            --green-soft: #ecfdf3;
-            --red: #c2412f;
-            --red-soft: #fff3ed;
-            --orange: #f18f55;
-            --cyan: #6ec8ee;
-            --chart-blue: #5b8def;
-            --chart-blue-soft: #6ea8fe;
-            --chart-cyan: #7cc6fe;
-            --chart-teal: #66d1c1;
-            --chart-mint: #89e0c8;
-            --chart-slate: #b8c0cc;
-            --chart-indigo: #8796d7;
-            --chart-ink: #45556c;
-            --shadow-card: 0 18px 48px rgba(15, 23, 42, 0.06);
-            --shadow-soft: 0 10px 28px rgba(15, 23, 42, 0.045);
-            --transition: 160ms ease;
-        }
-
-        body {
-            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-            color: var(--text-main);
-            background:
-                radial-gradient(circle at top left, rgba(47, 111, 237, 0.08), transparent 32rem),
-                linear-gradient(180deg, #fbfcff 0%, var(--surface-page) 36%, #f3f6fb 100%);
-            -webkit-font-smoothing: antialiased;
-            text-rendering: geometricPrecision;
-        }
-
-        main {
-            width: min(1180px, calc(100% - 48px));
-            padding: var(--space-8) 0 56px;
-        }
-
-        .page-nav {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: var(--space-2);
-            margin-bottom: var(--space-6);
-        }
-
-        .page-nav a,
-        .page-nav button {
-            min-height: 38px;
-            border-radius: 999px;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 600;
-            padding: 9px 14px;
-            transition: background-color var(--transition), color var(--transition), transform var(--transition);
-        }
-
-        .page-nav a:hover,
-        .page-nav button:hover {
-            background: rgba(255, 255, 255, 0.82);
-            color: var(--text-main);
-            transform: translateY(-1px);
-        }
-
-        .page-nav a[href="/operations"] {
-            background: #ffffff;
-            color: var(--blue);
-            box-shadow: 0 8px 20px rgba(47, 111, 237, 0.08);
-        }
-
-        section,
-        .dashboard,
-        .expense-chart,
-        .custom-chart {
-            border: 0;
-            border-radius: var(--radius-lg);
-            background: var(--surface-card);
-            box-shadow: var(--shadow-card);
-            margin-bottom: var(--space-6);
-            padding: var(--space-6);
-        }
-
-        .account-card {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) auto;
-            gap: var(--space-4);
-            align-items: center;
-            min-height: 92px;
-            background:
-                linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.9)),
-                var(--surface-card);
-        }
-
-        .account-card h1,
-        .dashboard-header h1,
-        .custom-chart h2 {
-            color: var(--text-main);
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: 0;
-            line-height: 1.15;
-        }
-
-        .account-card h1 {
-            margin: 0;
-        }
-
-        .message {
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        input,
-        select {
-            min-height: 44px;
-            border: 1px solid var(--border-soft);
-            border-radius: var(--radius-sm);
-            background: rgba(255, 255, 255, 0.78);
-            color: var(--text-main);
-            font-size: 14px;
-            font-weight: 500;
-            padding: 10px 12px;
-            box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
-            transition: border-color var(--transition), box-shadow var(--transition), background-color var(--transition);
-        }
-
-        input:focus,
-        select:focus {
-            border-color: rgba(47, 111, 237, 0.44);
-            outline: 0;
-            background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(47, 111, 237, 0.08);
-        }
-
-        label,
-        .summary-label {
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 600;
-            line-height: 1.3;
-        }
-
-        .primary-button,
-        .period-tab,
-        .text-danger-button {
-            transition: background-color var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition), transform var(--transition);
-        }
-
-        .primary-button {
-            min-height: 44px;
-            border-radius: var(--radius-sm);
-            background: var(--blue);
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 700;
-            padding: 0 var(--space-4);
-            box-shadow: 0 10px 22px rgba(47, 111, 237, 0.18);
-        }
-
-        .primary-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 14px 28px rgba(47, 111, 237, 0.22);
-        }
-
-        .text-danger-button {
-            border-radius: 999px;
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 600;
-            padding: 8px 12px;
-        }
-
-        .text-danger-button:hover {
-            background: var(--surface-muted);
-            color: var(--text-main);
-        }
-
-        .period-selector {
-            gap: var(--space-4);
-            padding: var(--space-4);
-            border-radius: var(--radius-lg);
-            background: rgba(255, 255, 255, 0.72);
-            box-shadow: var(--shadow-soft);
-        }
-
-        .period-tabs {
-            gap: var(--space-3);
-        }
-
-        .period-years,
-        .period-months {
-            gap: var(--space-2);
-        }
-
-        .period-months {
-            border-top: 1px solid var(--border-subtle);
-            padding-top: var(--space-3);
-        }
-
-        .period-tab {
-            min-height: 40px;
-            border: 1px solid var(--border-soft);
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.76);
-            color: #344054;
-            font-size: 14px;
-            font-weight: 600;
-            padding: 0 15px;
-        }
-
-        .period-tab:hover:not(:disabled) {
-            border-color: rgba(47, 111, 237, 0.24);
-            background: #ffffff;
-            color: var(--blue);
-            transform: translateY(-1px);
-            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.055);
-        }
-
-        .period-tab.active {
-            border-color: transparent;
-            background: var(--blue);
-            color: #ffffff;
-            box-shadow: 0 10px 24px rgba(47, 111, 237, 0.2);
-        }
-
-        .custom-period {
-            grid-template-columns: repeat(2, minmax(180px, 220px)) auto;
-            gap: var(--space-3);
-            padding-top: 0;
-        }
-
-        .dashboard {
-            gap: var(--space-5, 20px);
-            background:
-                linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 255, 0.86)),
-                var(--surface-card);
-        }
-
-        .dashboard-header {
-            gap: var(--space-3);
-            align-items: center;
-        }
-
-        .dashboard-period {
-            border-radius: 999px;
-            background: var(--blue-soft);
-            color: #315caa;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 7px 12px;
-        }
-
-        .dashboard-grid {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: var(--space-4);
-        }
-
-        .dashboard-card {
-            position: relative;
-            gap: var(--space-2);
-            min-height: 122px;
-            overflow: hidden;
-            border: 0;
-            border-radius: var(--radius-md);
-            background: #ffffff;
-            padding: var(--space-4);
-            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.045);
-            cursor: default;
-            transition: transform 180ms ease-out, box-shadow 180ms ease-out, background-color 180ms ease-out;
-        }
-
-        .dashboard-card:hover {
-            transform: translateY(-2px);
-            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-            box-shadow: 0 18px 38px rgba(15, 23, 42, 0.07);
-        }
-
-        .dashboard-card::before {
-            content: "";
-            position: absolute;
-            inset: 0 auto 0 0;
-            width: 3px;
-            border-radius: 999px;
-            background: rgba(47, 111, 237, 0.34);
-        }
-
-        .dashboard-card:nth-child(1)::before {
-            background: rgba(7, 134, 79, 0.4);
-        }
-
-        .dashboard-card:nth-child(2)::before {
-            background: rgba(242, 111, 71, 0.42);
-        }
-
-        .dashboard-label {
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 600;
-            letter-spacing: 0;
-            text-transform: none;
-        }
-
-        .dashboard-value {
-            color: var(--text-main);
-            font-size: clamp(22px, 2vw, 30px);
-            font-weight: 780;
-            line-height: 1.08;
-        }
-
-        .dashboard-note {
-            color: var(--text-muted);
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.35;
-        }
-
-        .amount-positive {
-            color: var(--green);
-            font-weight: 750;
-        }
-
-        .amount-negative {
-            color: var(--red);
-            font-weight: 750;
-        }
-
-        .expense-chart {
-            display: grid;
-            grid-template-columns: minmax(160px, 0.35fr) minmax(280px, 1fr);
-            gap: var(--space-6);
-            align-items: center;
-            background: #ffffff;
-        }
-
-        .expense-chart > div:first-child {
-            align-self: start;
-        }
-
-        .chart-total {
-            color: var(--text-main);
-            font-size: clamp(34px, 5vw, 54px);
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            line-height: 0.98;
-        }
-
-        .chart-title {
-            margin-top: var(--space-3);
-            color: var(--text-secondary);
-            font-size: 18px;
-            font-weight: 500;
-        }
-
-        .chart-area {
-            min-height: 360px;
-        }
-
-        .donut-wrap {
-            width: min(360px, 58vw);
-            height: min(360px, 58vw);
-        }
-
-        .donut {
-            box-shadow: 0 22px 54px rgba(72, 185, 204, 0.16);
-        }
-
-        .donut::after {
-            inset: 30%;
-            background:
-                radial-gradient(circle, #ffffff 0%, #ffffff 58%, rgba(255, 255, 255, 0.84) 100%);
-            box-shadow: inset 0 0 20px rgba(15, 23, 42, 0.04);
-        }
-
-        .donut-percent {
-            color: #b4bfcc;
-            font-size: 17px;
-            font-weight: 650;
-        }
-
-        .category-pills {
-            grid-column: 1 / -1;
-            gap: var(--space-2);
-            padding-top: var(--space-2);
-        }
-
-        .category-pill {
-            min-height: 38px;
-            border-radius: 999px;
-            background: color-mix(in srgb, var(--pill-bg) 72%, #ffffff);
-            color: #344054;
-            font-size: 14px;
-            font-weight: 650;
-            padding: 6px 13px 6px 6px;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
-        }
-
-        .category-dot {
-            width: 28px;
-            height: 28px;
-            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
-        }
-
-        .custom-chart {
-            gap: var(--space-5, 20px);
-            background:
-                linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 252, 255, 0.92) 100%),
-                var(--surface-card);
-        }
-
-        .custom-chart h2 {
-            margin: 0;
-        }
-
-        .custom-chart-form {
-            grid-template-columns: minmax(0, 1fr) minmax(160px, 190px) minmax(160px, 190px) minmax(150px, auto);
-            gap: var(--space-4);
-            align-items: end;
-        }
-
-        .custom-chart-categories-field {
-            gap: var(--space-3);
-        }
-
-        .custom-chart-category-actions {
-            gap: var(--space-2);
-        }
-
-        .custom-chart-categories {
-            grid-template-columns: minmax(260px, 320px) minmax(420px, 1fr);
-            gap: var(--space-4);
-            border: 0;
-            border-radius: var(--radius-md);
-            background: rgba(255, 255, 255, 0.62);
-            padding: var(--space-4);
-            box-shadow: inset 0 0 0 1px var(--border-subtle);
-        }
-
-        .custom-chart-category-group {
-            gap: var(--space-3);
-            min-width: 0;
-            border: 0;
-            border-radius: var(--radius-md);
-            background: var(--group-bg);
-            padding: var(--space-4);
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.045);
-        }
-
-        .custom-chart-category-group-header {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr);
-            gap: var(--space-2);
-            align-items: start;
-            border-bottom: 1px solid var(--group-divider);
-            padding-bottom: var(--space-3);
-        }
-
-        .custom-chart-category-group-title {
-            display: inline-flex;
-            min-width: 0;
-            gap: 8px;
-            align-items: center;
-            color: var(--text-main);
-            font-size: 15px;
-            font-weight: 700;
-        }
-
-        .custom-chart-category-group-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: var(--radius-sm);
-            box-shadow: 0 10px 20px var(--group-shadow);
-        }
-
-        .custom-chart-category-group-actions {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            justify-content: flex-start;
-            min-width: 0;
-            flex-wrap: wrap;
-        }
-
-        .custom-chart-category-group-action {
-            min-height: 30px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.52);
-            color: var(--group-accent);
-            font-size: 12px;
-            font-weight: 650;
-            padding: 0 9px;
-            white-space: nowrap;
-            transition: background-color 180ms ease-out, color 180ms ease-out, box-shadow 180ms ease-out;
-        }
-
-        .custom-chart-category-group-action:hover {
-            background: rgba(255, 255, 255, 0.82);
-            color: var(--chart-ink);
-            box-shadow: 0 8px 16px rgba(42, 57, 83, 0.055);
-        }
-
-        .custom-chart-category-counter {
-            min-width: 32px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.78);
-            font-size: 12px;
-            font-weight: 700;
-            padding: 5px 9px;
-        }
-
-        .custom-chart-category-list {
-            grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
-            gap: var(--space-2);
-        }
-
-        .custom-chart-category-group[data-category-type="income"] .custom-chart-category-list {
-            grid-template-columns: 1fr;
-        }
-
-        .custom-chart-category {
-            height: 48px;
-            border: 1px solid rgba(148, 163, 184, 0.11);
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.72);
-            color: #536170;
-            font-size: 13px;
-            font-weight: 560;
-            padding: 9px 11px;
-        }
-
-        .custom-chart-category:hover {
-            transform: translateY(-1px);
-            border-color: color-mix(in srgb, var(--group-border-strong) 58%, rgba(148, 163, 184, 0.22));
-            background: rgba(255, 255, 255, 0.88);
-            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.052);
-        }
-
-        .custom-chart-category:has(input:checked) {
-            border-color: color-mix(in srgb, var(--group-border-strong) 70%, rgba(148, 163, 184, 0.22));
-            background: color-mix(in srgb, var(--group-selected-bg) 72%, #ffffff);
-            color: var(--text-main);
-            box-shadow: 0 10px 22px var(--group-shadow);
-        }
-
-        .custom-chart-toggle {
-            min-height: 44px;
-            border-radius: var(--radius-sm);
-            background: rgba(255, 255, 255, 0.66);
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 600;
-            padding: 0 var(--space-3);
-            box-shadow: inset 0 0 0 1px var(--border-soft);
-        }
-
-        .custom-chart-toggle input {
-            accent-color: var(--blue);
-        }
-
-        .custom-chart-summary {
-            border-radius: var(--radius-sm);
-            background: var(--surface-muted);
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-            padding: 12px 14px;
-        }
-
-        .custom-chart-canvas {
-            min-height: 300px;
-            border: 0;
-            border-radius: var(--radius-md);
-            background: #ffffff;
-            padding: var(--space-4);
-            box-shadow: inset 0 0 0 1px var(--border-subtle);
-        }
-
-        .custom-chart-bars {
-            gap: var(--space-3);
-            min-height: 236px;
-            padding: var(--space-8) var(--space-2) 42px;
-        }
-
-        .custom-chart-bar {
-            border-radius: 10px 10px 4px 4px;
-            box-shadow: 0 10px 22px rgba(72, 185, 204, 0.16);
-        }
-
-        .custom-chart-average-line {
-            border-top: 1px dashed rgba(24, 34, 48, 0.55);
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .custom-chart-average-line span {
-            left: 0;
-            border-radius: 999px;
-            background: #ffffff;
-            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
-            padding: 4px 8px;
-        }
-
-        .custom-chart-tooltip {
-            border-radius: 10px;
-            background: rgba(24, 34, 48, 0.96);
-            font-size: 12px;
-            font-weight: 650;
-            padding: 7px 9px;
-            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.22);
-        }
-
-        .custom-chart-bar-label {
-            color: var(--text-muted);
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .custom-chart-heatmaps {
-            gap: var(--space-6);
-        }
-
-        .custom-chart-heatmap-year {
-            color: var(--text-main);
-            font-size: 15px;
-            font-weight: 700;
-        }
-
-        .heatmap-grid {
-            gap: 3px;
-        }
-
-        .heatmap-month,
-        .heatmap-weekday {
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .heatmap-cell {
-            border-radius: 4px;
-        }
-
-        .heatmap-cell.is-zero {
-            background: #f3f6fa !important;
-            opacity: 0.45;
-        }
-
-        .expense-chart {
-            position: relative;
-            grid-template-columns: minmax(190px, 0.34fr) minmax(320px, 1fr);
-            gap: var(--space-8);
-            overflow: hidden;
-            background: #ffffff;
-        }
-
-        .expense-chart::before {
-            content: none;
-        }
-
-        .expense-chart > * {
-            position: relative;
-            z-index: 1;
-        }
-
-        .chart-total {
-            color: #172033;
-            letter-spacing: -0.03em;
-        }
-
-        .chart-title {
-            color: var(--text-secondary);
-            font-size: 17px;
-            font-weight: 500;
-        }
-
-        .chart-area {
-            min-height: 386px;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        .donut-wrap {
-            width: min(380px, 54vw);
-            height: min(380px, 54vw);
-            filter: drop-shadow(0 24px 44px rgba(74, 112, 168, 0.15));
-            overflow: visible;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        .donut {
-            position: relative;
-            display: grid;
-            place-items: center;
-            overflow: visible;
-            background: transparent;
-            box-shadow: none;
-            animation: chartFadeIn 220ms ease-out both;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        .donut::after {
-            inset: 34%;
-            z-index: 1;
-            background:
-                radial-gradient(circle at 45% 40%, #ffffff 0%, #ffffff 58%, rgba(248, 251, 255, 0.94) 100%);
-            box-shadow:
-                inset 0 0 18px rgba(44, 62, 92, 0.035),
-                0 10px 28px rgba(44, 62, 92, 0.055);
-            pointer-events: none;
-        }
-
-        .donut-svg {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            overflow: visible;
-            outline: 0;
-            pointer-events: auto;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        .donut-track {
-            fill: #ecf2f8;
-            stroke: none;
-            pointer-events: none;
-        }
-
-        .donut-segment {
-            fill: var(--segment-color);
-            stroke: none;
-            outline: 0;
-            pointer-events: auto;
-            transition: filter 180ms ease-out, opacity 180ms ease-out;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        .donut-segment:hover {
-            filter: brightness(1.06) saturate(1.08);
-            opacity: 1;
-        }
-
-        .donut-center {
-            position: relative;
-            z-index: 2;
-            display: grid;
-            place-items: center;
-            min-width: 82px;
-            min-height: 82px;
-            border: 0;
-            border-radius: 999px;
-            background: transparent;
-            color: var(--text-muted);
-            font-size: 13px;
-            font-weight: 650;
-            letter-spacing: 0.02em;
-            cursor: pointer;
-            -webkit-user-select: none;
-            user-select: none;
-            transition: color 180ms ease-out, transform 180ms ease-out;
-        }
-
-        .donut-center:hover,
-        .donut-center:focus {
-            background: transparent;
-            color: var(--chart-ink);
-            transform: translateY(-1px);
-            outline: 0;
-        }
-
-        .donut-percent {
-            display: none;
-        }
-
-        .category-pills {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: var(--space-3);
-        }
-
-        .category-pill {
-            display: grid;
-            grid-template-columns: 10px minmax(0, 1fr);
-            gap: var(--space-3);
-            align-items: center;
-            min-height: 64px;
-            border-radius: 18px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), color-mix(in srgb, var(--pill-bg) 38%, #ffffff));
-            color: var(--text-main);
-            font-size: 14px;
-            font-weight: 600;
-            padding: 12px 14px;
-            box-shadow:
-                inset 0 0 0 1px rgba(255, 255, 255, 0.68),
-                0 10px 24px rgba(42, 57, 83, 0.045);
-            transition: transform 180ms ease-out, box-shadow 180ms ease-out, background-color 180ms ease-out;
-        }
-
-        .category-pill:hover {
-            transform: translateY(-2px);
-            box-shadow:
-                inset 0 0 0 1px rgba(255, 255, 255, 0.78),
-                0 16px 32px rgba(42, 57, 83, 0.075);
-        }
-
-        .category-dot {
-            width: 10px;
-            height: 34px;
-            border-radius: 999px;
-            background: var(--dot-color);
-            color: transparent;
-            font-size: 0;
-            box-shadow: 0 8px 16px color-mix(in srgb, var(--dot-color) 24%, transparent);
-        }
-
-        .category-pill-main {
-            display: block;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: var(--text-main);
-            line-height: 1.25;
-        }
-
-        .category-pill-meta {
-            display: block;
-            margin-top: 4px;
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.2;
-        }
-
-        .custom-chart-form {
-            grid-template-columns: minmax(0, 1fr) minmax(160px, 190px) minmax(220px, auto) minmax(150px, auto);
-        }
-
-        .chart-type-field select {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .chart-type-field {
-            display: grid;
-            gap: 6px;
-        }
-
-        .chart-type-segmented {
-            position: relative;
-            display: inline-grid;
-            grid-template-columns: repeat(2, minmax(96px, 1fr));
-            gap: 4px;
-            min-height: 44px;
-            border-radius: 999px;
-            background: #f0f5fb;
-            padding: 4px;
-            box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.14);
-        }
-
-        .chart-type-segmented::before {
-            content: "";
-            position: absolute;
-            top: 4px;
-            bottom: 4px;
-            left: 4px;
-            z-index: 0;
-            width: calc((100% - 12px) / 2);
-            border-radius: 999px;
-            background: #ffffff;
-            box-shadow: 0 8px 18px rgba(50, 73, 108, 0.09);
-            transform: translateX(0);
-            transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        .chart-type-segmented[data-active="heatmap"]::before {
-            transform: translateX(calc(100% + 4px));
-        }
-
-        .chart-type-button {
-            position: relative;
-            z-index: 1;
-            border-radius: 999px;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 650;
-            padding: 0 14px;
-            transition: color 180ms ease-out, transform 180ms ease-out;
-        }
-
-        .chart-type-button:hover {
-            color: var(--text-main);
-        }
-
-        .chart-type-button.is-active {
-            background: transparent;
-            color: var(--chart-ink);
-            box-shadow: none;
-        }
-
-        .chart-type-button:focus-visible {
-            outline: 2px solid rgba(91, 141, 239, 0.34);
-            outline-offset: 3px;
-        }
-
-        .custom-chart-canvas {
-            position: relative;
-            background:
-                linear-gradient(rgba(238, 244, 250, 0.62) 1px, transparent 1px),
-                linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-            background-size: 100% 25%;
-            overflow-x: auto;
-            overflow-y: hidden;
-        }
-
-        .custom-chart-bars {
-            align-items: end;
-            justify-content: flex-start;
-            gap: 14px;
-            min-height: 260px;
-            padding: 42px 8px 50px;
-        }
-
-        .custom-chart-bars::after {
-            content: "";
-            position: absolute;
-            right: 0;
-            bottom: 50px;
-            left: 0;
-            height: 1px;
-            background: rgba(148, 163, 184, 0.18);
-            pointer-events: none;
-        }
-
-        .custom-chart-bar-wrap {
-            position: relative;
-            flex: 0 0 56px;
-            width: 56px;
-            opacity: 0.9;
-            transition: opacity 170ms ease-out, transform 170ms ease-out;
-        }
-
-        .custom-chart-bars:hover .custom-chart-bar-wrap {
-            opacity: 0.82;
-        }
-
-        .custom-chart-bars .custom-chart-bar-wrap:hover,
-        .custom-chart-bars .custom-chart-bar-wrap:focus {
-            opacity: 1;
-            transform: translateY(-2px);
-        }
-
-        .custom-chart-bar {
-            min-height: 3px;
-            border-radius: 14px 14px 6px 6px;
-            background: linear-gradient(180deg, var(--bar-top), var(--bar-bottom));
-            box-shadow: 0 12px 24px rgba(91, 141, 239, 0.16);
-            animation: barGrow 260ms ease-out both;
-            transform-origin: bottom;
-            transition: filter 170ms ease-out, box-shadow 170ms ease-out;
-        }
-
-        .custom-chart-bar-wrap:hover .custom-chart-bar,
-        .custom-chart-bar-wrap:focus .custom-chart-bar {
-            filter: saturate(1.12) brightness(1.03);
-            box-shadow: 0 16px 30px rgba(91, 141, 239, 0.22);
-        }
-
-        .custom-chart-bars > .custom-chart-tooltip {
-            position: fixed;
-            left: var(--tooltip-left, 0);
-            top: var(--tooltip-top, 0);
-            bottom: auto;
-            z-index: 20;
-            display: block;
-            width: max-content;
-            max-width: 220px;
-            opacity: 0;
-            transform: translate(-50%, -12px);
-            border-radius: 14px;
-            background: rgba(24, 34, 48, 0.88);
-            color: #ffffff;
-            font-size: 12px;
-            font-weight: 650;
-            line-height: 1.35;
-            padding: 9px 11px;
-            text-align: center;
-            box-shadow: 0 16px 34px rgba(15, 23, 42, 0.24);
-            pointer-events: none;
-            backdrop-filter: blur(10px);
-            transition: opacity 150ms ease-out, transform 150ms ease-out;
-        }
-
-        .custom-chart-bars > .custom-chart-tooltip.is-visible {
-            opacity: 1;
-            transform: translate(-50%, -18px);
-        }
-
-        .custom-chart-bar-label {
-            max-width: 70px;
-            overflow: hidden;
-            color: var(--text-muted);
-            font-size: 12px;
-            font-weight: 600;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            transform: none;
-        }
-
-        .custom-chart-average-line {
-            border-top: 1px dashed rgba(69, 85, 108, 0.32);
-            color: var(--text-secondary);
-        }
-
-        .custom-chart-average-line span {
-            bottom: 6px;
-            background: rgba(255, 255, 255, 0.92);
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 650;
-            box-shadow: 0 8px 20px rgba(42, 57, 83, 0.08);
-        }
-
-        @keyframes chartFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(4px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes barGrow {
-            from {
-                transform: scaleY(0.2);
-                opacity: 0.32;
-            }
-            to {
-                transform: scaleY(1);
-                opacity: 1;
-            }
-        }
-
-        @media (max-width: 980px) {
-            main {
-                width: min(100% - 32px, 920px);
-            }
-
-            .dashboard-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .expense-chart {
-                grid-template-columns: 1fr;
-            }
-
-            .expense-chart > div:first-child {
-                text-align: center;
-            }
-
-            .custom-chart-form {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .custom-chart-categories-field {
-                grid-column: 1 / -1;
-            }
-
-            .custom-chart-categories {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 640px) {
-            main {
-                width: min(100% - 24px, 560px);
-                padding: var(--space-6) 0 40px;
-            }
-
-            .page-nav {
-                justify-content: stretch;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .page-nav button {
-                grid-column: 1 / -1;
-                justify-self: start;
-            }
-
-            section,
-            .dashboard,
-            .expense-chart,
-            .custom-chart {
-                border-radius: var(--radius-md);
-                padding: var(--space-4);
-            }
-
-            .account-card {
-                grid-template-columns: 1fr;
-            }
-
-            .dashboard-grid,
-            .custom-period,
-            .custom-chart-form {
-                grid-template-columns: 1fr;
-            }
-
-            .period-years,
-            .period-months {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                padding-bottom: 2px;
-            }
-
-            .period-tab {
-                flex: 0 0 auto;
-            }
-
-            .chart-area {
-                min-height: 260px;
-            }
-
-            .donut-wrap {
-                width: min(280px, 76vw);
-                height: min(280px, 76vw);
-            }
-
-            .category-pills {
-                grid-template-columns: 1fr;
-            }
-
-            .custom-chart-category-list {
-                grid-template-columns: 1fr;
-            }
-
-            .chart-type-segmented {
-                width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
 <main>
-    <nav class="page-nav">
-        <a href="/">На главную</a>
+    <nav>
+        <a href="/myacc">Dashboard</a>
         <a href="/operations">Операции</a>
         <button id="logout" type="button">Выйти</button>
     </nav>
 
-    <section class="account-card">
-        <h1 id="title">Мой аккаунт</h1>
+    <section>
+        <h1 id="title">Операции</h1>
         <div id="content" class="message">Загрузка...</div>
     </section>
 
-    <section class="period-selector" aria-label="Глобальный период">
-        <div id="period-tabs" class="period-tabs" aria-label="Периоды операций"></div>
-        <form id="custom-period-form" class="custom-period">
-            <label>
-                С
-                <input id="period-from" name="from" type="date" required>
-            </label>
-            <label>
-                По
-                <input id="period-to" name="to" type="date" required>
-            </label>
-            <button class="primary-button" type="submit">Показать</button>
-        </form>
-    </section>
-
-    <section class="dashboard" aria-label="Финансовый обзор">
-        <div class="dashboard-header">
-            <h1>Обзор</h1>
-            <span id="dashboard-period" class="dashboard-period">Текущий период</span>
+    <section class="operations-section">
+        <div class="operations-list-header">
+            <h2>Управление операциями</h2>
         </div>
-        <div id="dashboard-grid" class="dashboard-grid">
-            <div class="dashboard-card">
-                <span class="dashboard-label">Доходы</span>
-                <span id="income" class="dashboard-value amount-positive">0 ₽</span>
-                <span class="dashboard-note">За выбранный период</span>
-            </div>
-            <div class="dashboard-card">
-                <span class="dashboard-label">Расходы</span>
-                <span id="expenses" class="dashboard-value amount-negative">0 ₽</span>
-                <span class="dashboard-note">За выбранный период</span>
-            </div>
-            <div class="dashboard-card">
-                <span class="dashboard-label">Итог периода</span>
-                <span id="balance" class="dashboard-value">0 ₽</span>
-                <span class="dashboard-note">Доходы минус расходы</span>
-            </div>
-            <div class="dashboard-card">
-                <span class="dashboard-label">Топ категория</span>
-                <span id="dashboard-top-category" class="dashboard-value">—</span>
-                <span id="dashboard-top-category-note" class="dashboard-note">Нет расходов</span>
-            </div>
-        </div>
-    </section>
-
-    <section class="expense-chart">
-        <div>
-            <span id="chart-total" class="chart-total">0 ₽</span>
-            <span class="chart-title">Траты</span>
-        </div>
-        <div class="chart-area">
-            <div id="donut-wrap" class="donut-wrap">
-                <div id="donut" class="donut"></div>
-            </div>
-        </div>
-        <div id="category-pills" class="category-pills"></div>
-    </section>
-
-    <section class="custom-chart">
-        <h2>Аналитика</h2>
-        <form id="custom-chart-form" class="custom-chart-form">
-            <div class="custom-chart-categories-field">
-                <span class="summary-label">Категории</span>
-                <div class="custom-chart-category-actions">
-                    <button id="custom-chart-clear-categories" class="text-danger-button" type="button">Убрать все</button>
-                    <button id="custom-chart-select-categories" class="text-danger-button" type="button">Выбрать все</button>
+        <div class="finance-tools">
+            <div class="finance-panel" data-panel="upload">
+                <button class="finance-panel-toggle" type="button">Загрузить файл</button>
+                <div class="finance-panel-content">
+                    <form id="upload-form">
+                        <label id="file-drop-zone" class="file-drop-zone" for="finance-file">
+                            <input id="finance-file" name="files" type="file" accept=".xlsx,.xls" multiple required>
+                            <span>
+                                <span class="file-drop-title">Перетащи файлы сюда</span>
+                                <span id="file-drop-subtitle" class="file-drop-subtitle">или нажми, чтобы выбрать XLS/XLSX</span>
+                            </span>
+                        </label>
+                        <button class="primary-button" type="submit">Загрузить операции</button>
+                        <div id="upload-message" class="message" aria-live="polite"></div>
+                    </form>
                 </div>
-                <span id="custom-chart-categories" class="custom-chart-categories"></span>
             </div>
+
+            <div class="finance-panel" data-panel="manual">
+                <button class="finance-panel-toggle" type="button">Добавить вручную</button>
+                <div class="finance-panel-content">
+                    <form id="manual-form">
+                        <div class="manual-grid">
+                            <label>
+                                Тип
+                                <select id="manual-type" name="type" required>
+                                    <option value="expense">Расход</option>
+                                    <option value="income">Доход</option>
+                                </select>
+                            </label>
+                            <label>
+                                Сумма
+                                <input id="manual-amount" name="amount" type="number" step="0.01" min="0.01" required>
+                            </label>
+                            <label>
+                                Валюта
+                                <input id="manual-currency" name="currency" value="RUB" maxlength="10" required>
+                            </label>
+                            <label>
+                                Категория
+                                <input id="manual-category" name="category" placeholder="Прочий расход">
+                            </label>
+                            <label class="full-width">
+                                Описание
+                                <input id="manual-description" name="description" placeholder="Например: обед, зарплата, перевод">
+                            </label>
+                        </div>
+                        <button class="primary-button" type="submit">Добавить</button>
+                        <div id="manual-message" class="message" aria-live="polite"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="table-actions">
+            <button id="delete-selected" class="danger-button" type="button">Удалить выбранные</button>
+            <span id="delete-message" class="message" aria-live="polite"></span>
+        </div>
+        <label class="operation-search">
+            <input id="operation-search" type="search" placeholder="Поиск: Ozon, Пятёрочка, 5000..." autocomplete="off">
+        </label>
+        <div class="controls">
             <label>
-                Величина
-                <select id="custom-chart-metric" name="metric">
-                    <option value="amount">Рубли</option>
-                    <option value="count">Кол-во операций</option>
+                Тип операций
+                <select id="operation-type-filter">
+                    <option value="all">Доходы и расходы</option>
+                    <option value="income">Только доходы</option>
+                    <option value="expense">Только расходы</option>
                 </select>
             </label>
-            <label class="chart-type-field">
-                Тип графика
-                <select id="custom-chart-type" name="chartType">
-                    <option value="bars">Столбцы</option>
-                    <option value="heatmap">Календарь</option>
+            <label>
+                Сортировка
+                <select id="sort-mode">
+                    <option value="date-desc">По дате: сначала новые</option>
+                    <option value="date-asc">По дате: сначала давние</option>
+                    <option value="amount-desc">По сумме: сначала большие</option>
+                    <option value="amount-asc">По сумме: сначала маленькие</option>
                 </select>
-                <span class="chart-type-segmented" role="group" aria-label="Тип графика">
-                    <button class="chart-type-button is-active" type="button" data-chart-type="bars">Столбцы</button>
-                    <button class="chart-type-button" type="button" data-chart-type="heatmap">Календарь</button>
-                </span>
             </label>
-            <label class="custom-chart-toggle">
-                <input id="custom-chart-average" type="checkbox">
-                Среднее значение
+            <label>
+                Категория
+                <select id="category-filter">
+                    <option value="all">Все категории</option>
+                </select>
             </label>
-        </form>
-        <div id="custom-chart-summary" class="custom-chart-summary">Выбери параметры графика</div>
-        <div id="custom-chart-canvas" class="custom-chart-canvas">
-            <span class="message">Операции еще не загружены</span>
+            <label id="transfer-person-control" hidden>
+                Кому/от кого
+                <select id="transfer-person-filter">
+                    <option value="all">Все</option>
+                </select>
+            </label>
+        </div>
+        <div class="table-wrap">
+            <table class="operations-table">
+                <thead>
+                <tr>
+                    <th>
+                        <input id="select-all" type="checkbox" aria-label="Выбрать все операции">
+                    </th>
+                    <th>Дата</th>
+                    <th>Тип</th>
+                    <th>Категория</th>
+                    <th>Описание</th>
+                    <th class="operation-amount">Сумма</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody id="operations">
+                <tr>
+                    <td colspan="7" class="message">Загрузка...</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination">
+            <span id="pagination-summary">0 операций</span>
+            <div class="pagination-controls">
+                <button id="pagination-prev" class="pagination-button" type="button">Назад</button>
+                <span id="pagination-page">1 / 1</span>
+                <button id="pagination-next" class="pagination-button" type="button">Вперёд</button>
+            </div>
         </div>
     </section>
 
@@ -2476,6 +1367,10 @@
     const customPeriodForm = document.querySelector("#custom-period-form");
     const deleteSelectedButton = document.querySelector("#delete-selected");
     const deleteMessage = document.querySelector("#delete-message");
+    const paginationSummary = document.querySelector("#pagination-summary");
+    const paginationPage = document.querySelector("#pagination-page");
+    const paginationPrev = document.querySelector("#pagination-prev");
+    const paginationNext = document.querySelector("#pagination-next");
     const income = document.querySelector("#income");
     const expenses = document.querySelector("#expenses");
     const balance = document.querySelector("#balance");
@@ -2492,7 +1387,6 @@
     const customChartSelectCategories = document.querySelector("#custom-chart-select-categories");
     const customChartMetric = document.querySelector("#custom-chart-metric");
     const customChartType = document.querySelector("#custom-chart-type");
-    const chartTypeButtons = document.querySelectorAll(".chart-type-button");
     const customChartAverage = document.querySelector("#custom-chart-average");
     const customChartSummary = document.querySelector("#custom-chart-summary");
     const customChartCanvas = document.querySelector("#custom-chart-canvas");
@@ -2500,33 +1394,34 @@
     let searchQuery = "";
     let searchTimer = null;
     let activeEditor = null;
+    let currentPage = 1;
+    const pageSize = 50;
     const operationFeedback = new Map();
     let selectedPeriod = { type: "all", key: null, from: null, to: null };
-    let donutMode = "expense";
-    const chartColors = ["#5B8DEF", "#6EA8FE", "#7CC6FE", "#66D1C1", "#89E0C8", "#8796D7", "#B8C0CC", "#45556C"];
+    const chartColors = ["#48b9cc", "#f18f55", "#55bd82", "#8b6fd8", "#4f8fd9", "#c4ccd6", "#e76f6f", "#d66fb1"];
     const categoryColors = {
-        "Переводы": "#5B8DEF",
-        "Супермаркеты": "#6EA8FE",
-        "Медицина": "#66D1C1",
-        "Цифровые товары": "#8796D7",
-        "Связь": "#7CC6FE",
-        "Ж/д билеты": "#6EA8FE",
-        "Образование": "#8796D7",
-        "Красота": "#7CC6FE",
-        "Транспорт": "#6EA8FE",
-        "Местный транспорт": "#6EA8FE",
-        "Такси": "#6EA8FE",
-        "Услуги банка": "#45556C",
-        "Сервис": "#45556C",
-        "Различные услуги": "#45556C",
-        "Аптеки": "#66D1C1",
-        "Маркетплейсы": "#7CC6FE",
-        "Фастфуд": "#6EA8FE",
-        "Бонусы": "#89E0C8",
-        "Прочий доход": "#89E0C8",
-        "Прочий расход": "#B8C0CC",
-        "Остальное": "#B8C0CC",
-        "Без категории": "#B8C0CC"
+        "Переводы": "#48b9cc",
+        "Супермаркеты": "#f18f55",
+        "Медицина": "#55bd82",
+        "Цифровые товары": "#d66fb1",
+        "Связь": "#4f8fd9",
+        "Ж/д билеты": "#8b6fd8",
+        "Образование": "#e76f6f",
+        "Красота": "#df73b0",
+        "Транспорт": "#4f8fd9",
+        "Местный транспорт": "#4f8fd9",
+        "Такси": "#4f8fd9",
+        "Услуги банка": "#6f7d8f",
+        "Сервис": "#6f7d8f",
+        "Различные услуги": "#6f7d8f",
+        "Аптеки": "#55bd82",
+        "Маркетплейсы": "#8b6fd8",
+        "Фастфуд": "#f18f55",
+        "Бонусы": "#55bd82",
+        "Прочий доход": "#55bd82",
+        "Прочий расход": "#c4ccd6",
+        "Остальное": "#c4ccd6",
+        "Без категории": "#c4ccd6"
     };
     const categoryIcons = {
         "Переводы": "↔",
@@ -2546,38 +1441,27 @@
 
         const lower = normalized.toLowerCase();
         if (/(еда|супермаркет|фастфуд|кафе|ресторан|продукт|пят[её]р|перекр)/i.test(lower)) {
-            return "#6EA8FE";
+            return "#f18f55";
         }
         if (/(транспорт|такси|ж\/д|автобус|метро|билет)/i.test(lower)) {
-            return "#6EA8FE";
+            return "#4f8fd9";
         }
         if (/(мед|аптек|клиник|здоров)/i.test(lower)) {
-            return "#66D1C1";
+            return "#55bd82";
         }
         if (/(маркет|ozon|wildberries|цифров|товар)/i.test(lower)) {
-            return "#7CC6FE";
+            return "#8b6fd8";
         }
         if (/(перевод|поступлен|вывод)/i.test(lower)) {
-            return "#5B8DEF";
+            return "#48b9cc";
         }
         if (/(образован|университет|курс|школ)/i.test(lower)) {
-            return "#8796D7";
+            return "#e76f6f";
         }
         if (/(сервис|услуг|банк|подпис)/i.test(lower)) {
-            return "#45556C";
+            return "#6f7d8f";
         }
-        return "#B8C0CC";
-    }
-
-    function getDonutCategoryColor(categoryName, index, mode) {
-        const expensePalette = ["#5B8DEF", "#6EA8FE", "#7CC6FE", "#8796D7", "#B8C0CC", "#45556C"];
-        const incomePalette = ["#4FBFA8", "#66D1C1", "#89E0C8", "#7AB8D8", "#A8D8CF", "#B8C0CC"];
-
-        if (mode === "income") {
-            return incomePalette[index % incomePalette.length];
-        }
-
-        return categoryColors[categoryName] || expensePalette[index % expensePalette.length];
+        return "#c4ccd6";
     }
 
     function formatDate(value) {
@@ -2998,13 +1882,6 @@
         renderCustomChart();
     }
 
-    function setChartCategoriesByType(type, checked) {
-        customChartCategories.querySelectorAll(`.custom-chart-category-input[data-type="${type}"]`).forEach((checkbox) => {
-            checkbox.checked = checked;
-        });
-        renderCustomChart();
-    }
-
     function updateCustomChartCategoryOptions() {
         const hadOptions = customChartCategories.children.length > 0;
         const selectedCategoryKeys = new Set(getSelectedChartCategoryKeys());
@@ -3018,13 +1895,13 @@
                 icon: "↑",
                 items: groups.income,
                 styles: {
-                    "--group-accent": "#4fbfa8",
-                    "--group-bg": "#f6fbfa",
-                    "--group-border": "#e3efec",
-                    "--group-border-strong": "#a9dcd2",
-                    "--group-divider": "#e7f1ef",
-                    "--group-selected-bg": "#eef8f6",
-                    "--group-shadow": "rgba(79, 191, 168, 0.1)"
+                    "--group-accent": "#2f8f62",
+                    "--group-bg": "#f5fbf7",
+                    "--group-border": "#d8eee0",
+                    "--group-border-strong": "#8fd3a8",
+                    "--group-divider": "#e3f3e8",
+                    "--group-selected-bg": "#eef8f1",
+                    "--group-shadow": "rgba(47, 143, 98, 0.12)"
                 }
             },
             {
@@ -3033,13 +1910,13 @@
                 icon: "↓",
                 items: groups.expense,
                 styles: {
-                    "--group-accent": "#5b8def",
-                    "--group-bg": "#f7faff",
-                    "--group-border": "#e2eaf6",
-                    "--group-border-strong": "#b8cdf5",
-                    "--group-divider": "#e7edf7",
-                    "--group-selected-bg": "#eef4ff",
-                    "--group-shadow": "rgba(91, 141, 239, 0.1)"
+                    "--group-accent": "#c96d3b",
+                    "--group-bg": "#fff8f2",
+                    "--group-border": "#f2dfcf",
+                    "--group-border-strong": "#e2a277",
+                    "--group-divider": "#f4e4d6",
+                    "--group-selected-bg": "#fff1e7",
+                    "--group-shadow": "rgba(201, 109, 59, 0.13)"
                 }
             }
         ].forEach((group) => {
@@ -3055,11 +1932,7 @@
                     <span class="custom-chart-category-group-icon">${group.icon}</span>
                     <span>${group.title}</span>
                 </span>
-                <span class="custom-chart-category-group-actions">
-                    <button class="custom-chart-category-group-action" type="button" data-category-group="${group.type}" data-category-checked="true">Выбрать</button>
-                    <button class="custom-chart-category-group-action" type="button" data-category-group="${group.type}" data-category-checked="false">Убрать</button>
-                    <span class="custom-chart-category-counter">${group.items.length}</span>
-                </span>
+                <span class="custom-chart-category-counter">${group.items.length}</span>
             `;
 
             const list = document.createElement("div");
@@ -3232,9 +2105,9 @@
             return;
         }
 
+        const color = metric === "count" ? "#38a169" : "#4f8fd9";
         customChartCanvas.innerHTML = `
             <div class="custom-chart-bars" style="--average-height: ${Math.round(average / maxValue * 180)}px">
-                <div class="custom-chart-tooltip" data-chart-tooltip></div>
                 ${customChartAverage.checked ? `
                     <div class="custom-chart-average-line">
                         <span>Среднее: ${formatChartValue(average, metric)}</span>
@@ -3242,13 +2115,11 @@
                 ` : ""}
                 ${buckets.map((bucket) => {
                     const height = Math.max(2, Math.round(bucket.value / maxValue * 180));
-                    const intensity = maxValue ? bucket.value / maxValue : 0;
-                    const topColor = intensity > 0.66 ? "#7CC6FE" : intensity > 0.33 ? "#6EA8FE" : "#B9D7FF";
-                    const bottomColor = intensity > 0.66 ? "#5B8DEF" : intensity > 0.33 ? "#5B8DEF" : "#7CC6FE";
                     const tooltip = `${bucket.label}: ${formatChartValue(bucket.value, metric)}`;
                     return `
-                        <div class="custom-chart-bar-wrap" tabindex="0" style="--bar-height: ${height}px; --bar-top: ${topColor}; --bar-bottom: ${bottomColor}" aria-label="${tooltip}" data-tooltip="${tooltip}">
-                            <div class="custom-chart-bar" style="height: ${height}px"></div>
+                        <div class="custom-chart-bar-wrap" tabindex="0" style="--bar-height: ${height}px" aria-label="${tooltip}">
+                            <span class="custom-chart-tooltip">${tooltip}</span>
+                            <div class="custom-chart-bar" style="height: ${height}px; background: ${color}"></div>
                             <span class="custom-chart-bar-label">${bucket.label}</span>
                         </div>
                     `;
@@ -3519,111 +2390,46 @@
         return visible;
     }
 
-    function getIncomeCategories(operations) {
-        const totals = new Map();
-
-        operations.forEach((operation) => {
-            const amount = getOperationAmount(operation);
-            if (amount <= 0) {
-                return;
-            }
-
-            const category = operation.category || "Без категории";
-            totals.set(category, (totals.get(category) || 0) + amount);
-        });
-
-        const categories = Array.from(totals.entries())
-            .map(([name, amount]) => ({ name, amount }))
-            .sort((first, second) => second.amount - first.amount);
-
-        if (categories.length <= 6) {
-            return categories;
-        }
-
-        const visible = categories.slice(0, 5);
-        const otherAmount = categories.slice(5).reduce((sum, category) => sum + category.amount, 0);
-        visible.push({ name: "Остальное", amount: otherAmount });
-        return visible;
-    }
-
-    function getDonutCategories(operations) {
-        return donutMode === "income" ? getIncomeCategories(operations) : getExpenseCategories(operations);
-    }
-
-    function getDonutPoint(percent, radius) {
-        const angle = (percent / 100 * 360 - 90) * Math.PI / 180;
-        return {
-            x: 60 + radius * Math.cos(angle),
-            y: 60 + radius * Math.sin(angle)
-        };
-    }
-
-    function getDonutSegmentPath(startPercent, endPercent) {
-        const outerRadius = 48;
-        const innerRadius = 28;
-        const outerStart = getDonutPoint(startPercent, outerRadius);
-        const outerEnd = getDonutPoint(endPercent, outerRadius);
-        const innerEnd = getDonutPoint(endPercent, innerRadius);
-        const innerStart = getDonutPoint(startPercent, innerRadius);
-        const largeArc = endPercent - startPercent > 50 ? 1 : 0;
-
-        return [
-            `M ${outerStart.x.toFixed(3)} ${outerStart.y.toFixed(3)}`,
-            `A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${outerEnd.x.toFixed(3)} ${outerEnd.y.toFixed(3)}`,
-            `L ${innerEnd.x.toFixed(3)} ${innerEnd.y.toFixed(3)}`,
-            `A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${innerStart.x.toFixed(3)} ${innerStart.y.toFixed(3)}`,
-            "Z"
-        ].join(" ");
-    }
-
     function renderExpenseChart(operations) {
         if (!chartTotal || !categoryPills || !donutWrap || !donut) {
             return;
         }
-        const categories = getDonutCategories(operations);
+        const categories = getExpenseCategories(operations);
         const total = categories.reduce((sum, category) => sum + category.amount, 0);
-        const modeLabel = donutMode === "income" ? "Доходы" : "Расходы";
-        const emptyMessage = donutMode === "income" ? "В выбранном периоде доходов нет" : "В выбранном периоде расходов нет";
 
         chartTotal.textContent = formatWholeMoney(total);
-        const chartTitleElement = document.querySelector(".chart-title");
-        if (chartTitleElement) {
-            chartTitleElement.textContent = modeLabel;
-        }
         categoryPills.innerHTML = "";
         donutWrap.querySelectorAll(".donut-percent").forEach((label) => label.remove());
 
         if (total === 0) {
-            donut.style.background = "";
-            donut.innerHTML = `
-                <svg class="donut-svg" viewBox="0 0 120 120" aria-hidden="true" draggable="false">
-                    <path class="donut-track" d="${getDonutSegmentPath(0, 99.999)}"></path>
-                </svg>
-                <button class="donut-center" type="button" draggable="false" aria-label="Показать ${donutMode === "income" ? "расходы" : "доходы"}">${modeLabel}</button>
-            `;
-            categoryPills.innerHTML = `<span class="message">${emptyMessage}</span>`;
+            donut.style.background = "#edf1f6";
+            categoryPills.innerHTML = `<span class="message">В этом месяце расходов нет</span>`;
             return;
         }
 
         let currentPercent = 0;
-        const segments = [];
+        const gradientStops = [];
 
-        categories.forEach((category, index) => {
+        categories.forEach((category) => {
             const percent = category.amount / total * 100;
-            const color = getDonutCategoryColor(category.name, index, donutMode);
+            const color = getCategoryColor(category.name);
             const start = currentPercent;
-            const end = Math.min(100, currentPercent + percent);
-            const arcEnd = end >= 100 ? 99.999 : end;
-            segments.push(`
-                <path
-                    class="donut-segment"
-                    d="${getDonutSegmentPath(start, arcEnd)}"
-                    style="--segment-color: ${color}"
-                    draggable="false"
-                    aria-label="${category.name}: ${formatWholeMoney(category.amount)}, ${Math.round(percent)}%"
-                ></path>
-            `);
+            const end = currentPercent + percent;
+            const mid = (start + end) / 2;
+            gradientStops.push(`${color} ${start}% ${end}%`);
             currentPercent = end;
+
+            const angle = (mid / 100 * 360) - 90;
+            const radians = angle * Math.PI / 180;
+            const roundedPercent = Math.round(percent);
+            if (roundedPercent >= 3) {
+                const label = document.createElement("span");
+                label.className = "donut-percent";
+                label.textContent = `${roundedPercent}%`;
+                label.style.left = `${50 + Math.cos(radians) * 58}%`;
+                label.style.top = `${50 + Math.sin(radians) * 58}%`;
+                donutWrap.appendChild(label);
+            }
 
             const pill = document.createElement("span");
             pill.className = "category-pill";
@@ -3631,22 +2437,12 @@
             pill.style.setProperty("--pill-bg", `${color}18`);
             pill.innerHTML = `
                 <span class="category-dot">${categoryIcons[category.name] || "•"}</span>
-                <span>
-                    <span class="category-pill-main">${category.name}</span>
-                    <span class="category-pill-meta">${formatWholeMoney(category.amount)} · ${Math.round(percent)}%</span>
-                </span>
+                <span>${category.name} ${formatWholeMoney(category.amount)}</span>
             `;
             categoryPills.appendChild(pill);
         });
 
-        donut.style.background = "";
-        donut.innerHTML = `
-            <svg class="donut-svg" viewBox="0 0 120 120" draggable="false" aria-label="${modeLabel} по категориям">
-                <path class="donut-track" d="${getDonutSegmentPath(0, 99.999)}"></path>
-                ${segments.join("")}
-            </svg>
-            <button class="donut-center" type="button" draggable="false" aria-label="Показать ${donutMode === "income" ? "расходы" : "доходы"}">${modeLabel}</button>
-        `;
+        donut.style.background = `conic-gradient(${gradientStops.join(", ")})`;
     }
 
     function renderDashboard() {
@@ -3868,7 +2664,27 @@
         });
 
         if (operationsBody) {
-            operations.forEach(appendOperationRow);
+        const totalPages = Math.max(1, Math.ceil(operations.length / pageSize));
+        currentPage = Math.min(currentPage, totalPages);
+        const pageOperations = operations.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+        if (operationsBody) {
+            pageOperations.forEach(appendOperationRow);
+        }
+        if (paginationSummary) {
+            const from = operations.length === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+            const to = Math.min(currentPage * pageSize, operations.length);
+            paginationSummary.textContent = `${from}-${to} из ${operations.length} операций`;
+        }
+        if (paginationPage) {
+            paginationPage.textContent = `${currentPage} / ${totalPages}`;
+        }
+        if (paginationPrev) {
+            paginationPrev.disabled = currentPage <= 1;
+        }
+        if (paginationNext) {
+            paginationNext.disabled = currentPage >= totalPages;
+        }
         }
         renderDashboard();
         renderExpenseChart(periodOperations);
@@ -4040,51 +2856,32 @@
         });
     });
 
-    sortMode?.addEventListener("change", renderOperations);
-    operationTypeFilter?.addEventListener("change", renderOperations);
-    categoryFilter?.addEventListener("change", renderOperations);
-    transferPersonFilter?.addEventListener("change", renderOperations);
+    function resetPaginationAndRender() {
+        currentPage = 1;
+        renderOperations();
+    }
+
+    sortMode?.addEventListener("change", resetPaginationAndRender);
+    operationTypeFilter?.addEventListener("change", resetPaginationAndRender);
+    categoryFilter?.addEventListener("change", resetPaginationAndRender);
+    transferPersonFilter?.addEventListener("change", resetPaginationAndRender);
     operationSearch?.addEventListener("input", () => {
         clearTimeout(searchTimer);
         searchTimer = setTimeout(() => {
             searchQuery = operationSearch.value;
-            renderOperations();
+            resetPaginationAndRender();
         }, 250);
     });
 
-    function updateChartTypeButtons() {
-        if (!customChartType || !chartTypeButtons.length) {
-            return;
-        }
+    paginationPrev?.addEventListener("click", () => {
+        currentPage = Math.max(1, currentPage - 1);
+        renderOperations();
+    });
 
-        const segmentedControl = chartTypeButtons[0]?.closest(".chart-type-segmented");
-        segmentedControl?.setAttribute("data-active", customChartType.value);
-
-        chartTypeButtons.forEach((button) => {
-            const isActive = button.dataset.chartType === customChartType.value;
-            button.classList.toggle("is-active", isActive);
-            button.setAttribute("aria-pressed", String(isActive));
-        });
-    }
-
-    function showChartTooltip(target, event) {
-        const tooltip = customChartCanvas?.querySelector("[data-chart-tooltip]");
-        if (!tooltip || !target?.dataset.tooltip) {
-            return;
-        }
-
-        const rect = target.getBoundingClientRect();
-        const x = event?.clientX || rect.left + rect.width / 2;
-        const y = rect.top;
-        tooltip.textContent = target.dataset.tooltip;
-        tooltip.style.setProperty("--tooltip-left", `${x}px`);
-        tooltip.style.setProperty("--tooltip-top", `${y}px`);
-        tooltip.classList.add("is-visible");
-    }
-
-    function hideChartTooltip() {
-        customChartCanvas?.querySelector("[data-chart-tooltip]")?.classList.remove("is-visible");
-    }
+    paginationNext?.addEventListener("click", () => {
+        currentPage += 1;
+        renderOperations();
+    });
 
     customChartForm?.addEventListener("submit", (event) => {
         event.preventDefault();
@@ -4092,54 +2889,11 @@
     });
 
     customChartCategories?.addEventListener("change", renderCustomChart);
-    customChartCategories?.addEventListener("click", (event) => {
-        const button = event.target.closest(".custom-chart-category-group-action");
-        if (!button) {
-            return;
-        }
-
-        setChartCategoriesByType(button.dataset.categoryGroup, button.dataset.categoryChecked === "true");
-    });
     customChartMetric?.addEventListener("change", renderCustomChart);
-    customChartType?.addEventListener("change", () => {
-        updateChartTypeButtons();
-        renderCustomChart();
-    });
-    chartTypeButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-            if (!customChartType) {
-                return;
-            }
-            customChartType.value = button.dataset.chartType;
-            updateChartTypeButtons();
-            renderCustomChart();
-        });
-    });
+    customChartType?.addEventListener("change", renderCustomChart);
     customChartAverage?.addEventListener("change", renderCustomChart);
     customChartClearCategories?.addEventListener("click", () => setAllChartCategories(false));
     customChartSelectCategories?.addEventListener("click", () => setAllChartCategories(true));
-    customChartCanvas?.addEventListener("pointermove", (event) => {
-        const bar = event.target.closest(".custom-chart-bar-wrap");
-        if (bar) {
-            showChartTooltip(bar, event);
-        }
-    });
-    customChartCanvas?.addEventListener("pointerleave", hideChartTooltip);
-    customChartCanvas?.addEventListener("focusin", (event) => {
-        const bar = event.target.closest(".custom-chart-bar-wrap");
-        if (bar) {
-            showChartTooltip(bar);
-        }
-    });
-    customChartCanvas?.addEventListener("focusout", hideChartTooltip);
-    donutWrap?.addEventListener("click", (event) => {
-        if (!event.target.closest(".donut-center")) {
-            return;
-        }
-
-        donutMode = donutMode === "expense" ? "income" : "expense";
-        renderExpenseChart(getCurrentPeriodOperations());
-    });
 
     periodTabs?.addEventListener("click", (event) => {
         const button = event.target.closest(".period-tab");
@@ -4282,7 +3036,6 @@
         window.location.href = "/login";
     });
 
-    updateChartTypeButtons();
     loadAccount();
     loadOperations();
 </script>

@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -125,6 +127,30 @@ public class FinanceOperationController {
                 .orElseGet(() -> ResponseEntity.status(401).build());
     }
 
+    @PatchMapping("/finance/operations/{id}")
+    public ResponseEntity<FinanceOperation> updateOperation(
+            @PathVariable Long id,
+            @RequestBody UpdateOperationRequest request,
+            HttpSession session
+    ) {
+        return getCurrentUser(session)
+                .map(user -> {
+                    try {
+                        FinanceOperation operation = financeOperationService.updateOperation(
+                                user,
+                                id,
+                                request.operationAmount(),
+                                request.category(),
+                                request.description()
+                        );
+                        return ResponseEntity.ok(operation);
+                    } catch (IllegalArgumentException exception) {
+                        return ResponseEntity.badRequest().<FinanceOperation>build();
+                    }
+                })
+                .orElseGet(() -> ResponseEntity.status(401).build());
+    }
+
     @DeleteMapping("/finance/operations/period")
     public ResponseEntity<DeleteResult> deleteOperationsByPeriod(
             @RequestBody DeletePeriodRequest request,
@@ -171,6 +197,13 @@ public class FinanceOperationController {
     }
 
     public record DeletePeriodRequest(LocalDate from, LocalDate to) {
+    }
+
+    public record UpdateOperationRequest(
+            BigDecimal operationAmount,
+            String category,
+            String description
+    ) {
     }
 
     public record DeleteResult(long deletedCount) {

@@ -172,6 +172,36 @@ public class FinanceOperationService {
         return savedOperation;
     }
 
+    @Transactional
+    public FinanceOperation updateOperation(
+            User user,
+            Long operationId,
+            BigDecimal operationAmount,
+            String category,
+            String description
+    ) {
+        FinanceOperation operation = financeOperationRepository.findById(operationId)
+                .filter(item -> item.getUser() != null && item.getUser().getId().equals(user.getId()))
+                .orElseThrow(() -> new IllegalArgumentException("Операция не найдена"));
+
+        BigDecimal previousAmount = operation.getOperationAmount() == null ? BigDecimal.ZERO : operation.getOperationAmount();
+        if (operationAmount != null) {
+            operation.setOperationAmount(operationAmount);
+        }
+        if (category != null) {
+            operation.setCategory(category.isBlank() ? null : category.trim());
+        }
+        if (description != null) {
+            operation.setDescription(description.isBlank() ? null : description.trim());
+        }
+        operation.setOperationKey(buildOperationKey(user.getId(), operation));
+
+        FinanceOperation savedOperation = financeOperationRepository.save(operation);
+        BigDecimal nextAmount = savedOperation.getOperationAmount() == null ? BigDecimal.ZERO : savedOperation.getOperationAmount();
+        adjustBalance(user, nextAmount.subtract(previousAmount));
+        return savedOperation;
+    }
+
     private void adjustBalance(User user, BigDecimal delta) {
         if (delta == null || delta.signum() == 0) {
             return;
