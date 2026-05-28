@@ -66,6 +66,11 @@ public class FinanceOperation {
 
     private String description;
 
+    @Column(name = "exclude_from_analytics")
+    private boolean excludeFromAnalytics;
+
+    private String counterparty;
+
     @JsonIgnore
     private BigDecimal bonuses;
 
@@ -190,6 +195,22 @@ public class FinanceOperation {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean isExcludeFromAnalytics() {
+        return excludeFromAnalytics;
+    }
+
+    public void setExcludeFromAnalytics(boolean excludeFromAnalytics) {
+        this.excludeFromAnalytics = excludeFromAnalytics;
+    }
+
+    public String getCounterparty() {
+        return counterparty;
+    }
+
+    public void setCounterparty(String counterparty) {
+        this.counterparty = counterparty;
     }
 
     public BigDecimal getBonuses() {

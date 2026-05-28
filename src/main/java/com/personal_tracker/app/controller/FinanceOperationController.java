@@ -28,6 +28,7 @@ import java.util.List;
 public class FinanceOperationController {
 
     private static final String USER_ID_SESSION_KEY = "userId";
+    private static final int MAX_UPLOAD_FILES = 20;
 
     private final FinanceOperationService financeOperationService;
     private final UserService userService;
@@ -49,8 +50,7 @@ public class FinanceOperationController {
             @RequestParam(value = "files", required = false) MultipartFile[] files,
             @RequestParam(value = "file", required = false) MultipartFile file,
             HttpSession session
-    )
-            throws IOException {
+    ) {
         return getCurrentUser(session)
                 .map(user -> {
                     try {
@@ -67,8 +67,8 @@ public class FinanceOperationController {
                             skippedCount += result.skippedCount();
                         }
                         return ResponseEntity.ok(new UploadResult(importedCount, skippedCount));
-                    } catch (IOException exception) {
-                        throw new IllegalArgumentException("Не удалось прочитать файл", exception);
+                    } catch (IOException | IllegalArgumentException exception) {
+                        return ResponseEntity.badRequest().body(new UploadResult(0, 0));
                     }
                 })
                 .orElseGet(() -> ResponseEntity.status(401).build());
@@ -86,7 +86,18 @@ public class FinanceOperationController {
         if (file != null && !file.isEmpty()) {
             uploadFiles.add(file);
         }
+        if (uploadFiles.size() > MAX_UPLOAD_FILES) {
+            throw new IllegalArgumentException("Слишком много файлов");
+        }
+        uploadFiles.forEach(this::validateUploadFile);
         return uploadFiles;
+    }
+
+    private void validateUploadFile(MultipartFile file) {
+        String filename = file.getOriginalFilename() == null ? "" : file.getOriginalFilename().trim().toLowerCase();
+        if (!filename.endsWith(".xlsx") && !filename.endsWith(".xls")) {
+            throw new IllegalArgumentException("Поддерживаются только XLS/XLSX файлы");
+        }
     }
 
     @PostMapping("/finance/operations")

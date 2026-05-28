@@ -1,0 +1,1553 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Smart Rules</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --border: #e2e8f0;
+            --border-strong: #cbd5e1;
+            --text: #172033;
+            --muted: #64748b;
+            --muted-soft: #94a3b8;
+            --blue: #2563eb;
+            --blue-soft: #eff6ff;
+            --green: #15803d;
+            --green-soft: #ecfdf3;
+            --amber: #b7791f;
+            --amber-soft: #fffbeb;
+            --red: #b42318;
+            --red-soft: #fff1f0;
+            --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+            --shadow-soft: 0 8px 22px rgba(15, 23, 42, 0.06);
+            --radius: 18px;
+            --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+            --transition: 0.18s var(--ease);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(37, 99, 235, 0.06), transparent 28rem),
+                var(--bg);
+        }
+
+        button,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            border: 0;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.56;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        main {
+            width: min(1480px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 24px 0 96px;
+        }
+
+        .top-nav {
+            display: flex;
+            width: min(1480px, calc(100vw - 32px));
+            justify-content: space-between;
+            gap: 16px;
+            align-items: center;
+            margin-left: 50%;
+            margin-bottom: 22px;
+            transform: translateX(-50%);
+        }
+
+        .app-switcher {
+            position: relative;
+            display: inline-flex;
+            gap: 0;
+            align-items: center;
+            border: 1px solid rgba(226, 232, 240, 0.92);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 4px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+            backdrop-filter: blur(14px);
+        }
+
+        .app-switcher::before {
+            content: "";
+            position: absolute;
+            top: 4px;
+            bottom: 4px;
+            left: 4px;
+            width: calc((100% - 8px) / 3);
+            border-radius: 999px;
+            background: var(--surface);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+            transform: translateX(0);
+            transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .app-switcher[data-active="operations"]::before {
+            transform: translateX(100%);
+        }
+
+        .app-switcher[data-active="rules"]::before {
+            transform: translateX(200%);
+        }
+
+        .app-switcher:has(.app-switcher-link:nth-child(1):hover)::before {
+            transform: translateX(0);
+        }
+
+        .app-switcher:has(.app-switcher-link:nth-child(2):hover)::before {
+            transform: translateX(100%);
+        }
+
+        .app-switcher:has(.app-switcher-link:nth-child(3):hover)::before {
+            transform: translateX(200%);
+        }
+
+        .app-switcher-link {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            justify-content: center;
+            min-width: 108px;
+            border-radius: 999px;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 700;
+            padding: 9px 14px;
+            transition: color var(--transition);
+        }
+
+        .app-switcher-link:hover,
+        .app-switcher-link.active {
+            color: var(--text);
+        }
+
+        .logout-button {
+            border-radius: 999px;
+            background: transparent;
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 700;
+            padding: 9px 12px;
+            transition: background-color var(--transition), color var(--transition);
+        }
+
+        .logout-button:hover {
+            background: var(--red-soft);
+            color: var(--red);
+        }
+
+        .rules-page {
+            display: grid;
+            gap: 16px;
+        }
+
+        .rules-hero {
+            display: grid;
+            gap: 20px;
+            border: 1px solid rgba(226, 232, 240, 0.76);
+            border-radius: 28px;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.9)),
+                var(--surface);
+            box-shadow: var(--shadow);
+            padding: clamp(22px, 4vw, 34px);
+            margin-bottom: 2px;
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--text);
+            font-size: clamp(30px, 4vw, 44px);
+            font-weight: 760;
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+        }
+
+        .page-subtitle {
+            max-width: 740px;
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.45;
+        }
+
+        .rules-flow {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .flow-step {
+            border: 1px solid rgba(226, 232, 240, 0.82);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.72);
+            padding: 14px;
+        }
+
+        .flow-step strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .flow-step span {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.35;
+        }
+
+        .step-number {
+            display: inline-grid;
+            width: 28px;
+            height: 28px;
+            place-items: center;
+            margin-bottom: 10px;
+            border-radius: 999px;
+            background: var(--blue-soft);
+            color: var(--blue);
+            font-size: 13px;
+            font-weight: 850;
+        }
+
+        .rules-main-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+            gap: 16px;
+            align-items: start;
+        }
+
+        .rules-results {
+            display: grid;
+            gap: 14px;
+        }
+
+        .card {
+            border: 1px solid rgba(226, 232, 240, 0.84);
+            border-radius: var(--radius);
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: var(--shadow-soft);
+            padding: 18px;
+            transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), background-color 0.2s var(--ease);
+        }
+
+        .card:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+            background: var(--surface);
+        }
+
+        .create-rule-card {
+            padding: clamp(20px, 3vw, 26px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+
+        .card-kicker {
+            margin: 0 0 4px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        h2,
+        h3 {
+            margin: 0;
+            color: var(--text);
+            line-height: 1.18;
+        }
+
+        h2 {
+            font-size: 19px;
+        }
+
+        h3 {
+            font-size: 17px;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .rule-form {
+            display: grid;
+            gap: 12px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 190px;
+            resize: vertical;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            outline: 0;
+            background: var(--surface);
+            color: var(--text);
+            padding: 15px 16px;
+            line-height: 1.5;
+            transition: border-color var(--transition), box-shadow var(--transition), background-color var(--transition);
+        }
+
+        textarea:focus {
+            border-color: rgba(37, 99, 235, 0.56);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+        }
+
+        .button-row,
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .button {
+            min-height: 40px;
+            border-radius: 999px;
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 750;
+            transition: transform var(--transition), background-color var(--transition), box-shadow var(--transition), color var(--transition);
+        }
+
+        .button:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .button-primary {
+            background: var(--blue);
+            color: #ffffff;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18);
+        }
+
+        .button-large {
+            min-height: 46px;
+            padding: 0 20px;
+            font-size: 15px;
+        }
+
+        .button-secondary {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: #334155;
+        }
+
+        .button-danger {
+            min-height: 32px;
+            background: transparent;
+            color: var(--muted);
+            padding: 0 10px;
+            box-shadow: none;
+        }
+
+        .button-danger:hover:not(:disabled) {
+            background: var(--red-soft);
+            color: var(--red);
+            transform: translateY(-1px);
+        }
+
+        .status-message {
+            min-height: 22px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .status-message.error {
+            color: var(--red);
+        }
+
+        .status-message.success {
+            color: var(--green);
+        }
+
+        .examples-panel {
+            display: grid;
+            gap: 10px;
+        }
+
+        .example-group {
+            border: 1px solid rgba(226, 232, 240, 0.86);
+            border-radius: 16px;
+            background: var(--surface-soft);
+            overflow: hidden;
+            transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+        }
+
+        .example-group summary {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 42px 12px 14px;
+            color: var(--text);
+            cursor: pointer;
+            font-weight: 750;
+            list-style: none;
+            outline: none;
+            transition: background-color 0.18s var(--ease), color 0.18s var(--ease);
+        }
+
+        .example-group summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .example-group summary::after {
+            content: "";
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            border-right: 2px solid var(--muted-soft);
+            border-bottom: 2px solid var(--muted-soft);
+            transform: translateY(-65%) rotate(45deg);
+            transition: transform 0.2s var(--ease), border-color 0.2s var(--ease);
+        }
+
+        .example-group[open] summary::after {
+            transform: translateY(-30%) rotate(225deg);
+        }
+
+        .example-group summary:hover {
+            background: rgba(255, 255, 255, 0.72);
+        }
+
+        .example-group summary:focus-visible {
+            box-shadow: inset 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .example-count {
+            display: inline-flex;
+            flex: 0 0 auto;
+            align-items: center;
+            min-height: 22px;
+            border-radius: 999px;
+            background: var(--surface);
+            padding: 4px 8px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 750;
+        }
+
+        .example-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 0 14px 12px;
+            animation: fadeIn 0.2s var(--ease);
+        }
+
+        .example-button {
+            border: 1px solid rgba(203, 213, 225, 0.72);
+            border-radius: 14px;
+            background: var(--surface);
+            color: #475569;
+            max-width: 100%;
+            padding: 7px 10px;
+            font-size: 13px;
+            font-weight: 680;
+            line-height: 1.3;
+            text-align: left;
+            white-space: normal;
+            transition: transform var(--transition), border-color var(--transition), color var(--transition), background-color var(--transition);
+        }
+
+        .example-button:hover {
+            transform: translateY(-1px);
+            border-color: rgba(37, 99, 235, 0.34);
+            color: var(--blue);
+            background: var(--blue-soft);
+        }
+
+        .rule-result,
+        .preview-result {
+            display: grid;
+            gap: 14px;
+            animation: fadeIn 0.22s ease-out;
+        }
+
+        .result-topline {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .confidence-badge,
+        .state-badge,
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            width: fit-content;
+            max-width: 100%;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1.25;
+            white-space: normal;
+        }
+
+        .confidence-badge {
+            gap: 7px;
+            padding: 8px 10px;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+        }
+
+        .confidence-badge.high {
+            background: var(--green-soft);
+            color: var(--green);
+        }
+
+        .confidence-badge.medium {
+            background: var(--amber-soft);
+            color: var(--amber);
+        }
+
+        .confidence-badge.low {
+            background: var(--red-soft);
+            color: var(--red);
+        }
+
+        .confidence-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 14%, transparent);
+        }
+
+        .warning-card,
+        .empty-state {
+            border: 1px solid rgba(245, 158, 11, 0.28);
+            border-radius: 16px;
+            background: var(--amber-soft);
+            color: #7c4a03;
+            padding: 13px 14px;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .empty-state {
+            border-color: rgba(203, 213, 225, 0.72);
+            background: var(--surface-soft);
+            color: var(--muted);
+        }
+
+        .interpretation {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 12px;
+        }
+
+        .interpretation-block {
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 16px;
+            background: var(--surface-soft);
+            padding: 14px;
+        }
+
+        .interpretation-title {
+            margin: 0 0 10px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 850;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .condition-list,
+        .action-list {
+            display: grid;
+            gap: 9px;
+        }
+
+        .readable-row {
+            display: grid;
+            gap: 6px;
+        }
+
+        .readable-label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .chip-row {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            min-height: 28px;
+            border: 1px solid rgba(203, 213, 225, 0.76);
+            background: var(--surface);
+            color: #334155;
+            padding: 7px 9px;
+            transition: border-color 0.18s var(--ease), background-color 0.18s var(--ease), transform 0.18s var(--ease);
+        }
+
+        .chip:hover {
+            border-color: rgba(37, 99, 235, 0.24);
+            background: #fbfdff;
+            transform: translateY(-1px);
+        }
+
+        .chip.action {
+            border-color: rgba(37, 99, 235, 0.24);
+            background: var(--blue-soft);
+            color: #1d4ed8;
+        }
+
+        .json-toggle {
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.86);
+            border-radius: 16px;
+            background: var(--surface-soft);
+        }
+
+        .json-toggle summary {
+            cursor: pointer;
+            padding: 12px 14px;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 800;
+            list-style: none;
+        }
+
+        .json-toggle summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .json-toggle[open] summary {
+            border-bottom: 1px solid var(--border);
+        }
+
+        pre {
+            overflow: auto;
+            margin: 0;
+            border-radius: 0;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 12px;
+            line-height: 1.5;
+            padding: 13px 14px;
+        }
+
+        .preview-summary {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            border: 1px solid rgba(226, 232, 240, 0.86);
+            border-radius: 16px;
+            background: var(--surface-soft);
+            padding: 13px 14px;
+        }
+
+        .preview-count {
+            font-size: 26px;
+            font-weight: 820;
+            letter-spacing: -0.03em;
+        }
+
+        .preview-table {
+            overflow: auto;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--surface);
+        }
+
+        table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid var(--border);
+            padding: 11px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: var(--surface-soft);
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 850;
+            text-transform: uppercase;
+        }
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+        tbody tr {
+            transition: background-color var(--transition);
+        }
+
+        tbody tr:hover {
+            background: #f8fbff;
+        }
+
+        .operation-date {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .operation-description {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .change-stack {
+            display: grid;
+            gap: 8px;
+        }
+
+        .change-line {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .before-value {
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .after-value {
+            color: var(--blue);
+            font-weight: 850;
+        }
+
+        .arrow {
+            color: var(--muted-soft);
+            font-weight: 850;
+        }
+
+        .state-badge {
+            min-height: 26px;
+            padding: 7px 9px;
+        }
+
+        .state-badge.neutral {
+            background: var(--surface-soft);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        .state-badge.ready {
+            background: var(--blue-soft);
+            color: var(--blue);
+            border: 1px solid rgba(37, 99, 235, 0.18);
+        }
+
+        .saved-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .saved-list > .empty-state {
+            grid-column: 1 / -1;
+        }
+
+        .saved-rule {
+            display: grid;
+            grid-template-rows: auto 1fr auto auto;
+            gap: 10px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 16px;
+            background: var(--surface-soft);
+            padding: 14px;
+            animation: savedRuleIn 0.24s var(--ease) both;
+            transition: transform 0.2s var(--ease), background-color 0.2s var(--ease), border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+        }
+
+        .saved-rule:hover {
+            transform: translateY(-1px);
+            border-color: rgba(37, 99, 235, 0.16);
+            background: #fbfdff;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+        }
+
+        .saved-rule-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .saved-rule strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .saved-rule span {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.35;
+        }
+
+        .saved-rule-prompt {
+            display: block;
+            margin-top: 5px;
+        }
+
+        .saved-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .rule-status-toggle {
+            display: inline-flex;
+            width: fit-content;
+            max-width: 100%;
+            align-items: center;
+            gap: 7px;
+            border: 0;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 850;
+            line-height: 1.2;
+            transition: transform 0.18s var(--ease), background-color 0.18s var(--ease), color 0.18s var(--ease), box-shadow 0.18s var(--ease);
+        }
+
+        .rule-status-toggle.enabled {
+            background: var(--green-soft);
+            color: var(--green);
+        }
+
+        .rule-status-toggle.disabled {
+            background: var(--surface);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        .rule-status-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.07);
+        }
+
+        .rule-status-toggle.enabled:hover {
+            background: #dcfce7;
+        }
+
+        .rule-status-toggle.disabled:hover {
+            color: #475569;
+            background: #f1f5f9;
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .affected-count {
+            display: inline-flex;
+            width: fit-content;
+            max-width: 100%;
+            border-radius: 999px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1.2;
+            white-space: normal;
+        }
+
+        .saved-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes savedRuleIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 1080px) {
+            .rules-main-grid,
+            .rules-flow,
+            .interpretation {
+                grid-template-columns: 1fr;
+            }
+
+            .saved-list {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            main {
+                width: min(100% - 24px, 560px);
+                padding-top: 14px;
+            }
+
+            .top-nav {
+                width: 100%;
+                display: grid;
+                margin-left: 0;
+                transform: none;
+            }
+
+            .app-switcher {
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .app-switcher-link {
+                min-width: 96px;
+                flex: 1;
+            }
+
+            .card {
+                padding: 14px;
+            }
+
+            .result-topline,
+            .preview-summary,
+            .saved-rule-header {
+                display: grid;
+            }
+
+            .rules-hero {
+                border-radius: 22px;
+            }
+
+            .saved-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+    <nav class="top-nav">
+        <div class="app-switcher" data-active="rules">
+            <a class="app-switcher-link" href="/myacc">Dashboard</a>
+            <a class="app-switcher-link" href="/operations">Операции</a>
+            <a class="app-switcher-link active" href="/rules">Правила</a>
+        </div>
+        <button id="logout" class="logout-button" type="button">Выйти</button>
+    </nav>
+
+    <div class="rules-page">
+        <header class="rules-hero">
+            <div>
+                <h1>Smart Rules</h1>
+                <p class="page-subtitle">Создавай правила обработки операций обычным языком. Система покажет интерпретацию, построит предпросмотр и применит изменения только после подтверждения.</p>
+            </div>
+            <div class="rules-flow" aria-label="Как работают правила">
+                <div class="flow-step">
+                    <span class="step-number">1</span>
+                    <strong>Опиши правило</strong>
+                    <span>Напиши обычной фразой, что нужно найти и как обработать.</span>
+                </div>
+                <div class="flow-step">
+                    <span class="step-number">2</span>
+                    <strong>Проверь интерпретацию</strong>
+                    <span>Условия и действия отображаются понятными блоками.</span>
+                </div>
+                <div class="flow-step">
+                    <span class="step-number">3</span>
+                    <strong>Примени безопасно</strong>
+                    <span>Перед изменениями всегда показывается предпросмотр.</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="rules-main-grid">
+            <section class="card create-rule-card">
+                <div class="card-header">
+                    <div>
+                        <p class="card-kicker">Главный сценарий</p>
+                        <h2>Новое правило</h2>
+                    </div>
+                </div>
+
+                <form id="rule-form" class="rule-form">
+                    <textarea id="rule-prompt" placeholder="Например: перевод в Озон банк в категорию маркетплейсы" required></textarea>
+                    <div class="button-row">
+                        <button id="parse-button" class="button button-primary button-large" type="submit">Разобрать правило</button>
+                        <button id="reset-button" class="button button-secondary" type="button">Очистить</button>
+                    </div>
+                    <div id="parse-message" class="status-message" aria-live="polite"></div>
+                </form>
+            </section>
+
+            <section class="card">
+                <div class="card-header">
+                    <div>
+                        <p class="card-kicker">Подсказки</p>
+                        <h2>Примеры правил</h2>
+                    </div>
+                </div>
+                <div class="examples-panel">
+                    <details class="example-group">
+                        <summary>Категоризация <span class="example-count">2</span></summary>
+                        <div class="example-grid">
+                            <button class="example-button" type="button">Steam в Игры</button>
+                            <button class="example-button" type="button">Ozon в Маркетплейсы</button>
+                        </div>
+                    </details>
+                    <details class="example-group">
+                        <summary>Исключение из аналитики <span class="example-count">2</span></summary>
+                        <div class="example-grid">
+                            <button class="example-button" type="button">не учитывать переводы между своими счетами</button>
+                            <button class="example-button" type="button">не включай пополнение и снятие средств с брокерского счета в статистику</button>
+                        </div>
+                    </details>
+                    <details class="example-group">
+                        <summary>Переводы <span class="example-count">2</span></summary>
+                        <div class="example-grid">
+                            <button class="example-button" type="button">исходящие переводы Т-Банк считать переводами</button>
+                            <button class="example-button" type="button">кэшбек считать доходом</button>
+                        </div>
+                    </details>
+                    <details class="example-group">
+                        <summary>Переименование <span class="example-count">1</span></summary>
+                        <div class="example-grid">
+                            <button class="example-button" type="button">переименовать Yandex Plus в Подписки</button>
+                        </div>
+                    </details>
+                </div>
+            </section>
+        </div>
+
+        <div class="rules-results">
+            <section id="rule-result" class="card rule-result" hidden></section>
+            <section id="preview-result" class="card preview-result" hidden></section>
+        </div>
+
+        <section class="card saved-rules-section">
+            <div class="card-header">
+                <div>
+                    <p class="card-kicker">Автоматизация</p>
+                    <h2>Сохранённые правила</h2>
+                </div>
+            </div>
+            <div id="saved-rules" class="saved-list">
+                <div class="empty-state">Загрузка правил...</div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script>
+    const logoutButton = document.querySelector("#logout");
+    const ruleForm = document.querySelector("#rule-form");
+    const rulePrompt = document.querySelector("#rule-prompt");
+    const parseButton = document.querySelector("#parse-button");
+    const resetButton = document.querySelector("#reset-button");
+    const parseMessage = document.querySelector("#parse-message");
+    const ruleResult = document.querySelector("#rule-result");
+    const previewResult = document.querySelector("#preview-result");
+    const savedRules = document.querySelector("#saved-rules");
+
+    let currentRule = null;
+    let currentPrompt = "";
+    let previewWasBuilt = false;
+
+    async function api(path, options = {}) {
+        const response = await fetch(path, {
+            ...options,
+            headers: {
+                "Content-Type": "application/json",
+                ...(options.headers || {})
+            }
+        });
+        if (response.status === 401) {
+            window.location.href = "/login";
+            return null;
+        }
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ message: "Ошибка запроса" }));
+            throw new Error(error.message || "Ошибка запроса");
+        }
+        if (response.status === 204) {
+            return null;
+        }
+        return response.json();
+    }
+
+    function setMessage(message, type = "") {
+        parseMessage.textContent = message;
+        parseMessage.className = `status-message ${type}`.trim();
+    }
+
+    function confidenceLevel(confidence) {
+        if (confidence >= 0.85) {
+            return { className: "high", label: "Высокая уверенность" };
+        }
+        if (confidence >= 0.75) {
+            return { className: "medium", label: "Средняя уверенность" };
+        }
+        return { className: "low", label: "Низкая уверенность" };
+    }
+
+    function confidenceBadge(rule) {
+        const level = confidenceLevel(rule.confidence);
+        return `
+            <span class="confidence-badge ${level.className}">
+                <span class="confidence-dot"></span>
+                ${level.label} · ${Math.round(rule.confidence * 100)}%
+            </span>
+        `;
+    }
+
+    function renderRule(response) {
+        currentRule = response.rule;
+        previewWasBuilt = false;
+        const warnings = response.warnings || [];
+        const level = confidenceLevel(currentRule.confidence);
+        ruleResult.hidden = false;
+        ruleResult.innerHTML = `
+            <div class="result-topline">
+                <div>
+                    <p class="card-kicker">Интерпретация правила</p>
+                    <h2>${escapeHtml(currentRule.name)}</h2>
+                </div>
+                ${confidenceBadge(currentRule)}
+            </div>
+            ${level.className !== "high" || warnings.length ? renderWarnings(warnings, level) : ""}
+            <div class="interpretation">
+                <div class="interpretation-block">
+                    <p class="interpretation-title">Если</p>
+                    <div class="condition-list">${renderConditions(currentRule.conditions)}</div>
+                </div>
+                <div class="interpretation-block">
+                    <p class="interpretation-title">То</p>
+                    <div class="action-list">${renderActions(currentRule.actions)}</div>
+                </div>
+            </div>
+            <details class="json-toggle">
+                <summary>Показать JSON</summary>
+                <pre>${escapeHtml(JSON.stringify(currentRule, null, 2))}</pre>
+            </details>
+            <div class="actions">
+                <button id="preview-button" class="button button-primary" type="button">Показать предпросмотр</button>
+                <button id="edit-button" class="button button-secondary" type="button">Изменить текст</button>
+            </div>
+        `;
+        document.querySelector("#preview-button").addEventListener("click", buildPreview);
+        document.querySelector("#edit-button").addEventListener("click", () => {
+            previewResult.hidden = true;
+            rulePrompt.focus();
+        });
+    }
+
+    function renderWarnings(warnings, level) {
+        const messages = warnings.length ? warnings : ["Модель не полностью уверена в интерпретации правила. Проверь условия и действия перед предпросмотром."];
+        return `
+            <div class="warning-card">
+                <strong>${level.label}</strong>
+                <div>${messages.map(escapeHtml).join("<br>")}</div>
+            </div>
+        `;
+    }
+
+    function renderConditions(conditions) {
+        const rows = [];
+        if (conditions.descriptionContains?.length) {
+            rows.push(readableRow("Описание содержит", chips(conditions.descriptionContains)));
+        }
+        if (conditions.categoryIn?.length) {
+            rows.push(readableRow("Категория сейчас", chips(conditions.categoryIn)));
+        }
+        if (conditions.type && conditions.type !== "all") {
+            rows.push(readableRow("Тип операции", chips([typeLabel(conditions.type)])));
+        }
+        if (conditions.amountMin != null || conditions.amountMax != null) {
+            const range = `${conditions.amountMin ?? "любая"} — ${conditions.amountMax ?? "любая"}`;
+            rows.push(readableRow("Сумма", chips([range])));
+        }
+        if (conditions.counterpartyContains?.length) {
+            rows.push(readableRow("Кому/от кого содержит", chips(conditions.counterpartyContains)));
+        }
+        return rows.join("") || `<div class="empty-state">Условие не распознано.</div>`;
+    }
+
+    function renderActions(actions) {
+        const rows = [];
+        if (actions.setCategory) {
+            rows.push(readableRow("Изменить категорию", chips([actions.setCategory], "action")));
+        }
+        if (actions.excludeFromAnalytics) {
+            rows.push(readableRow("Аналитика", chips(["Исключить из статистики"], "action")));
+        }
+        if (actions.setCounterparty) {
+            rows.push(readableRow("Кому/от кого", chips([actions.setCounterparty], "action")));
+        }
+        if (actions.markAsTransfer) {
+            rows.push(readableRow("Перевод", chips(["Пометить как перевод"], "action")));
+        }
+        if (actions.renameDescription) {
+            rows.push(readableRow("Описание", chips([actions.renameDescription], "action")));
+        }
+        return rows.join("") || `<div class="empty-state">Действие не распознано.</div>`;
+    }
+
+    function readableRow(label, value) {
+        return `
+            <div class="readable-row">
+                <span class="readable-label">${escapeHtml(label)}</span>
+                ${value}
+            </div>
+        `;
+    }
+
+    function chips(values, extraClass = "") {
+        return `<div class="chip-row">${values.map(value => `<span class="chip ${extraClass}">${escapeHtml(value)}</span>`).join("")}</div>`;
+    }
+
+    async function buildPreview() {
+        if (!currentRule) {
+            return;
+        }
+        previewResult.hidden = false;
+        previewResult.innerHTML = `<div class="empty-state">Строю предпросмотр изменений...</div>`;
+        const preview = await api("/api/rules/preview", {
+            method: "POST",
+            body: JSON.stringify(currentRule)
+        });
+        previewWasBuilt = true;
+        renderPreview(preview);
+    }
+
+    function renderPreview(preview) {
+        const highImpact = preview.affectedCount > 100;
+        previewResult.innerHTML = `
+            <div class="result-topline">
+                <div>
+                    <p class="card-kicker">Предпросмотр изменений</p>
+                    <h2>Что изменится</h2>
+                </div>
+            </div>
+            <div class="preview-summary">
+                <div>
+                    <div class="preview-count">${preview.affectedCount}</div>
+                    <div class="muted">операций подходит под правило</div>
+                </div>
+                <span class="state-badge ${preview.affectedCount ? "ready" : "neutral"}">${preview.affectedCount ? "Готово к проверке" : "Изменений нет"}</span>
+            </div>
+            ${highImpact ? `<div class="warning-card"><strong>Много изменений</strong><div>Правило затрагивает больше 100 операций. Проверь before → after особенно внимательно.</div></div>` : ""}
+            ${preview.affectedCount === 0 ? renderNoPreviewChanges() : renderPreviewTable(preview)}
+            <div class="actions">
+                <button id="apply-button" class="button button-primary" type="button" ${preview.affectedCount === 0 ? "disabled" : ""}>Применить</button>
+                <button id="cancel-button" class="button button-secondary" type="button">Отмена</button>
+            </div>
+        `;
+        document.querySelector("#apply-button")?.addEventListener("click", applyRule);
+        document.querySelector("#cancel-button")?.addEventListener("click", resetFlow);
+    }
+
+    function renderNoPreviewChanges() {
+        return `
+            <div class="empty-state">
+                Подходящих операций не найдено. Можно изменить формулировку правила или проверить категории и описания операций.
+            </div>
+        `;
+    }
+
+    function renderPreviewTable(preview) {
+        return `
+            <div class="preview-table">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Операция</th>
+                        <th>Изменения</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ${preview.changes.map(change => `
+                        <tr>
+                            <td>
+                                <div class="operation-description">${escapeHtml(change.description || "Без описания")}</div>
+                                <div class="operation-date">${formatDate(change.date)}</div>
+                            </td>
+                            <td>${changeHtml(change.before, change.after)}</td>
+                        </tr>
+                    `).join("")}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    function changeHtml(before, after) {
+        const changes = [];
+        if ((before.category || "") !== (after.category || "")) {
+            changes.push(transitionLine("Категория", before.category || "—", after.category || "—"));
+        }
+        if (before.excludeFromAnalytics !== after.excludeFromAnalytics) {
+            changes.push(transitionLine("Аналитика", analyticsLabel(before.excludeFromAnalytics), analyticsLabel(after.excludeFromAnalytics)));
+        }
+        if ((before.counterparty || "") !== (after.counterparty || "")) {
+            changes.push(transitionLine("Кому/от кого", before.counterparty || "—", after.counterparty || "—"));
+        }
+        if ((before.description || "") !== (after.description || "")) {
+            changes.push(transitionLine("Описание", before.description || "—", after.description || "—"));
+        }
+        return `<div class="change-stack">${changes.join("") || `<span class="state-badge neutral">Без изменений</span>`}</div>`;
+    }
+
+    function transitionLine(label, before, after) {
+        return `
+            <div class="change-line">
+                <span class="readable-label">${escapeHtml(label)}</span>
+                <span class="before-value">${escapeHtml(before)}</span>
+                <span class="arrow">→</span>
+                <span class="after-value">${escapeHtml(after)}</span>
+            </div>
+        `;
+    }
+
+    async function applyRule() {
+        if (!currentRule || !previewWasBuilt) {
+            setMessage("Сначала построй предпросмотр", "error");
+            return;
+        }
+        if (!confirm("Применить правило к операциям из предпросмотра?")) {
+            return;
+        }
+        const response = await api("/api/rules/apply", {
+            method: "POST",
+            body: JSON.stringify({
+                rule: currentRule,
+                saveRule: true,
+                originalPrompt: currentPrompt
+            })
+        });
+        setMessage(`Правило применено. Обновлено операций: ${response.affectedCount}`, "success");
+        resetFlow(false);
+        await loadRules();
+    }
+
+    async function loadRules() {
+        const rules = await api("/api/rules");
+        savedRules.innerHTML = rules.map((rule, index) => {
+            const lastAppliedCount = Number(rule.lastAppliedCount || 0);
+            const countLabel = lastAppliedCount > 0
+                ? `Затронуто при применении: ${lastAppliedCount}`
+                : `Подходит сейчас: ${rule.affectedCount}`;
+            return `
+            <article class="saved-rule" style="animation-delay: ${Math.min(index * 35, 210)}ms">
+                <div class="saved-rule-header">
+                    <div>
+                        <strong>${escapeHtml(rule.name)}</strong>
+                        <span class="saved-rule-prompt">${escapeHtml(rule.originalPrompt || "Без исходного текста")}</span>
+                    </div>
+                </div>
+                <div class="saved-meta">
+                    <span class="affected-count">${escapeHtml(countLabel)}</span>
+                    <button
+                        class="rule-status-toggle ${rule.enabled ? "enabled" : "disabled"}"
+                        type="button"
+                        data-id="${rule.id}"
+                        data-enabled="${rule.enabled}"
+                        title="${rule.enabled ? "Нажми, чтобы выключить" : "Нажми, чтобы включить"}"
+                    >
+                        ${rule.enabled ? "Включено" : "Выключено"}
+                    </button>
+                    <input class="rule-enabled visually-hidden" type="checkbox" data-id="${rule.id}" ${rule.enabled ? "checked" : ""} tabindex="-1" aria-hidden="true">
+                </div>
+                <div class="saved-actions">
+                    <button class="button button-danger delete-rule" type="button" data-id="${rule.id}">Удалить</button>
+                </div>
+            </article>
+        `;
+        }).join("") || `
+            <div class="empty-state">
+                Пока нет сохранённых правил. Создай первое правило обычным языком.
+            </div>
+        `;
+    }
+
+    function resetFlow(clearText = true) {
+        currentRule = null;
+        previewWasBuilt = false;
+        ruleResult.hidden = true;
+        previewResult.hidden = true;
+        ruleResult.innerHTML = "";
+        previewResult.innerHTML = "";
+        if (clearText) {
+            rulePrompt.value = "";
+            currentPrompt = "";
+            setMessage("");
+        }
+    }
+
+    function typeLabel(type) {
+        if (type === "income") {
+            return "Доход";
+        }
+        if (type === "expense") {
+            return "Расход";
+        }
+        return "Доходы и расходы";
+    }
+
+    function analyticsLabel(value) {
+        return value ? "Исключено из статистики" : "Учитывается в статистике";
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function formatDate(value) {
+        if (!value) {
+            return "—";
+        }
+        return new Intl.DateTimeFormat("ru-RU", { dateStyle: "short", timeStyle: "short" }).format(new Date(value));
+    }
+
+    document.querySelectorAll(".example-button").forEach((button) => {
+        button.addEventListener("click", () => {
+            rulePrompt.value = button.textContent.trim();
+            rulePrompt.focus();
+        });
+    });
+
+    ruleForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        currentPrompt = rulePrompt.value.trim();
+        if (!currentPrompt) {
+            setMessage("Опиши правило обычным языком", "error");
+            return;
+        }
+        setMessage("Разбираю правило...");
+        parseButton.disabled = true;
+        previewResult.hidden = true;
+        try {
+            const response = await api("/api/rules/parse", {
+                method: "POST",
+                body: JSON.stringify({ prompt: currentPrompt })
+            });
+            renderRule(response);
+            setMessage("Правило разобрано. Проверь интерпретацию и построй предпросмотр.", "success");
+        } catch (error) {
+            setMessage(error.message, "error");
+            ruleResult.hidden = true;
+        } finally {
+            parseButton.disabled = false;
+        }
+    });
+
+    resetButton.addEventListener("click", () => resetFlow(true));
+
+    savedRules.addEventListener("click", async (event) => {
+        const statusToggle = event.target.closest(".rule-status-toggle");
+        if (statusToggle) {
+            const nextEnabled = statusToggle.dataset.enabled !== "true";
+            statusToggle.disabled = true;
+            await api(`/api/rules/${statusToggle.dataset.id}/enabled`, {
+                method: "PATCH",
+                body: JSON.stringify({ enabled: nextEnabled })
+            });
+            await loadRules();
+            return;
+        }
+
+        const button = event.target.closest(".delete-rule");
+        if (!button) {
+            return;
+        }
+        if (!confirm("Удалить правило?")) {
+            return;
+        }
+        await api(`/api/rules/${button.dataset.id}`, { method: "DELETE" });
+        await loadRules();
+    });
+
+    logoutButton.addEventListener("click", async () => {
+        await fetch("/logout", { method: "POST" });
+        window.location.href = "/login";
+    });
+
+    loadRules();
+</script>
+</body>
+</html>

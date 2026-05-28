@@ -202,6 +202,10 @@ public class FinanceOperationService {
         return savedOperation;
     }
 
+    public void refreshOperationKey(Long userId, FinanceOperation operation) {
+        operation.setOperationKey(buildOperationKey(userId, operation));
+    }
+
     private void adjustBalance(User user, BigDecimal delta) {
         if (delta == null || delta.signum() == 0) {
             return;
