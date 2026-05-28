@@ -52,6 +52,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.GET, "/", "/index.html", "/login", "/login.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/internal/metrics/users", "/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/login", "/users").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(
