@@ -101,7 +101,7 @@ public class FinanceOperationController {
     }
 
     @PostMapping("/finance/operations")
-    public ResponseEntity<FinanceOperation> createOperation(
+    public ResponseEntity<?> createOperation(
             @RequestBody ManualOperationRequest request,
             HttpSession session
     ) {
@@ -119,7 +119,7 @@ public class FinanceOperationController {
                         );
                         return ResponseEntity.ok(operation);
                     } catch (IllegalArgumentException exception) {
-                        return ResponseEntity.status(409).<FinanceOperation>build();
+                        return ResponseEntity.status(409).body(new ErrorResponse("Такая операция уже добавлена"));
                     }
                 })
                 .orElseGet(() -> ResponseEntity.status(401).build());
@@ -218,5 +218,8 @@ public class FinanceOperationController {
     }
 
     public record DeleteResult(long deletedCount) {
+    }
+
+    public record ErrorResponse(String message) {
     }
 }

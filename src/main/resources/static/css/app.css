@@ -1,0 +1,4 @@
+/* Shared application layer. Page-specific files preserve the current visual output. */
+[hidden] {
+    display: none !important;
+}
