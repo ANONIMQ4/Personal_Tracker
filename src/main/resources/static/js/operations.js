@@ -1,4 +1,15 @@
-const logoutButton = document.querySelector("#logout");
+(function () {
+    const logoutButton = document.querySelector("#logout");
+    const {
+        exportOperations,
+        getCategories,
+        getOperationAmount,
+        getOperationType,
+        highlightSearch: highlightOperationSearch,
+        loadOperationCategories,
+        normalizeSearchText
+    } = window.OperationUtils;
+    const { formatMoney } = window;
     const uploadForm = document.querySelector("#upload-form");
     const uploadMessage = document.querySelector("#upload-message");
     const uploadProgress = document.querySelector("#upload-progress");
@@ -43,119 +54,16 @@ const logoutButton = document.querySelector("#logout");
     let searchTimer = null;
     let activeEditor = null;
     let currentPage = 1;
+    let categoryOptions = [];
     const pageSize = 50;
     const operationFeedback = new Map();
-
-    const categoryColors = {
-        "Переводы": "#5b8def",
-        "Супермаркеты": "#f18f55",
-        "Медицина": "#55bd82",
-        "Цифровые товары": "#8796d7",
-        "Связь": "#7cc6fe",
-        "Ж/д билеты": "#6ea8fe",
-        "Образование": "#e76f6f",
-        "Красота": "#d66fb1",
-        "Транспорт": "#6ea8fe",
-        "Местный транспорт": "#6ea8fe",
-        "Такси": "#6ea8fe",
-        "Услуги банка": "#45556c",
-        "Сервис": "#45556c",
-        "Различные услуги": "#45556c",
-        "Аптеки": "#55bd82",
-        "Маркетплейсы": "#8796d7",
-        "Фастфуд": "#f18f55",
-        "Бонусы": "#55bd82",
-        "Прочий доход": "#55bd82",
-        "Прочий расход": "#b8c0cc",
-        "Остальное": "#b8c0cc",
-        "Без категории": "#b8c0cc"
-    };
-
-    function getCategoryColor(categoryName) {
-        const normalized = (categoryName || "Без категории").trim();
-        if (categoryColors[normalized]) {
-            return categoryColors[normalized];
-        }
-
-        const lower = normalized.toLowerCase();
-        if (/(еда|супермаркет|фастфуд|кафе|ресторан|продукт|пят[её]р|перекр)/i.test(lower)) {
-            return "#f18f55";
-        }
-        if (/(транспорт|такси|ж\/д|автобус|метро|билет)/i.test(lower)) {
-            return "#6ea8fe";
-        }
-        if (/(мед|аптек|клиник|здоров)/i.test(lower)) {
-            return "#55bd82";
-        }
-        if (/(маркет|ozon|wildberries|цифров|товар)/i.test(lower)) {
-            return "#8796d7";
-        }
-        if (/(перевод|поступлен|вывод)/i.test(lower)) {
-            return "#5b8def";
-        }
-        if (/(образован|университет|курс|школ)/i.test(lower)) {
-            return "#e76f6f";
-        }
-        if (/(сервис|услуг|банк|подпис)/i.test(lower)) {
-            return "#45556c";
-        }
-        return "#b8c0cc";
-    }
-
-    function formatMoney(value, currency = "RUB") {
-        return new Intl.NumberFormat("ru-RU", {
-            style: "currency",
-            currency
-        }).format(value || 0);
-    }
-
-    function formatOperationDate(value) {
-        if (!value) {
-            return "";
-        }
-
-        return new Intl.DateTimeFormat("ru-RU", {
-            dateStyle: "short",
-            timeStyle: "short"
-        }).format(new Date(value));
-    }
-
-    function escapeHtml(value) {
-        return String(value ?? "")
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-    }
-
-    function normalizeSearchText(value) {
-        return String(value ?? "").toLowerCase().replaceAll("ё", "е");
-    }
-
-    function getOperationAmount(operation) {
-        return Number(operation.operationAmount || 0);
-    }
-
-    function getOperationType(operation) {
-        return getOperationAmount(operation) < 0 ? "Расход" : "Доход";
-    }
 
     function getSearchTokens() {
         return normalizeSearchText(searchQuery).split(/\s+/).filter(Boolean);
     }
 
     function highlightSearch(value) {
-        const text = escapeHtml(value);
-        const tokens = getSearchTokens();
-        if (tokens.length === 0) {
-            return text;
-        }
-
-        return tokens.reduce((result, token) => {
-            const escapedToken = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-            return result.replace(new RegExp(`(${escapedToken})`, "gi"), `<mark class="search-hit">$1</mark>`);
-        }, text);
+        return highlightOperationSearch(value, getSearchTokens());
     }
 
     function isMatchingSearch(operation) {
@@ -356,29 +264,9 @@ const logoutButton = document.querySelector("#logout");
     }
 
     function getEditableCategories() {
-        const commonCategories = [
-            "Переводы",
-            "Супермаркеты",
-            "Маркетплейсы",
-            "Медицина",
-            "Аптеки",
-            "Транспорт",
-            "Местный транспорт",
-            "Такси",
-            "Ж/д билеты",
-            "Образование",
-            "Фастфуд",
-            "Связь",
-            "Услуги банка",
-            "Сервис",
-            "Цифровые товары",
-            "Прочий доход",
-            "Прочий расход",
-            "Остальное"
-        ];
         return Array.from(new Set([
+            ...categoryOptions.map((category) => category.name),
             ...allOperations.map((operation) => operation.category || "Без категории"),
-            ...commonCategories
         ])).sort((first, second) => first.localeCompare(second, "ru"));
     }
 
@@ -387,7 +275,12 @@ const logoutButton = document.querySelector("#logout");
     }
 
     async function loadOperations() {
-        allOperations = await apiFetch("/finance/operations") || [];
+        const [loadedCategories, loadedOperations] = await Promise.all([
+            loadOperationCategories(),
+            apiFetch("/finance/operations")
+        ]);
+        categoryOptions = loadedCategories || getCategories();
+        allOperations = loadedOperations || [];
         renderOperations();
     }
 
@@ -451,48 +344,10 @@ const logoutButton = document.querySelector("#logout");
     }
 
     function appendOperationRow(operation) {
-        const amount = getOperationAmount(operation);
-        const row = document.createElement("tr");
-        const amountClass = amount < 0 ? "amount-negative" : "amount-positive";
-        const type = getOperationType(operation);
-        const typeClass = amount < 0 ? "expense" : "income";
-        const typeIcon = amount < 0 ? "−" : "+";
-        const category = operation.category || "Без категории";
-        const categoryColor = getCategoryColor(category);
-        const feedback = operationFeedback.get(Number(operation.id));
-        if (feedback) {
-            row.classList.add(feedback === "success" ? "edit-success" : "edit-error");
-        }
-        row.dataset.operationId = operation.id;
-        row.innerHTML = `
-            <td class="checkbox-cell">
-                <input class="operation-checkbox" type="checkbox" value="${operation.id}" aria-label="Выбрать операцию">
-            </td>
-            <td class="operation-date">${formatOperationDate(operation.operationDate)}</td>
-            <td><span class="type-badge ${typeClass}"><span>${typeIcon}</span>${type}</span></td>
-            <td class="editable-cell" data-edit-field="category" data-id="${operation.id}" tabindex="0" role="button" aria-label="Изменить категорию">
-                <span class="editable-value">
-                    <span class="category-badge" style="--dot-color: ${categoryColor}; --pill-bg: ${categoryColor}18"><span>${highlightSearch(category)}</span></span>
-                </span>
-                <span class="edit-pencil" aria-hidden="true">✎</span>
-            </td>
-            <td class="editable-cell operation-description" data-edit-field="description" data-id="${operation.id}" tabindex="0" role="button" aria-label="Изменить описание">
-                <span class="editable-value">${highlightSearch(operation.description || "Без описания")}</span>
-                <span class="edit-pencil" aria-hidden="true">✎</span>
-            </td>
-            <td class="editable-cell operation-amount ${amountClass}" data-edit-field="operationAmount" data-id="${operation.id}" tabindex="0" role="button" aria-label="Изменить сумму">
-                <span class="editable-value">${highlightSearch(formatMoney(amount, operation.operationCurrency || "RUB"))}</span>
-                <span class="edit-pencil" aria-hidden="true">✎</span>
-            </td>
-            <td class="operation-actions">
-                <button class="delete-one" type="button" data-id="${operation.id}" aria-label="Удалить операцию">
-                    <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M4 7h16M9 7V5.8A1.8 1.8 0 0 1 10.8 4h2.4A1.8 1.8 0 0 1 15 5.8V7m-8 0 1 13h8l1-13M10 11v5m4-5v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-            </td>
-        `;
-        operationsBody.appendChild(row);
+        operationsBody.appendChild(window.OperationRow.create(operation, {
+            feedback: operationFeedback.get(Number(operation.id)),
+            searchTokens: getSearchTokens()
+        }));
     }
 
     function renderOperations() {
@@ -675,29 +530,6 @@ const logoutButton = document.querySelector("#logout");
         acceptedFiles.forEach((file) => transfer.items.add(file));
         financeFile.files = transfer.files;
         updateSelectedFilesText();
-    }
-
-    function getCsvValue(value) {
-        return `"${String(value ?? "").replaceAll('"', '""')}"`;
-    }
-
-    function exportOperations(operations, fileName = "operations.csv") {
-        const header = ["Дата", "Тип", "Категория", "Описание", "Сумма", "Валюта"];
-        const rows = operations.map((operation) => [
-            formatOperationDate(operation.operationDate),
-            getOperationType(operation),
-            operation.category || "Без категории",
-            operation.description || "",
-            getOperationAmount(operation),
-            operation.operationCurrency || "RUB"
-        ]);
-        const csv = [header, ...rows].map((row) => row.map(getCsvValue).join(";")).join("\n");
-        const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        URL.revokeObjectURL(link.href);
     }
 
     function resetPaginationAndRender() {
@@ -959,3 +791,4 @@ const logoutButton = document.querySelector("#logout");
     loadAccount();
     openPendingDrawerFromDashboard();
     loadOperations();
+})();

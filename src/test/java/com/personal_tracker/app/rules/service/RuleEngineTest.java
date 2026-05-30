@@ -1,6 +1,6 @@
 package com.personal_tracker.app.rules.service;
 
-import com.personal_tracker.app.model.FinanceOperation;
+import com.personal_tracker.app.entity.FinanceOperation;
 import com.personal_tracker.app.rules.model.RuleActions;
 import com.personal_tracker.app.rules.model.RuleConditions;
 import com.personal_tracker.app.rules.model.RuleDefinition;
@@ -11,6 +11,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class RuleEngineTest {
 
@@ -201,6 +202,20 @@ class RuleEngineTest {
         );
 
         assertThatNoException().isThrownBy(() -> validator.validate(lowConfidenceRule, List.of("Игры")));
+    }
+
+    @Test
+    void validatorAllowsOnlyCurrentUserCategories() {
+        RuleDefinition rule = new RuleDefinition(
+                "Known globally but not for user",
+                0.9,
+                new RuleConditions(List.of("steam"), List.of(), "all", null, null, List.of()),
+                new RuleActions("Игры", false, null, false, null)
+        );
+
+        assertThatThrownBy(() -> validator.validate(rule, List.of("Супермаркеты")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Неизвестная категория в действии: Игры");
     }
 
     private RuleDefinition rule(RuleConditions conditions, RuleActions actions) {

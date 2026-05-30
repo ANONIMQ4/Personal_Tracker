@@ -18,34 +18,38 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class OpenAiRuleParserClient implements RuleParserClient {
-
-    private static final URI RESPONSES_URI = URI.create("https://api.openai.com/v1/responses");
-    private static final double FALLBACK_CONFIDENCE_THRESHOLD = 0.75;
-    private static final int MAX_ERROR_BODY_LENGTH = 500;
+public class RuleAiClient {
 
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
+    private final URI responsesUri;
     private final String apiKey;
     private final String primaryModel;
     private final String fallbackModel;
+    private final double fallbackConfidenceThreshold;
+    private final int maxErrorBodyLength;
     private final ThreadLocal<Boolean> usedFallback = ThreadLocal.withInitial(() -> false);
 
-    public OpenAiRuleParserClient(
+    public RuleAiClient(
             @Value("${openai.api-key:${OPENAI_API_KEY:}}") String apiKey,
+            @Value("${openai.responses-uri:https://api.openai.com/v1/responses}") String responsesUri,
             @Value("${rules.llm.primary-model:gpt-5-nano}") String primaryModel,
-            @Value("${rules.llm.fallback-model:gpt-5-mini}") String fallbackModel
+            @Value("${rules.llm.fallback-model:gpt-5-mini}") String fallbackModel,
+            @Value("${rules.llm.fallback-confidence-threshold:0.75}") double fallbackConfidenceThreshold,
+            @Value("${rules.llm.max-error-body-length:500}") int maxErrorBodyLength
     ) {
         this.objectMapper = JsonMapper.builder().findAndAddModules().build();
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
+        this.responsesUri = URI.create(responsesUri);
         this.apiKey = apiKey;
         this.primaryModel = primaryModel;
         this.fallbackModel = fallbackModel;
+        this.fallbackConfidenceThreshold = fallbackConfidenceThreshold;
+        this.maxErrorBodyLength = maxErrorBodyLength;
     }
 
-    @Override
     public RuleDefinition parse(String userPrompt, Collection<String> categories) {
         usedFallback.set(false);
         if (apiKey == null || apiKey.isBlank()) {
@@ -61,7 +65,7 @@ public class OpenAiRuleParserClient implements RuleParserClient {
             return fallbackRule;
         }
 
-        if (primaryRule.confidence() >= FALLBACK_CONFIDENCE_THRESHOLD) {
+        if (primaryRule.confidence() >= fallbackConfidenceThreshold) {
             return primaryRule;
         }
 
@@ -71,14 +75,13 @@ public class OpenAiRuleParserClient implements RuleParserClient {
                 usedFallback.set(true);
                 return fallbackRule;
             }
-        } catch (RuntimeException ignored) {
-            // A valid primary result is still better than failing the request after fallback.
+        } catch (RuntimeException fallbackException) {
+            // Если fallback не сработал, валидный primary-результат лучше ошибки.
         }
 
         return primaryRule;
     }
 
-    @Override
     public boolean usedFallback() {
         return usedFallback.get();
     }
@@ -93,7 +96,7 @@ public class OpenAiRuleParserClient implements RuleParserClient {
 
     private RuleDefinition parseWithModel(String model, String userPrompt, Collection<String> categories) {
         try {
-            String responseBody = sendRequest(model, buildUserPrompt(userPrompt, categories));
+            String responseBody = sendRequest(model, RuleAiPrompt.buildUserPrompt(userPrompt, categories));
             JsonNode root = objectMapper.readTree(responseBody);
             validateResponseStatus(root);
             String jsonText = extractOutputText(root);
@@ -114,7 +117,7 @@ public class OpenAiRuleParserClient implements RuleParserClient {
                 "input", List.of(
                         Map.of(
                                 "role", "system",
-                                "content", systemPrompt()
+                                "content", RuleAiPrompt.systemPrompt()
                         ),
                         Map.of(
                                 "role", "user",
@@ -126,13 +129,13 @@ public class OpenAiRuleParserClient implements RuleParserClient {
                                 "type", "json_schema",
                                 "name", "finance_rule",
                                 "strict", true,
-                                "schema", schema()
+                                "schema", RuleAiPrompt.schema()
                         )
                 ),
                 "store", false
         );
 
-        HttpRequest request = HttpRequest.newBuilder(RESPONSES_URI)
+        HttpRequest request = HttpRequest.newBuilder(responsesUri)
                 .timeout(Duration.ofSeconds(30))
                 .header("Authorization", "Bearer " + apiKey)
                 .header("Content-Type", "application/json")
@@ -231,112 +234,17 @@ public class OpenAiRuleParserClient implements RuleParserClient {
         }
     }
 
-    private String buildUserPrompt(String userPrompt, Collection<String> categories) {
-        return """
-                Allowed categories:
-                %s
-
-                User prompt:
-                %s
-
-                Mapping hints:
-                - "не включай в статистику", "не учитывать", "исключи из аналитики" => actions.excludeFromAnalytics=true.
-                - Existing source category names must go to conditions.categoryIn, not descriptionContains.
-                - Merchant names, brands, counterparties, and free text must go to conditions.descriptionContains.
-                - For "A в B", if A is an allowed category, use categoryIn [A] and setCategory B.
-                - For "установить категорию B для A, C, D", if A/C/D are allowed categories, use categoryIn [A, C, D] and setCategory B.
-                - Do not invent categories. Use only allowed categories for categoryIn and setCategory.
-
-                Examples:
-                Input: Экосистема Яндекс в Цифровые товары
-                Output category logic: categoryIn ["Экосистема Яндекс"], setCategory "Цифровые товары".
-
-                Input: Установить категорию Транспорт для ЖД билетов, Авиабилетов, Такси и Местного транспорта
-                Output category logic: categoryIn ["ЖД билеты", "Авиабилеты", "Такси", "Местный транспорт"], type "expense", setCategory "Транспорт".
-
-                Input: переименовать Yandex Plus в Подписки
-                Output rename logic: descriptionContains ["Yandex Plus"], renameDescription "Подписки".
-
-                Input: не включай пополнение и снятие средств с брокерского счета в статистику
-                Output exclude logic: descriptionContains ["брокерский счет", "брокерского счета", "брокер"], excludeFromAnalytics true.
-                """.formatted(
-                categories == null ? "" : String.join(", ", categories),
-                userPrompt == null ? "" : userPrompt.trim()
-        );
-    }
-
-    private String systemPrompt() {
-        return """
-                Ты parser финансовых правил.
-                Возвращай только JSON по schema.
-                Не используй markdown, комментарии или пояснения.
-                Не выдумывай категории.
-                Категории выбирай только из allowed categories.
-                "не включай в статистику", "не учитывать", "исключи из аналитики" => excludeFromAnalytics=true.
-                Source category names должны идти в categoryIn, а не descriptionContains.
-                Merchant/free text должны идти в descriptionContains.
-                """;
-    }
-
-    private Map<String, Object> schema() {
-        Map<String, Object> stringArray = Map.of(
-                "type", "array",
-                "items", Map.of("type", "string")
-        );
-
-        return Map.of(
-                "type", "object",
-                "additionalProperties", false,
-                "required", List.of("name", "confidence", "conditions", "actions"),
-                "properties", Map.of(
-                        "name", Map.of("type", "string"),
-                        "confidence", Map.of("type", "number"),
-                        "conditions", Map.of(
-                                "type", "object",
-                                "additionalProperties", false,
-                                "required", List.of(
-                                        "descriptionContains",
-                                        "categoryIn",
-                                        "type",
-                                        "amountMin",
-                                        "amountMax",
-                                        "counterpartyContains"
-                                ),
-                                "properties", Map.of(
-                                        "descriptionContains", stringArray,
-                                        "categoryIn", stringArray,
-                                        "type", Map.of("type", "string", "enum", List.of("income", "expense", "all")),
-                                        "amountMin", Map.of("type", List.of("number", "null")),
-                                        "amountMax", Map.of("type", List.of("number", "null")),
-                                        "counterpartyContains", stringArray
-                                )
-                        ),
-                        "actions", Map.of(
-                                "type", "object",
-                                "additionalProperties", false,
-                                "required", List.of(
-                                        "setCategory",
-                                        "excludeFromAnalytics",
-                                        "setCounterparty",
-                                        "markAsTransfer",
-                                        "renameDescription"
-                                ),
-                                "properties", Map.of(
-                                        "setCategory", Map.of("type", List.of("string", "null")),
-                                        "excludeFromAnalytics", Map.of("type", "boolean"),
-                                        "setCounterparty", Map.of("type", List.of("string", "null")),
-                                        "markAsTransfer", Map.of("type", "boolean"),
-                                        "renameDescription", Map.of("type", List.of("string", "null"))
-                                )
-                        )
-                )
-        );
-    }
-
     private String limit(String value) {
         if (value == null) {
             return "";
         }
-        return value.length() > MAX_ERROR_BODY_LENGTH ? value.substring(0, MAX_ERROR_BODY_LENGTH) : value;
+        return value.length() > maxErrorBodyLength ? value.substring(0, maxErrorBodyLength) : value;
+    }
+
+    private static class OpenAiApiException extends RuntimeException {
+
+        OpenAiApiException(String message) {
+            super(message);
+        }
     }
 }

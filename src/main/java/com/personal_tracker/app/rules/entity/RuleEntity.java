@@ -1,6 +1,6 @@
 package com.personal_tracker.app.rules.entity;
 
-import com.personal_tracker.app.model.User;
+import com.personal_tracker.app.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,14 +12,20 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "rules")
+@Getter
+@Setter
 public class RuleEntity {
 
     @Id
+    @Setter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -41,80 +47,19 @@ public class RuleEntity {
     private boolean enabled = true;
 
     @Column(name = "last_applied_count")
+    @Setter(AccessLevel.NONE)
     private long lastAppliedCount;
 
     @Column(name = "created_at")
+    @Setter(AccessLevel.NONE)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
+    @Setter(AccessLevel.NONE)
     private LocalDateTime updatedAt;
-
-    public Long getId() {
-        return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getOriginalPrompt() {
-        return originalPrompt;
-    }
-
-    public void setOriginalPrompt(String originalPrompt) {
-        this.originalPrompt = originalPrompt;
-    }
-
-    public String getConditionsJson() {
-        return conditionsJson;
-    }
-
-    public void setConditionsJson(String conditionsJson) {
-        this.conditionsJson = conditionsJson;
-    }
-
-    public String getActionsJson() {
-        return actionsJson;
-    }
-
-    public void setActionsJson(String actionsJson) {
-        this.actionsJson = actionsJson;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public long getLastAppliedCount() {
-        return lastAppliedCount;
-    }
 
     public void setLastAppliedCount(long lastAppliedCount) {
         this.lastAppliedCount = Math.max(0, lastAppliedCount);
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 
     @PrePersist

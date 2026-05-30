@@ -1,7 +1,11 @@
 package com.personal_tracker.app.controller;
 
-import com.personal_tracker.app.model.FinanceOperation;
-import com.personal_tracker.app.model.User;
+import com.personal_tracker.app.entity.FinanceOperation;
+import com.personal_tracker.app.entity.User;
+import com.personal_tracker.app.service.FinanceAnalyticsService;
+import com.personal_tracker.app.service.FinanceAnalyticsService.AnalyticsResponse;
+import com.personal_tracker.app.service.FinanceCategoryService;
+import com.personal_tracker.app.service.FinanceCategoryService.CategoryDto;
 import com.personal_tracker.app.service.FinanceOperationService;
 import com.personal_tracker.app.service.FinanceOperationService.ImportResult;
 import com.personal_tracker.app.service.UserService;
@@ -30,10 +34,19 @@ public class FinanceOperationController {
     private static final String USER_ID_SESSION_KEY = "userId";
     private static final int MAX_UPLOAD_FILES = 20;
 
+    private final FinanceAnalyticsService financeAnalyticsService;
+    private final FinanceCategoryService financeCategoryService;
     private final FinanceOperationService financeOperationService;
     private final UserService userService;
 
-    public FinanceOperationController(FinanceOperationService financeOperationService, UserService userService) {
+    public FinanceOperationController(
+            FinanceAnalyticsService financeAnalyticsService,
+            FinanceCategoryService financeCategoryService,
+            FinanceOperationService financeOperationService,
+            UserService userService
+    ) {
+        this.financeAnalyticsService = financeAnalyticsService;
+        this.financeCategoryService = financeCategoryService;
         this.financeOperationService = financeOperationService;
         this.userService = userService;
     }
@@ -42,6 +55,34 @@ public class FinanceOperationController {
     public ResponseEntity<List<FinanceOperation>> getOperations(HttpSession session) {
         return getCurrentUser(session)
                 .map(user -> ResponseEntity.ok(financeOperationService.getOperations(user.getId())))
+                .orElseGet(() -> ResponseEntity.status(401).build());
+    }
+
+    @GetMapping("/finance/categories")
+    public ResponseEntity<List<CategoryDto>> getCategories(HttpSession session) {
+        return getCurrentUser(session)
+                .map(user -> ResponseEntity.ok(financeCategoryService.getUserCategories(user.getId())))
+                .orElseGet(() -> ResponseEntity.status(401).build());
+    }
+
+    @GetMapping("/finance/analytics")
+    public ResponseEntity<AnalyticsResponse> getAnalytics(
+            @RequestParam(value = "from", required = false) LocalDate from,
+            @RequestParam(value = "to", required = false) LocalDate to,
+            @RequestParam(value = "metric", required = false, defaultValue = "amount") String metric,
+            @RequestParam(value = "donutMode", required = false, defaultValue = "expense") String donutMode,
+            @RequestParam(value = "categoryKeys", required = false) List<String> categoryKeys,
+            HttpSession session
+    ) {
+        return getCurrentUser(session)
+                .map(user -> ResponseEntity.ok(financeAnalyticsService.buildAnalytics(
+                        user.getId(),
+                        from,
+                        to,
+                        metric,
+                        donutMode,
+                        categoryKeys
+                )))
                 .orElseGet(() -> ResponseEntity.status(401).build());
     }
 

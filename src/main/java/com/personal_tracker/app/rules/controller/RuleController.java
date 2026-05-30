@@ -1,12 +1,10 @@
 package com.personal_tracker.app.rules.controller;
 
-import com.personal_tracker.app.model.User;
+import com.personal_tracker.app.entity.User;
 import com.personal_tracker.app.rules.dto.ApplyRuleRequest;
-import com.personal_tracker.app.rules.dto.ParseRuleRequest;
 import com.personal_tracker.app.rules.dto.ParsedRuleResponse;
 import com.personal_tracker.app.rules.dto.RuleDto;
 import com.personal_tracker.app.rules.dto.RulePreviewResponse;
-import com.personal_tracker.app.rules.dto.ToggleRuleRequest;
 import com.personal_tracker.app.rules.model.RuleDefinition;
 import com.personal_tracker.app.rules.service.RuleService;
 import com.personal_tracker.app.service.UserService;
@@ -125,5 +123,11 @@ public class RuleController {
     }
 
     public record ErrorResponse(String message) {
+    }
+
+    public record ParseRuleRequest(String prompt) {
+    }
+
+    public record ToggleRuleRequest(boolean enabled) {
     }
 }

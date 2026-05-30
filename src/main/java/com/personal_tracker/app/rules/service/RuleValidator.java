@@ -16,39 +16,6 @@ public class RuleValidator {
 
     public static final double MIN_CONFIDENCE = 0;
 
-    private static final Set<String> BASE_ALLOWED_CATEGORIES = Set.of(
-            "Переводы",
-            "Входящие переводы",
-            "Исходящие переводы",
-            "Супермаркеты",
-            "Маркетплейсы",
-            "Медицина",
-            "Аптеки",
-            "Транспорт",
-            "Местный транспорт",
-            "Такси",
-            "Ж/д билеты",
-            "ЖД билеты",
-            "Авиабилеты",
-            "Образование",
-            "Фастфуд",
-            "Связь",
-            "Услуги банка",
-            "Сервис",
-            "Цифровые товары",
-            "Игры",
-            "Steam",
-            "Кэшбэк",
-            "Возвраты",
-            "Пополнения",
-            "Зарплата",
-            "Бонусы",
-            "Прочий доход",
-            "Прочий расход",
-            "Остальное",
-            "Без категории"
-    );
-
     public void validate(RuleDefinition rule, Collection<String> userCategories) {
         if (rule == null) {
             throw new IllegalArgumentException("Правило не распознано");
@@ -65,7 +32,7 @@ public class RuleValidator {
     }
 
     public Set<String> allowedCategories(Collection<String> userCategories) {
-        Set<String> categories = new LinkedHashSet<>(BASE_ALLOWED_CATEGORIES);
+        Set<String> categories = new LinkedHashSet<>();
         if (userCategories != null) {
             userCategories.stream()
                     .filter(category -> category != null && !category.isBlank())

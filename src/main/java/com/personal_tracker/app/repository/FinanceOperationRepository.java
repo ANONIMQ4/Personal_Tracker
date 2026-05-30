@@ -1,6 +1,6 @@
 package com.personal_tracker.app.repository;
 
-import com.personal_tracker.app.model.FinanceOperation;
+import com.personal_tracker.app.entity.FinanceOperation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,6 +19,15 @@ public interface FinanceOperationRepository extends JpaRepository<FinanceOperati
             ORDER BY operation.operationDate DESC
             """)
     List<FinanceOperation> findVisibleByUserIdOrderByOperationDateDesc(@Param("userId") Long userId);
+
+    @Query("""
+            SELECT DISTINCT COALESCE(NULLIF(TRIM(operation.category), ''), 'Без категории')
+            FROM FinanceOperation operation
+            WHERE operation.user.id = :userId
+              AND (operation.status IS NULL OR UPPER(operation.status) = 'OK')
+            ORDER BY COALESCE(NULLIF(TRIM(operation.category), ''), 'Без категории')
+            """)
+    List<String> findVisibleCategoriesByUserId(@Param("userId") Long userId);
 
     List<FinanceOperation> findByUserIdAndIdIn(Long userId, Collection<Long> ids);
 

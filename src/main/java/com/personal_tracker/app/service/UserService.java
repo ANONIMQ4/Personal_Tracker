@@ -1,8 +1,7 @@
 package com.personal_tracker.app.service;
 
-import com.personal_tracker.app.model.User;
+import com.personal_tracker.app.entity.User;
 import com.personal_tracker.app.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,9 +15,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Optional<User> getUser(Long id) {
@@ -26,8 +25,9 @@ public class UserService {
     }
 
     public Optional<User> getUserByLogin(String login) {
-        return userRepository.findByUsername(login)
-                .or(() -> userRepository.findByEmail(login));
+        String normalizedLogin = login.trim();
+        return userRepository.findByUsername(normalizedLogin)
+                .or(() -> userRepository.findByEmail(normalizedLogin.toLowerCase()));
     }
 
     public Optional<User> authenticate(String login, String password) {

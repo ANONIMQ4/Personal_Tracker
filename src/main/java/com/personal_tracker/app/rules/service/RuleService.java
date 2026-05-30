@@ -3,15 +3,15 @@ package com.personal_tracker.app.rules.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.personal_tracker.app.model.FinanceOperation;
-import com.personal_tracker.app.model.User;
+import com.personal_tracker.app.entity.FinanceOperation;
+import com.personal_tracker.app.entity.User;
 import com.personal_tracker.app.repository.FinanceOperationRepository;
 import com.personal_tracker.app.rules.dto.ApplyRuleRequest;
 import com.personal_tracker.app.rules.dto.ParsedRuleResponse;
 import com.personal_tracker.app.rules.dto.RuleDto;
 import com.personal_tracker.app.rules.dto.RulePreviewResponse;
 import com.personal_tracker.app.rules.entity.RuleEntity;
-import com.personal_tracker.app.rules.llm.RuleParserClient;
+import com.personal_tracker.app.rules.llm.RuleAiClient;
 import com.personal_tracker.app.rules.model.RuleActions;
 import com.personal_tracker.app.rules.model.RuleConditions;
 import com.personal_tracker.app.rules.model.RuleDefinition;
@@ -28,7 +28,7 @@ import java.util.Set;
 @Service
 public class RuleService {
 
-    private final RuleParserClient ruleParserClient;
+    private final RuleAiClient ruleParserClient;
     private final RuleValidator ruleValidator;
     private final RulePreviewService rulePreviewService;
     private final RuleEngine ruleEngine;
@@ -38,7 +38,7 @@ public class RuleService {
     private final ObjectMapper objectMapper;
 
     public RuleService(
-            RuleParserClient ruleParserClient,
+            RuleAiClient ruleParserClient,
             RuleValidator ruleValidator,
             RulePreviewService rulePreviewService,
             RuleEngine ruleEngine,
@@ -176,10 +176,7 @@ public class RuleService {
     }
 
     private Set<String> allowedCategories(Long userId) {
-        List<String> userCategories = financeOperationRepository.findVisibleByUserIdOrderByOperationDateDesc(userId).stream()
-                .map(operation -> operation.getCategory() == null ? "Без категории" : operation.getCategory())
-                .toList();
-        return ruleValidator.allowedCategories(userCategories);
+        return ruleValidator.allowedCategories(financeOperationRepository.findVisibleCategoriesByUserId(userId));
     }
 
     private RuleDefinition normalizeRule(RuleDefinition rule, Collection<String> allowedCategories) {

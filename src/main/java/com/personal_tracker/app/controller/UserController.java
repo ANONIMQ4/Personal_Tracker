@@ -1,11 +1,10 @@
 package com.personal_tracker.app.controller;
 
-import com.personal_tracker.app.model.User;
 import com.personal_tracker.app.service.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.ResponseEntity;
 
 @RestController
 public class UserController {

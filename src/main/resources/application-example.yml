@@ -21,8 +21,11 @@ spring:
 
 openai:
   api-key: ${OPENAI_API_KEY:}
+  responses-uri: ${OPENAI_RESPONSES_URI:https://api.openai.com/v1/responses}
 
 rules:
   llm:
     primary-model: ${RULES_LLM_PRIMARY_MODEL:gpt-5-nano}
     fallback-model: ${RULES_LLM_FALLBACK_MODEL:gpt-5-mini}
+    fallback-confidence-threshold: ${RULES_LLM_FALLBACK_CONFIDENCE_THRESHOLD:0.75}
+    max-error-body-length: ${RULES_LLM_MAX_ERROR_BODY_LENGTH:500}

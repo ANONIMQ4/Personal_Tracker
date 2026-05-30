@@ -52,34 +52,13 @@ const title = document.querySelector("#title");
     let searchTimer = null;
     let activeEditor = null;
     const operationFeedback = new Map();
+    let categoryOptions = [];
     let selectedPeriod = { type: "all", key: null, from: null, to: null };
     let periodWasInitialized = false;
     let donutMode = "expense";
-    const chartColors = ["#5B8DEF", "#6EA8FE", "#7CC6FE", "#66D1C1", "#89E0C8", "#8796D7", "#B8C0CC", "#45556C"];
-    const categoryColors = {
-        "Переводы": "#5B8DEF",
-        "Супермаркеты": "#6EA8FE",
-        "Медицина": "#66D1C1",
-        "Цифровые товары": "#8796D7",
-        "Связь": "#7CC6FE",
-        "Ж/д билеты": "#6EA8FE",
-        "Образование": "#8796D7",
-        "Красота": "#7CC6FE",
-        "Транспорт": "#6EA8FE",
-        "Местный транспорт": "#6EA8FE",
-        "Такси": "#6EA8FE",
-        "Услуги банка": "#45556C",
-        "Сервис": "#45556C",
-        "Различные услуги": "#45556C",
-        "Аптеки": "#66D1C1",
-        "Маркетплейсы": "#7CC6FE",
-        "Фастфуд": "#6EA8FE",
-        "Бонусы": "#89E0C8",
-        "Прочий доход": "#89E0C8",
-        "Прочий расход": "#B8C0CC",
-        "Остальное": "#B8C0CC",
-        "Без категории": "#B8C0CC"
-    };
+    let currentAnalytics = null;
+    let analyticsLoadToken = 0;
+    const chartColors = ["#8fb7ff", "#9fd7f0", "#88d9cd", "#c7b4f7", "#f5bd84", "#eba4cf", "#b8c0cc", "#9aa8bb"];
     const categoryIcons = {
         "Переводы": "↔",
         "Супермаркеты": "🛒",
@@ -92,44 +71,15 @@ const title = document.querySelector("#title");
 
     function getCategoryColor(categoryName) {
         const normalized = (categoryName || "Без категории").trim();
-        if (categoryColors[normalized]) {
-            return categoryColors[normalized];
-        }
-
-        const lower = normalized.toLowerCase();
-        if (/(еда|супермаркет|фастфуд|кафе|ресторан|продукт|пят[её]р|перекр)/i.test(lower)) {
-            return "#6EA8FE";
-        }
-        if (/(транспорт|такси|ж\/д|автобус|метро|билет)/i.test(lower)) {
-            return "#6EA8FE";
-        }
-        if (/(мед|аптек|клиник|здоров)/i.test(lower)) {
-            return "#66D1C1";
-        }
-        if (/(маркет|ozon|wildberries|цифров|товар)/i.test(lower)) {
-            return "#7CC6FE";
-        }
-        if (/(перевод|поступлен|вывод)/i.test(lower)) {
-            return "#5B8DEF";
-        }
-        if (/(образован|университет|курс|школ)/i.test(lower)) {
-            return "#8796D7";
-        }
-        if (/(сервис|услуг|банк|подпис)/i.test(lower)) {
-            return "#45556C";
-        }
-        return "#B8C0CC";
+        return categoryOptions.find((category) => category.name === normalized)?.color || "#B8C0CC";
     }
 
     function getDonutCategoryColor(categoryName, index, mode) {
-        const expensePalette = ["#5B8DEF", "#6EA8FE", "#7CC6FE", "#8796D7", "#B8C0CC", "#45556C"];
-        const incomePalette = ["#4FBFA8", "#66D1C1", "#89E0C8", "#7AB8D8", "#A8D8CF", "#B8C0CC"];
+        const expensePalette = ["#8fb7ff", "#9fd7f0", "#c7b4f7", "#f5bd84", "#eba4cf", "#b8c0cc"];
+        const incomePalette = ["#8bd8b0", "#88d9cd", "#c7dc82", "#9fd7f0", "#94d7b9", "#b8c0cc"];
+        const fallbackPalette = mode === "income" ? incomePalette : expensePalette;
 
-        if (mode === "income") {
-            return incomePalette[index % incomePalette.length];
-        }
-
-        return categoryColors[categoryName] || expensePalette[index % expensePalette.length];
+        return getCategoryColor(categoryName) || fallbackPalette[index % fallbackPalette.length];
     }
 
     function formatDate(value) {
@@ -480,92 +430,14 @@ const title = document.querySelector("#title");
         return getSortedOperations().filter(isInSelectedPeriod);
     }
 
-    function getAnalyticsOperations(operations = getCurrentPeriodOperations()) {
-        return operations.filter((operation) => !operation.excludeFromAnalytics);
-    }
-
-    function getCurrentPeriodBounds(operations) {
-        const dates = operations
-            .map(getOperationDay)
-            .filter(Boolean)
-            .sort((first, second) => first - second);
-
-        if (dates.length === 0) {
-            return null;
-        }
-
-        const from = dates[0];
-        const last = dates[dates.length - 1];
-        const to = new Date(last.getFullYear(), last.getMonth(), last.getDate(), 23, 59, 59, 999);
-        return { from, to };
-    }
-
-    function getOperationDay(operation) {
-        const date = operation.operationDate ? new Date(operation.operationDate) : null;
-        return date ? new Date(date.getFullYear(), date.getMonth(), date.getDate()) : null;
-    }
-
-    function getChartCategoryType(operation) {
-        return getOperationAmount(operation) >= 0 ? "income" : "expense";
-    }
-
-    function getChartCategoryKey(type, category) {
-        return `${type}::${category}`;
-    }
-
-    function getTypedCategoryLabel(type, category) {
-        if (category === "Переводы") {
-            return type === "income" ? "Входящие переводы" : "Исходящие переводы";
-        }
-        if ((category === "Прочий доход" || category === "Маркетплейсы") && type === "income") {
-            return "Пополнения";
-        }
-        return category;
-    }
-
     function getChartCategoryGroups() {
-        const groups = {
-            income: new Map(),
-            expense: new Map()
-        };
-        const incomeCategoryOrder = ["Кэшбэк", "Возвраты", "Пополнения", "Переводы", "Зарплата", "Бонусы"];
-        const incomeCategoryAliases = new Map([
-            ["Прочий доход", "Пополнения"],
-            ["Маркетплейсы", "Пополнения"]
-        ]);
-
-        allOperations.forEach((operation) => {
-            const type = getChartCategoryType(operation);
-            let category = operation.category || "Без категории";
-            if (type === "income") {
-                category = incomeCategoryAliases.get(category) || category;
-                if (!incomeCategoryOrder.includes(category)) {
-                    category = "Пополнения";
-                }
-            }
-            groups[type].set(category, {
-                key: getChartCategoryKey(type, category),
-                type,
-                category,
-                label: getTypedCategoryLabel(type, category)
-            });
-        });
-
-        incomeCategoryOrder.forEach((category) => {
-            groups.income.set(category, {
-                key: getChartCategoryKey("income", category),
-                type: "income",
-                category,
-                label: getTypedCategoryLabel("income", category)
-            });
-        });
-
-        return {
-            income: Array.from(groups.income.values()).sort((first, second) => {
-                return incomeCategoryOrder.indexOf(first.category) - incomeCategoryOrder.indexOf(second.category);
-            }),
-            expense: Array.from(groups.expense.values()).sort((first, second) => first.label.localeCompare(second.label, "ru"))
-        };
+        if (currentAnalytics?.categoryGroups) {
+            return {
+                income: currentAnalytics.categoryGroups.find((group) => group.type === "income")?.items || [],
+                expense: currentAnalytics.categoryGroups.find((group) => group.type === "expense")?.items || []
+            };
+        }
+        return { income: [], expense: [] };
     }
 
     function getChartCategoryValues() {
@@ -578,18 +450,79 @@ const title = document.querySelector("#title");
             .map((checkbox) => checkbox.value);
     }
 
+    function getSelectedPeriodRange() {
+        if (selectedPeriod.type === "year") {
+            return {
+                from: `${selectedPeriod.year}-01-01`,
+                to: `${selectedPeriod.year}-12-31`
+            };
+        }
+        if (selectedPeriod.type === "month" && selectedPeriod.key) {
+            const [year, month] = selectedPeriod.key.split("-").map(Number);
+            const lastDay = new Date(year, month, 0).getDate();
+            return {
+                from: `${selectedPeriod.key}-01`,
+                to: `${selectedPeriod.key}-${String(lastDay).padStart(2, "0")}`
+            };
+        }
+        if (selectedPeriod.type === "custom" && selectedPeriod.from && selectedPeriod.to) {
+            return {
+                from: toDateInputValue(selectedPeriod.from),
+                to: toDateInputValue(selectedPeriod.to)
+            };
+        }
+        return {};
+    }
+
+    function analyticsQuery() {
+        const params = new URLSearchParams();
+        const range = getSelectedPeriodRange();
+        if (range.from) {
+            params.set("from", range.from);
+        }
+        if (range.to) {
+            params.set("to", range.to);
+        }
+        params.set("metric", customChartMetric?.value || "amount");
+        params.set("donutMode", donutMode);
+
+        if (customChartCategories?.children.length) {
+            const selectedKeys = getSelectedChartCategoryKeys();
+            if (selectedKeys.length === 0) {
+                params.append("categoryKeys", "__none__");
+            } else {
+                selectedKeys.forEach((key) => params.append("categoryKeys", key));
+            }
+        }
+        return params.toString();
+    }
+
+    async function loadAnalytics() {
+        const token = ++analyticsLoadToken;
+        const analytics = await apiFetch(`/finance/analytics?${analyticsQuery()}`);
+        if (token !== analyticsLoadToken) {
+            return;
+        }
+
+        currentAnalytics = analytics;
+        updateCustomChartCategoryOptions();
+        renderDashboard();
+        renderExpenseChart();
+        renderCustomChart();
+    }
+
     function setAllChartCategories(checked) {
         customChartCategories.querySelectorAll(".custom-chart-category-input").forEach((checkbox) => {
             checkbox.checked = checked;
         });
-        renderCustomChart();
+        loadAnalytics();
     }
 
     function setChartCategoriesByType(type, checked) {
         customChartCategories.querySelectorAll(`.custom-chart-category-input[data-type="${type}"]`).forEach((checkbox) => {
             checkbox.checked = checked;
         });
-        renderCustomChart();
+        loadAnalytics();
     }
 
     function updateCustomChartCategoryOptions() {
@@ -605,13 +538,13 @@ const title = document.querySelector("#title");
                 icon: "↑",
                 items: groups.income,
                 styles: {
-                    "--group-accent": "#4fbfa8",
+                    "--group-accent": "#56c8b3",
                     "--group-bg": "#f6fbfa",
                     "--group-border": "#e3efec",
-                    "--group-border-strong": "#a9dcd2",
+                    "--group-border-strong": "#b7e4db",
                     "--group-divider": "#e7f1ef",
                     "--group-selected-bg": "#eef8f6",
-                    "--group-shadow": "rgba(79, 191, 168, 0.1)"
+                    "--group-shadow": "rgba(86, 200, 179, 0.1)"
                 }
             },
             {
@@ -620,13 +553,13 @@ const title = document.querySelector("#title");
                 icon: "↓",
                 items: groups.expense,
                 styles: {
-                    "--group-accent": "#5b8def",
+                    "--group-accent": "#6f99ec",
                     "--group-bg": "#f7faff",
                     "--group-border": "#e2eaf6",
-                    "--group-border-strong": "#b8cdf5",
+                    "--group-border-strong": "#c3d5f8",
                     "--group-divider": "#e7edf7",
                     "--group-selected-bg": "#eef4ff",
-                    "--group-shadow": "rgba(91, 141, 239, 0.1)"
+                    "--group-shadow": "rgba(111, 153, 236, 0.1)"
                 }
             }
         ].forEach((group) => {
@@ -671,74 +604,6 @@ const title = document.querySelector("#title");
             section.append(header, list);
             customChartCategories.append(section);
         });
-    }
-
-    function getChartBucket(date, useMonths) {
-        if (useMonths) {
-            return {
-                key: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`,
-                label: getShortMonthLabel(date.getMonth()) + " " + String(date.getFullYear()).slice(2)
-            };
-        }
-
-        return {
-            key: toDateInputValue(date),
-            label: new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "2-digit" }).format(date)
-        };
-    }
-
-    function getChartBuckets(fromDate, toDate, useMonths) {
-        const buckets = [];
-        const cursor = useMonths
-            ? new Date(fromDate.getFullYear(), fromDate.getMonth(), 1)
-            : new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
-        const end = useMonths
-            ? new Date(toDate.getFullYear(), toDate.getMonth(), 1)
-            : new Date(toDate.getFullYear(), toDate.getMonth(), toDate.getDate());
-
-        while (cursor <= end) {
-            buckets.push({ ...getChartBucket(cursor, useMonths), value: 0 });
-            if (useMonths) {
-                cursor.setMonth(cursor.getMonth() + 1);
-            } else {
-                cursor.setDate(cursor.getDate() + 1);
-            }
-        }
-
-        return buckets;
-    }
-
-    function getChartData() {
-        const periodOperations = getAnalyticsOperations();
-        const bounds = getCurrentPeriodBounds(periodOperations);
-        if (!bounds) {
-            return null;
-        }
-
-        const selectedCategoryKeys = new Set(getSelectedChartCategoryKeys());
-        if (selectedCategoryKeys.size === 0) {
-            return { bounds, selectedCategoryKeys, operations: [], metric: customChartMetric.value };
-        }
-
-        const operations = periodOperations.filter((operation) => {
-            const type = getChartCategoryType(operation);
-            let category = operation.category || "Без категории";
-            if (type === "income") {
-                if (category === "Прочий доход" || category === "Маркетплейсы") {
-                    category = "Пополнения";
-                } else if (!["Кэшбэк", "Возвраты", "Пополнения", "Переводы", "Зарплата", "Бонусы"].includes(category)) {
-                    category = "Пополнения";
-                }
-            }
-            return getOperationDay(operation) && selectedCategoryKeys.has(getChartCategoryKey(type, category));
-        });
-
-        return {
-            bounds,
-            selectedCategoryKeys,
-            operations,
-            metric: customChartMetric.value
-        };
     }
 
     function getChartSummaryText(total, metric, selectedCategoryKeys, groupingText, chartTypeText) {
@@ -793,24 +658,8 @@ const title = document.querySelector("#title");
 
     function renderBarChart(chartData) {
         customChartCanvas.classList.remove("is-heatmap");
-        const { bounds, selectedCategoryKeys, operations, metric } = chartData;
-        const { from: fromDate, to: toDate } = bounds;
-        const dayCount = Math.ceil((toDate - fromDate) / 86400000) + 1;
-        const useMonths = dayCount > 95;
-        const buckets = getChartBuckets(fromDate, toDate, useMonths);
-        const bucketByKey = new Map(buckets.map((bucket) => [bucket.key, bucket]));
-
-        operations.forEach((operation) => {
-            const operationDate = getOperationDay(operation);
-            const bucket = bucketByKey.get(getChartBucket(operationDate, useMonths).key);
-            if (bucket) {
-                bucket.value += metric === "count" ? 1 : Math.abs(getOperationAmount(operation));
-            }
-        });
-
-        const maxValue = Math.max(...buckets.map((bucket) => bucket.value), 0);
-        const total = buckets.reduce((sum, bucket) => sum + bucket.value, 0);
-        const average = buckets.length ? total / buckets.length : 0;
+        const { buckets, metric, total, average, max: maxValue, useMonths } = chartData;
+        const selectedCategoryKeys = new Set(getSelectedChartCategoryKeys());
         const groupingText = `группировка: ${useMonths ? "по месяцам" : "по дням"}`;
         customChartSummary.textContent = getChartSummaryText(total, metric, selectedCategoryKeys, groupingText, "столбцы");
 
@@ -846,18 +695,13 @@ const title = document.querySelector("#title");
 
     function renderHeatmapChart(chartData) {
         customChartCanvas.classList.add("is-heatmap");
-        const { bounds, selectedCategoryKeys, operations, metric } = chartData;
-        const valueByDate = new Map();
-
-        operations.forEach((operation) => {
-            const operationDate = getOperationDay(operation);
-            const key = toDateInputValue(operationDate);
-            valueByDate.set(key, (valueByDate.get(key) || 0) + (metric === "count" ? 1 : Math.abs(getOperationAmount(operation))));
-        });
-
-        const values = Array.from(valueByDate.values());
-        const maxValue = Math.max(...values, 0);
-        const total = values.reduce((sum, value) => sum + value, 0);
+        const { buckets, metric, total, max: maxValue } = chartData;
+        const selectedCategoryKeys = new Set(getSelectedChartCategoryKeys());
+        const valueByDate = new Map(buckets.map((bucket) => [bucket.key, bucket.value]));
+        const bounds = {
+            from: new Date(`${chartData.from}T00:00:00`),
+            to: new Date(`${chartData.to}T23:59:59.999`)
+        };
         customChartSummary.textContent = getChartSummaryText(total, metric, selectedCategoryKeys, "группировка: по дням", "календарь");
 
         if (maxValue === 0) {
@@ -930,15 +774,14 @@ const title = document.querySelector("#title");
         customChartAverage.disabled = isHeatmap;
         customChartAverage.closest(".custom-chart-toggle").classList.toggle("is-disabled", isHeatmap);
 
-        updateCustomChartCategoryOptions();
-        const chartData = getChartData();
-        if (!chartData) {
+        const chartData = currentAnalytics?.chart;
+        if (!chartData || !chartData.from || !chartData.to) {
             customChartSummary.textContent = "Нет операций в выбранном периоде";
             customChartCanvas.innerHTML = `<span class="message">Выбери период, в котором есть операции</span>`;
             return;
         }
 
-        if (chartData.selectedCategoryKeys.size === 0) {
+        if (getSelectedChartCategoryKeys().length === 0) {
             customChartSummary.textContent = "Выбери хотя бы одну категорию";
             customChartCanvas.innerHTML = `<span class="message">Для построения графика отметь одну или несколько категорий</span>`;
             return;
@@ -973,6 +816,7 @@ const title = document.querySelector("#title");
 
         if (years.length === 0) {
             selectedPeriod = { type: "all", key: null, from: null, to: null };
+            customPeriodForm.classList.remove("visible");
             return;
         }
 
@@ -1084,64 +928,6 @@ const title = document.querySelector("#title");
         operationsBody.appendChild(row);
     }
 
-    function getExpenseCategories(operations) {
-        const totals = new Map();
-
-        operations.forEach((operation) => {
-            const amount = getOperationAmount(operation);
-            if (amount >= 0) {
-                return;
-            }
-
-            const category = operation.category || "Без категории";
-            totals.set(category, (totals.get(category) || 0) + Math.abs(amount));
-        });
-
-        const categories = Array.from(totals.entries())
-            .map(([name, amount]) => ({ name, amount }))
-            .sort((first, second) => second.amount - first.amount);
-
-        if (categories.length <= 6) {
-            return categories;
-        }
-
-        const visible = categories.slice(0, 5);
-        const otherAmount = categories.slice(5).reduce((sum, category) => sum + category.amount, 0);
-        visible.push({ name: "Остальное", amount: otherAmount });
-        return visible;
-    }
-
-    function getIncomeCategories(operations) {
-        const totals = new Map();
-
-        operations.forEach((operation) => {
-            const amount = getOperationAmount(operation);
-            if (amount <= 0) {
-                return;
-            }
-
-            const category = operation.category || "Без категории";
-            totals.set(category, (totals.get(category) || 0) + amount);
-        });
-
-        const categories = Array.from(totals.entries())
-            .map(([name, amount]) => ({ name, amount }))
-            .sort((first, second) => second.amount - first.amount);
-
-        if (categories.length <= 6) {
-            return categories;
-        }
-
-        const visible = categories.slice(0, 5);
-        const otherAmount = categories.slice(5).reduce((sum, category) => sum + category.amount, 0);
-        visible.push({ name: "Остальное", amount: otherAmount });
-        return visible;
-    }
-
-    function getDonutCategories(operations) {
-        return donutMode === "income" ? getIncomeCategories(operations) : getExpenseCategories(operations);
-    }
-
     function getDonutPoint(percent, radius) {
         const angle = (percent / 100 * 360 - 90) * Math.PI / 180;
         return {
@@ -1172,7 +958,7 @@ const title = document.querySelector("#title");
         if (!chartTotal || !categoryPills || !donutWrap || !donut) {
             return;
         }
-        const categories = getDonutCategories(operations);
+        const categories = currentAnalytics?.donutCategories || [];
         const total = categories.reduce((sum, category) => sum + category.amount, 0);
         const modeLabel = donutMode === "income" ? "Доходы" : "Расходы";
         const emptyMessage = donutMode === "income" ? "В выбранном периоде доходов нет" : "В выбранном периоде расходов нет";
@@ -1247,16 +1033,30 @@ const title = document.querySelector("#title");
         if (!dashboardPeriod || !dashboardTopCategory || !dashboardTopCategoryNote) {
             return;
         }
-        const periodOperations = getAnalyticsOperations();
-        const topCategory = getExpenseCategories(periodOperations)[0];
+        const summary = currentAnalytics?.summary;
+        const topCategory = summary?.topCategory;
 
         dashboardPeriod.textContent = getPeriodLabel();
         dashboardTopCategory.textContent = topCategory ? topCategory.name : "—";
         dashboardTopCategoryNote.textContent = topCategory ? formatMoney(topCategory.amount) : "Нет расходов";
+        if (income) {
+            income.textContent = formatMoney(summary?.incomeTotal || 0);
+        }
+        if (expenses) {
+            expenses.textContent = formatMoney(summary?.expenseTotal || 0);
+        }
+        if (balance) {
+            balance.textContent = formatMoney(summary?.balance || 0);
+        }
     }
 
     async function loadOperations() {
-        allOperations = await apiFetch("/finance/operations") || [];
+        const [loadedCategories, loadedOperations] = await Promise.all([
+            apiFetch("/finance/categories"),
+            apiFetch("/finance/operations")
+        ]);
+        categoryOptions = loadedCategories || [];
+        allOperations = loadedOperations || [];
         updateEmptyState();
         if (allOperations.length === 0) {
             return;
@@ -1270,29 +1070,9 @@ const title = document.querySelector("#title");
     }
 
     function getEditableCategories() {
-        const commonCategories = [
-            "Переводы",
-            "Супермаркеты",
-            "Маркетплейсы",
-            "Медицина",
-            "Аптеки",
-            "Транспорт",
-            "Местный транспорт",
-            "Такси",
-            "Ж/д билеты",
-            "Образование",
-            "Фастфуд",
-            "Связь",
-            "Услуги банка",
-            "Сервис",
-            "Цифровые товары",
-            "Прочий доход",
-            "Прочий расход",
-            "Остальное"
-        ];
         return Array.from(new Set([
+            ...categoryOptions.map((category) => category.name),
             ...allOperations.map((operation) => operation.category || "Без категории"),
-            ...commonCategories
         ])).sort((first, second) => first.localeCompare(second, "ru"));
     }
 
@@ -1426,12 +1206,9 @@ const title = document.querySelector("#title");
 
     function renderOperations() {
         const periodOperations = getCurrentPeriodOperations();
-        const analyticsOperations = getAnalyticsOperations(periodOperations);
         updateCategoryFilterOptions(periodOperations);
         updateTransferPersonFilterOptions(periodOperations);
         const operations = getVisibleOperations();
-        let incomeTotal = 0;
-        let expenseTotal = 0;
 
         if (operationsBody) {
             operationsBody.innerHTML = "";
@@ -1444,31 +1221,10 @@ const title = document.querySelector("#title");
             operationsBody.innerHTML = `<tr><td colspan="7" class="message">${searchQuery.trim() ? "Операции не найдены" : "Операций пока нет"}</td></tr>`;
         }
 
-        analyticsOperations.forEach((operation) => {
-            const amount = Number(operation.operationAmount || 0);
-            if (amount >= 0) {
-                incomeTotal += amount;
-            } else {
-                expenseTotal += Math.abs(amount);
-            }
-        });
-
         if (operationsBody) {
             operations.forEach(appendOperationRow);
         }
-        renderDashboard();
-        renderExpenseChart(analyticsOperations);
-        renderCustomChart();
-
-        if (income) {
-            income.textContent = formatMoney(incomeTotal);
-        }
-        if (expenses) {
-            expenses.textContent = formatMoney(expenseTotal);
-        }
-        if (balance) {
-            balance.textContent = formatMoney(incomeTotal - expenseTotal);
-        }
+        loadAnalytics();
     }
 
     function getSelectedOperationIds() {
@@ -1657,10 +1413,10 @@ const title = document.querySelector("#title");
 
     customChartForm?.addEventListener("submit", (event) => {
         event.preventDefault();
-        renderCustomChart();
+        loadAnalytics();
     });
 
-    customChartCategories?.addEventListener("change", renderCustomChart);
+    customChartCategories?.addEventListener("change", loadAnalytics);
     customChartCategories?.addEventListener("click", (event) => {
         const button = event.target.closest(".custom-chart-category-group-action");
         if (!button) {
@@ -1669,10 +1425,10 @@ const title = document.querySelector("#title");
 
         setChartCategoriesByType(button.dataset.categoryGroup, button.dataset.categoryChecked === "true");
     });
-    customChartMetric?.addEventListener("change", renderCustomChart);
+    customChartMetric?.addEventListener("change", loadAnalytics);
     customChartType?.addEventListener("change", () => {
         updateChartTypeButtons();
-        renderCustomChart();
+        loadAnalytics();
     });
     chartTypeButtons.forEach((button) => {
         button.addEventListener("click", () => {
@@ -1681,7 +1437,7 @@ const title = document.querySelector("#title");
             }
             customChartType.value = button.dataset.chartType;
             updateChartTypeButtons();
-            renderCustomChart();
+            loadAnalytics();
         });
     });
     customChartAverage?.addEventListener("change", renderCustomChart);
@@ -1707,7 +1463,7 @@ const title = document.querySelector("#title");
         }
 
         donutMode = donutMode === "expense" ? "income" : "expense";
-        renderExpenseChart(getAnalyticsOperations());
+        loadAnalytics();
     });
 
     periodTabs?.addEventListener("click", (event) => {

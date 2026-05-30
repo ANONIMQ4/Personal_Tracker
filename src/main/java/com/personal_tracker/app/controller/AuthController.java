@@ -1,6 +1,6 @@
 package com.personal_tracker.app.controller;
 
-import com.personal_tracker.app.model.User;
+import com.personal_tracker.app.entity.User;
 import com.personal_tracker.app.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;

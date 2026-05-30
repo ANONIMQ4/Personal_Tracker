@@ -1,6 +1,6 @@
 package com.personal_tracker.app.rules.service;
 
-import com.personal_tracker.app.model.FinanceOperation;
+import com.personal_tracker.app.entity.FinanceOperation;
 import com.personal_tracker.app.rules.dto.RulePreviewResponse.OperationState;
 import com.personal_tracker.app.rules.model.RuleActions;
 import com.personal_tracker.app.rules.model.RuleConditions;
