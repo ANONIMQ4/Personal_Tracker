@@ -24,18 +24,13 @@ public class RuleAiClient {
     private final HttpClient httpClient;
     private final URI responsesUri;
     private final String apiKey;
-    private final String primaryModel;
-    private final String fallbackModel;
-    private final double fallbackConfidenceThreshold;
+    private final String model;
     private final int maxErrorBodyLength;
-    private final ThreadLocal<Boolean> usedFallback = ThreadLocal.withInitial(() -> false);
 
     public RuleAiClient(
             @Value("${openai.api-key:${OPENAI_API_KEY:}}") String apiKey,
             @Value("${openai.responses-uri:https://api.openai.com/v1/responses}") String responsesUri,
-            @Value("${rules.llm.primary-model:gpt-5-nano}") String primaryModel,
-            @Value("${rules.llm.fallback-model:gpt-5-mini}") String fallbackModel,
-            @Value("${rules.llm.fallback-confidence-threshold:0.75}") double fallbackConfidenceThreshold,
+            @Value("${rules.llm.model:${RULES_LLM_MODEL:gpt-5-nano}}") String model,
             @Value("${rules.llm.max-error-body-length:500}") int maxErrorBodyLength
     ) {
         this.objectMapper = JsonMapper.builder().findAndAddModules().build();
@@ -44,54 +39,15 @@ public class RuleAiClient {
                 .build();
         this.responsesUri = URI.create(responsesUri);
         this.apiKey = apiKey;
-        this.primaryModel = primaryModel;
-        this.fallbackModel = fallbackModel;
-        this.fallbackConfidenceThreshold = fallbackConfidenceThreshold;
+        this.model = model;
         this.maxErrorBodyLength = maxErrorBodyLength;
     }
 
     public RuleDefinition parse(String userPrompt, Collection<String> categories) {
-        usedFallback.set(false);
         if (apiKey == null || apiKey.isBlank()) {
             throw new IllegalStateException("OpenAI API key не настроен");
         }
-
-        RuleDefinition primaryRule;
-        try {
-            primaryRule = parseWithModel(primaryModel, userPrompt, categories);
-        } catch (RuntimeException primaryException) {
-            RuleDefinition fallbackRule = parseWithFallbackModel(userPrompt, categories);
-            usedFallback.set(true);
-            return fallbackRule;
-        }
-
-        if (primaryRule.confidence() >= fallbackConfidenceThreshold) {
-            return primaryRule;
-        }
-
-        try {
-            RuleDefinition fallbackRule = parseWithModel(fallbackModel, userPrompt, categories);
-            if (fallbackRule.confidence() > primaryRule.confidence()) {
-                usedFallback.set(true);
-                return fallbackRule;
-            }
-        } catch (RuntimeException fallbackException) {
-            // Если fallback не сработал, валидный primary-результат лучше ошибки.
-        }
-
-        return primaryRule;
-    }
-
-    public boolean usedFallback() {
-        return usedFallback.get();
-    }
-
-    private RuleDefinition parseWithFallbackModel(String userPrompt, Collection<String> categories) {
-        try {
-            return parseWithModel(fallbackModel, userPrompt, categories);
-        } catch (RuntimeException fallbackException) {
-            throw fallbackException;
-        }
+        return parseWithModel(model, userPrompt, categories);
     }
 
     private RuleDefinition parseWithModel(String model, String userPrompt, Collection<String> categories) {

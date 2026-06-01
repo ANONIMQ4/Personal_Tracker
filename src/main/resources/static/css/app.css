@@ -1,4 +1,27 @@
 /* Shared application layer. Page-specific files preserve the current visual output. */
+:root {
+    --bg: #f5f7fb;
+    --surface: #ffffff;
+    --surface-soft: #f8fafc;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --text: #172033;
+    --muted: #64748b;
+    --muted-soft: #94a3b8;
+    --blue: #2563eb;
+    --blue-soft: #eff6ff;
+    --green: #15803d;
+    --green-bg: #ecfdf3;
+    --green-soft: #ecfdf3;
+    --red: #b42318;
+    --red-bg: #fff1f0;
+    --red-soft: #fff1f0;
+    --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+    --shadow-soft: 0 8px 22px rgba(15, 23, 42, 0.06);
+    --radius: 16px;
+    --transition: 0.18s ease;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -10,6 +33,11 @@
 body {
     margin: 0;
     min-height: 100vh;
+    color: var(--text, var(--text-main, #172033));
+    background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.06), transparent 28rem),
+        var(--bg, var(--surface-page, #f5f7fb));
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
 }
 
 a {
@@ -30,7 +58,9 @@ button {
 }
 
 main {
+    width: min(1480px, calc(100% - 32px));
     margin: 0 auto;
+    padding: 24px 0 96px;
 }
 
 button:disabled {
@@ -159,6 +189,22 @@ button:disabled {
     color: var(--green, #15803d);
 }
 
+h1 {
+    margin: 0;
+    color: var(--text, var(--text-main, #172033));
+    font-size: clamp(30px, 4vw, 44px);
+    font-weight: 760;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+}
+
+.page-subtitle {
+    margin: 8px 0 0;
+    color: var(--muted, var(--text-secondary, #64748b));
+    font-size: 15px;
+    line-height: 1.45;
+}
+
 .button {
     display: inline-flex;
     gap: 8px;
@@ -222,6 +268,18 @@ button:disabled {
     color: var(--red, #b42318);
 }
 
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 @media (max-width: 720px) {
     .top-nav,
     .page-nav {
@@ -232,6 +290,11 @@ button:disabled {
 }
 
 @media (max-width: 640px) {
+    main {
+        width: min(100% - 24px, 560px);
+        padding-top: 14px;
+    }
+
     .top-nav,
     .page-nav {
         display: grid;

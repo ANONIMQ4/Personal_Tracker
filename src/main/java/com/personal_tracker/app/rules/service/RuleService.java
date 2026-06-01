@@ -70,13 +70,10 @@ public class RuleService {
         ruleValidator.validate(rule, categories);
 
         List<String> warnings = new ArrayList<>();
-        if (ruleParserClient.usedFallback()) {
-            warnings.add("Использован fallback parser");
-        }
         if (rule.confidence() < 0.85) {
             warnings.add("Проверь правило особенно внимательно: уверенность ниже 0.85");
         }
-        return new ParsedRuleResponse(rule, warnings, ruleParserClient.usedFallback());
+        return new ParsedRuleResponse(rule, warnings);
     }
 
     public RulePreviewResponse preview(User user, RuleDefinition rule) {

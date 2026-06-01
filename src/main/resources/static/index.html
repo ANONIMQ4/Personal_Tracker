@@ -5,23 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Personal Tracker</title>
     <link rel="stylesheet" href="/css/app.css">
-    <link rel="stylesheet" href="/css/landing.css">
+    <link rel="stylesheet" href="/css/auth.css">
 </head>
 <body>
 <main>
-    <nav class="landing-nav" aria-label="Главная навигация">
+    <nav class="auth-nav" aria-label="Главная навигация">
         <a class="brand" href="/">
             <span class="brand-mark" aria-hidden="true">₽</span>
             <span>Personal Tracker</span>
         </a>
-        <div class="landing-nav-actions">
+        <div class="auth-nav-actions">
             <a class="nav-link" href="/login">Вход</a>
-            <a class="nav-cta" href="#register">Создать аккаунт</a>
+            <a class="nav-home" href="#register">Создать аккаунт</a>
         </div>
     </nav>
 
-    <section class="landing-shell">
-        <div class="landing-hero">
+    <section class="auth-layout">
+        <div class="auth-hero">
             <p class="kicker">Personal finance dashboard</p>
             <h1>Финансы, операции и правила — в одном месте</h1>
             <p class="hero-text">
@@ -52,12 +52,14 @@
                 </div>
             </div>
 
-            <p class="trust-text">Спокойный контроль личных финансов: от первых операций до понятной аналитики.</p>
+            <p class="hero-note">Спокойный контроль личных финансов: от первых операций до понятной аналитики.</p>
         </div>
 
-        <aside id="register" class="auth-panel" aria-label="Регистрация">
-            <h2>Создать аккаунт</h2>
-            <p>Начни вести операции и получать аналитику.</p>
+        <aside id="register" class="auth-card" aria-label="Регистрация">
+            <div class="auth-card-header">
+                <h1>Создать аккаунт</h1>
+                <p>Начни вести операции и получать аналитику.</p>
+            </div>
 
             <form id="registration-form">
                 <label for="username">

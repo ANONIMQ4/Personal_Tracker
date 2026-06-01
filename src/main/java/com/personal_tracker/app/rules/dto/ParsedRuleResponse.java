@@ -6,7 +6,6 @@ import java.util.List;
 
 public record ParsedRuleResponse(
         RuleDefinition rule,
-        List<String> warnings,
-        boolean needsFallback
+        List<String> warnings
 ) {
 }

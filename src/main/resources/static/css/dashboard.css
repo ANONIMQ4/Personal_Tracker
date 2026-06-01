@@ -444,10 +444,12 @@
         }
 
         .expense-chart {
+            position: relative;
             display: grid;
-            grid-template-columns: minmax(160px, 0.35fr) minmax(280px, 1fr);
-            gap: var(--space-6);
+            grid-template-columns: minmax(190px, 0.34fr) minmax(320px, 1fr);
+            gap: var(--space-8);
             align-items: center;
+            overflow: hidden;
             background: #ffffff;
         }
 
@@ -456,72 +458,106 @@
         }
 
         .chart-total {
-            color: var(--text-main);
+            color: #172033;
             font-size: clamp(34px, 5vw, 54px);
             font-weight: 800;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.03em;
             line-height: 0.98;
         }
 
         .chart-title {
             margin-top: var(--space-3);
             color: var(--text-secondary);
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 500;
         }
 
         .chart-area {
             display: grid;
             place-items: center;
-            min-height: 360px;
+            min-height: 386px;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .donut-wrap {
-            width: min(360px, 58vw);
-            height: min(360px, 58vw);
+            width: min(380px, 54vw);
+            height: min(380px, 54vw);
+            overflow: visible;
+            filter: drop-shadow(0 24px 44px rgba(74, 112, 168, 0.15));
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .donut {
+            position: relative;
+            display: grid;
+            overflow: visible;
             width: 100%;
             height: 100%;
-            box-shadow: 0 22px 54px rgba(72, 185, 204, 0.16);
+            place-items: center;
+            background: transparent;
+            animation: chartFadeIn 220ms ease-out both;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .donut::after {
-            inset: 30%;
+            inset: 34%;
+            z-index: 1;
             background:
-                radial-gradient(circle, #ffffff 0%, #ffffff 58%, rgba(255, 255, 255, 0.84) 100%);
-            box-shadow: inset 0 0 20px rgba(15, 23, 42, 0.04);
+                radial-gradient(circle at 45% 40%, #ffffff 0%, #ffffff 58%, rgba(248, 251, 255, 0.94) 100%);
+            box-shadow:
+                inset 0 0 18px rgba(44, 62, 92, 0.035),
+                0 10px 28px rgba(44, 62, 92, 0.055);
+            pointer-events: none;
         }
 
         .donut-percent {
-            color: #b4bfcc;
-            font-size: 17px;
-            font-weight: 650;
+            display: none;
         }
 
         .category-pills {
             display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
             grid-column: 1 / -1;
-            gap: var(--space-2);
+            gap: var(--space-3);
             padding-top: var(--space-2);
         }
 
         .category-pill {
-            min-height: 38px;
-            border-radius: 999px;
-            background: color-mix(in srgb, var(--pill-bg) 72%, #ffffff);
-            color: #344054;
+            display: grid;
+            grid-template-columns: 10px minmax(0, 1fr);
+            gap: var(--space-3);
+            align-items: center;
+            min-height: 64px;
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), color-mix(in srgb, var(--pill-bg) 38%, #ffffff));
+            color: var(--text-main);
             font-size: 14px;
-            font-weight: 650;
-            padding: 6px 13px 6px 6px;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+            font-weight: 600;
+            padding: 12px 14px;
+            box-shadow:
+                inset 0 0 0 1px rgba(255, 255, 255, 0.68),
+                0 10px 24px rgba(42, 57, 83, 0.045);
+            transition: transform 180ms ease-out, box-shadow 180ms ease-out, background-color 180ms ease-out;
+        }
+
+        .category-pill:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                inset 0 0 0 1px rgba(255, 255, 255, 0.78),
+                0 16px 32px rgba(42, 57, 83, 0.075);
         }
 
         .category-dot {
-            width: 28px;
-            height: 28px;
-            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+            width: 10px;
+            height: 34px;
+            border-radius: 999px;
+            background: var(--dot-color);
+            color: transparent;
+            font-size: 0;
+            box-shadow: 0 8px 16px color-mix(in srgb, var(--dot-color) 24%, transparent);
         }
 
         .custom-chart {
@@ -748,10 +784,16 @@
         }
 
         .custom-chart-canvas {
+            position: relative;
             min-height: 300px;
             border: 0;
             border-radius: var(--radius-md);
-            background: #ffffff;
+            background:
+                linear-gradient(rgba(238, 244, 250, 0.62) 1px, transparent 1px),
+                linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+            background-size: 100% 25%;
+            overflow-x: auto;
+            overflow-y: hidden;
             padding: var(--space-4);
             box-shadow: inset 0 0 0 1px var(--border-subtle);
         }
@@ -759,18 +801,26 @@
         .custom-chart-bars {
             position: relative;
             display: flex;
-            gap: var(--space-3);
-            min-height: 236px;
-            padding: var(--space-8) var(--space-2) 42px;
+            align-items: end;
+            justify-content: flex-start;
+            gap: 14px;
+            min-height: 260px;
+            padding: 42px 8px 50px;
         }
 
         .custom-chart-bar {
-            border-radius: 10px 10px 4px 4px;
-            box-shadow: 0 10px 22px rgba(72, 185, 204, 0.16);
+            width: 100%;
+            min-height: 3px;
+            border-radius: 14px 14px 6px 6px;
+            background: linear-gradient(180deg, var(--bar-top), var(--bar-bottom));
+            box-shadow: 0 12px 24px rgba(91, 141, 239, 0.16);
+            animation: barGrow 260ms ease-out both;
+            transform-origin: bottom;
+            transition: filter 170ms ease-out, box-shadow 170ms ease-out;
         }
 
         .custom-chart-average-line {
-            border-top: 1px dashed rgba(24, 34, 48, 0.55);
+            border-top: 1px dashed rgba(69, 85, 108, 0.32);
             color: var(--text-secondary);
             font-size: 12px;
             font-weight: 700;
@@ -778,25 +828,37 @@
 
         .custom-chart-average-line span {
             left: 0;
+            bottom: 6px;
             border-radius: 999px;
-            background: #ffffff;
-            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+            background: rgba(255, 255, 255, 0.92);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 650;
+            box-shadow: 0 8px 20px rgba(42, 57, 83, 0.08);
             padding: 4px 8px;
         }
 
         .custom-chart-tooltip {
             border-radius: 10px;
             background: rgba(24, 34, 48, 0.96);
+            color: #ffffff;
             font-size: 12px;
             font-weight: 650;
+            line-height: 1.35;
             padding: 7px 9px;
+            text-align: center;
             box-shadow: 0 14px 28px rgba(15, 23, 42, 0.22);
         }
 
         .custom-chart-bar-label {
+            max-width: 70px;
+            overflow: hidden;
             color: var(--text-muted);
             font-size: 12px;
             font-weight: 600;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            transform: none;
         }
 
         .custom-chart-heatmaps {
@@ -878,70 +940,9 @@
             opacity: 0.45;
         }
 
-        .expense-chart {
-            position: relative;
-            grid-template-columns: minmax(190px, 0.34fr) minmax(320px, 1fr);
-            gap: var(--space-8);
-            overflow: hidden;
-            background: #ffffff;
-        }
-
-        .expense-chart::before {
-            content: none;
-        }
-
         .expense-chart > * {
             position: relative;
             z-index: 1;
-        }
-
-        .chart-total {
-            color: #172033;
-            letter-spacing: -0.03em;
-        }
-
-        .chart-title {
-            color: var(--text-secondary);
-            font-size: 17px;
-            font-weight: 500;
-        }
-
-        .chart-area {
-            min-height: 386px;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        .donut-wrap {
-            width: min(380px, 54vw);
-            height: min(380px, 54vw);
-            filter: drop-shadow(0 24px 44px rgba(74, 112, 168, 0.15));
-            overflow: visible;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        .donut {
-            position: relative;
-            display: grid;
-            place-items: center;
-            overflow: visible;
-            background: transparent;
-            box-shadow: none;
-            animation: chartFadeIn 220ms ease-out both;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        .donut::after {
-            inset: 34%;
-            z-index: 1;
-            background:
-                radial-gradient(circle at 45% 40%, #ffffff 0%, #ffffff 58%, rgba(248, 251, 255, 0.94) 100%);
-            box-shadow:
-                inset 0 0 18px rgba(44, 62, 92, 0.035),
-                0 10px 28px rgba(44, 62, 92, 0.055);
-            pointer-events: none;
         }
 
         .donut-svg {
@@ -1005,51 +1006,6 @@
             outline: 0;
         }
 
-        .donut-percent {
-            display: none;
-        }
-
-        .category-pills {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: var(--space-3);
-        }
-
-        .category-pill {
-            display: grid;
-            grid-template-columns: 10px minmax(0, 1fr);
-            gap: var(--space-3);
-            align-items: center;
-            min-height: 64px;
-            border-radius: 18px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), color-mix(in srgb, var(--pill-bg) 38%, #ffffff));
-            color: var(--text-main);
-            font-size: 14px;
-            font-weight: 600;
-            padding: 12px 14px;
-            box-shadow:
-                inset 0 0 0 1px rgba(255, 255, 255, 0.68),
-                0 10px 24px rgba(42, 57, 83, 0.045);
-            transition: transform 180ms ease-out, box-shadow 180ms ease-out, background-color 180ms ease-out;
-        }
-
-        .category-pill:hover {
-            transform: translateY(-2px);
-            box-shadow:
-                inset 0 0 0 1px rgba(255, 255, 255, 0.78),
-                0 16px 32px rgba(42, 57, 83, 0.075);
-        }
-
-        .category-dot {
-            width: 10px;
-            height: 34px;
-            border-radius: 999px;
-            background: var(--dot-color);
-            color: transparent;
-            font-size: 0;
-            box-shadow: 0 8px 16px color-mix(in srgb, var(--dot-color) 24%, transparent);
-        }
-
         .category-pill-main {
             display: block;
             overflow: hidden;
@@ -1066,10 +1022,6 @@
             font-size: 13px;
             font-weight: 500;
             line-height: 1.2;
-        }
-
-        .custom-chart-form {
-            grid-template-columns: minmax(240px, 1fr) minmax(220px, auto) minmax(260px, auto);
         }
 
         .chart-type-field select {
@@ -1142,26 +1094,8 @@
             outline-offset: 3px;
         }
 
-        .custom-chart-canvas {
-            position: relative;
-            background:
-                linear-gradient(rgba(238, 244, 250, 0.62) 1px, transparent 1px),
-                linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-            background-size: 100% 25%;
-            overflow-x: auto;
-            overflow-y: hidden;
-        }
-
         .custom-chart-canvas.is-heatmap {
             overflow-x: hidden;
-        }
-
-        .custom-chart-bars {
-            align-items: end;
-            justify-content: flex-start;
-            gap: 14px;
-            min-height: 260px;
-            padding: 42px 8px 50px;
         }
 
         .custom-chart-bars::after {
@@ -1198,17 +1132,6 @@
             transform: translateY(-2px);
         }
 
-        .custom-chart-bar {
-            width: 100%;
-            min-height: 3px;
-            border-radius: 14px 14px 6px 6px;
-            background: linear-gradient(180deg, var(--bar-top), var(--bar-bottom));
-            box-shadow: 0 12px 24px rgba(91, 141, 239, 0.16);
-            animation: barGrow 260ms ease-out both;
-            transform-origin: bottom;
-            transition: filter 170ms ease-out, box-shadow 170ms ease-out;
-        }
-
         .custom-chart-bar-wrap:hover .custom-chart-bar,
         .custom-chart-bar-wrap:focus .custom-chart-bar {
             filter: saturate(1.12) brightness(1.03);
@@ -1243,31 +1166,6 @@
         .custom-chart-bars > .custom-chart-tooltip.is-visible {
             opacity: 1;
             transform: translate(-50%, -18px);
-        }
-
-        .custom-chart-bar-label {
-            max-width: 70px;
-            overflow: hidden;
-            color: var(--text-muted);
-            font-size: 12px;
-            font-weight: 600;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            transform: none;
-        }
-
-        .custom-chart-average-line {
-            border-top: 1px dashed rgba(69, 85, 108, 0.32);
-            color: var(--text-secondary);
-        }
-
-        .custom-chart-average-line span {
-            bottom: 6px;
-            background: rgba(255, 255, 255, 0.92);
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 650;
-            box-shadow: 0 8px 20px rgba(42, 57, 83, 0.08);
         }
 
         @keyframes chartFadeIn {

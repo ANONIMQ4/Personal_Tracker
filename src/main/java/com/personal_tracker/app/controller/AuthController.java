@@ -1,6 +1,7 @@
 package com.personal_tracker.app.controller;
 
 import com.personal_tracker.app.entity.User;
+import com.personal_tracker.app.service.CurrentUserService;
 import com.personal_tracker.app.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +15,11 @@ import java.math.BigDecimal;
 @RestController
 public class AuthController {
 
-    private static final String USER_ID_SESSION_KEY = "userId";
-
+    private final CurrentUserService currentUserService;
     private final UserService userService;
 
-    public AuthController(UserService userService) {
+    public AuthController(CurrentUserService currentUserService, UserService userService) {
+        this.currentUserService = currentUserService;
         this.userService = userService;
     }
 
@@ -26,10 +27,19 @@ public class AuthController {
     public ResponseEntity<User> login(@RequestBody LoginRequest request, HttpSession session) {
         return userService.authenticate(request.login(), request.password())
                 .map(user -> {
-                    session.setAttribute(USER_ID_SESSION_KEY, user.getId());
+                    session.setAttribute(CurrentUserService.USER_ID_SESSION_KEY, user.getId());
                     return ResponseEntity.ok(user);
                 })
                 .orElseGet(() -> ResponseEntity.status(401).build());
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<?> createUser(@RequestBody CreateUserRequest request) {
+        try {
+            return ResponseEntity.ok(userService.createUser(request.username(), request.email(), request.password()));
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(exception.getMessage()));
+        }
     }
 
     @PostMapping("/logout")
@@ -40,33 +50,33 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<User> me(HttpSession session) {
-        Object userId = session.getAttribute(USER_ID_SESSION_KEY);
-        if (!(userId instanceof Long id)) {
-            return ResponseEntity.status(401).build();
-        }
-
-        return userService.getUser(id)
+        return currentUserService.get(session)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(401).build());
     }
 
     @PostMapping("/account/balance")
     public ResponseEntity<User> updateAccountBalance(@RequestBody BalanceRequest request, HttpSession session) {
-        Object userId = session.getAttribute(USER_ID_SESSION_KEY);
-        if (!(userId instanceof Long id)) {
-            return ResponseEntity.status(401).build();
-        }
-
-        try {
-            return ResponseEntity.ok(userService.updateAccountBalance(id, request.accountBalance()));
-        } catch (IllegalArgumentException exception) {
-            return ResponseEntity.badRequest().build();
-        }
+        return currentUserService.get(session)
+                .map(user -> {
+                    try {
+                        return ResponseEntity.ok(userService.updateAccountBalance(user.getId(), request.accountBalance()));
+                    } catch (IllegalArgumentException exception) {
+                        return ResponseEntity.badRequest().<User>build();
+                    }
+                })
+                .orElseGet(() -> ResponseEntity.status(401).build());
     }
 
     public record LoginRequest(String login, String password) {
     }
 
+    public record CreateUserRequest(String username, String email, String password) {
+    }
+
     public record BalanceRequest(BigDecimal accountBalance) {
+    }
+
+    public record ErrorResponse(String message) {
     }
 }

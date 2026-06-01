@@ -1,5 +1,6 @@
 package com.personal_tracker.app.config;
 
+import com.personal_tracker.app.service.CurrentUserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,8 +16,6 @@ import java.util.List;
 
 class SessionUserAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String USER_ID_SESSION_KEY = "userId";
-
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -26,7 +25,7 @@ class SessionUserAuthenticationFilter extends OncePerRequestFilter {
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
             Object userId = request.getSession(false) == null
                     ? null
-                    : request.getSession(false).getAttribute(USER_ID_SESSION_KEY);
+                    : request.getSession(false).getAttribute(CurrentUserService.USER_ID_SESSION_KEY);
             if (userId instanceof Long) {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userId,

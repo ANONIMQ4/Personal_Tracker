@@ -1,36 +1,5 @@
 :root {
-            --bg: #f5f7fb;
-            --surface: #ffffff;
-            --surface-soft: #f8fafc;
-            --border: #e2e8f0;
-            --border-strong: #cbd5e1;
-            --text: #172033;
-            --muted: #64748b;
-            --muted-soft: #94a3b8;
-            --blue: #2563eb;
-            --blue-soft: #eff6ff;
-            --green: #15803d;
-            --green-bg: #ecfdf3;
-            --red: #b42318;
-            --red-bg: #fff1f0;
             --orange: #c2410c;
-            --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
-            --shadow-soft: 0 8px 22px rgba(15, 23, 42, 0.06);
-            --radius: 16px;
-            --transition: 0.18s ease;
-        }
-
-        body {
-            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-            color: var(--text);
-            background:
-                radial-gradient(circle at top left, rgba(37, 99, 235, 0.06), transparent 28rem),
-                var(--bg);
-        }
-
-        main {
-            width: min(1480px, calc(100% - 32px));
-            padding: 24px 0 96px;
         }
 
         .page-header {
@@ -39,22 +8,6 @@
             gap: 20px;
             align-items: flex-end;
             margin-bottom: 18px;
-        }
-
-        h1 {
-            margin: 0;
-            color: var(--text);
-            font-size: clamp(30px, 4vw, 44px);
-            font-weight: 760;
-            letter-spacing: -0.03em;
-            line-height: 1.05;
-        }
-
-        .page-subtitle {
-            margin: 8px 0 0;
-            color: var(--muted);
-            font-size: 15px;
-            line-height: 1.45;
         }
 
         .ops-shell {

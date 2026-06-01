@@ -25,7 +25,5 @@ openai:
 
 rules:
   llm:
-    primary-model: ${RULES_LLM_PRIMARY_MODEL:gpt-5-nano}
-    fallback-model: ${RULES_LLM_FALLBACK_MODEL:gpt-5-mini}
-    fallback-confidence-threshold: ${RULES_LLM_FALLBACK_CONFIDENCE_THRESHOLD:0.75}
+    model: ${RULES_LLM_MODEL:gpt-5-nano}
     max-error-body-length: ${RULES_LLM_MAX_ERROR_BODY_LENGTH:500}

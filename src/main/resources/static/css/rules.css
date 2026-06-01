@@ -1,38 +1,9 @@
 :root {
-            --bg: #f5f7fb;
-            --surface: #ffffff;
-            --surface-soft: #f8fafc;
-            --border: #e2e8f0;
-            --border-strong: #cbd5e1;
-            --text: #172033;
-            --muted: #64748b;
-            --muted-soft: #94a3b8;
-            --blue: #2563eb;
-            --blue-soft: #eff6ff;
-            --green: #15803d;
-            --green-soft: #ecfdf3;
             --amber: #b7791f;
             --amber-soft: #fffbeb;
-            --red: #b42318;
-            --red-soft: #fff1f0;
-            --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
-            --shadow-soft: 0 8px 22px rgba(15, 23, 42, 0.06);
             --radius: 18px;
             --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
             --transition: 0.18s var(--ease);
-        }
-
-        body {
-            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-            color: var(--text);
-            background:
-                radial-gradient(circle at top left, rgba(37, 99, 235, 0.06), transparent 28rem),
-                var(--bg);
-        }
-
-        main {
-            width: min(1480px, calc(100% - 32px));
-            padding: 24px 0 96px;
         }
 
         .rules-page {
@@ -53,21 +24,8 @@
             margin-bottom: 2px;
         }
 
-        h1 {
-            margin: 0;
-            color: var(--text);
-            font-size: clamp(30px, 4vw, 44px);
-            font-weight: 760;
-            letter-spacing: -0.03em;
-            line-height: 1.05;
-        }
-
         .page-subtitle {
             max-width: 740px;
-            margin: 8px 0 0;
-            color: var(--muted);
-            font-size: 15px;
-            line-height: 1.45;
         }
 
         .rules-flow {
@@ -716,18 +674,6 @@
             background: #f1f5f9;
         }
 
-        .visually-hidden {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
         .affected-count {
             display: inline-flex;
             width: fit-content;
@@ -784,11 +730,6 @@
         }
 
         @media (max-width: 640px) {
-            main {
-                width: min(100% - 24px, 560px);
-                padding-top: 14px;
-            }
-
             .card {
                 padding: 14px;
             }

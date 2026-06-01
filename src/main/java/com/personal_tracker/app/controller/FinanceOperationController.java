@@ -1,14 +1,13 @@
 package com.personal_tracker.app.controller;
 
 import com.personal_tracker.app.entity.FinanceOperation;
-import com.personal_tracker.app.entity.User;
 import com.personal_tracker.app.service.FinanceAnalyticsService;
 import com.personal_tracker.app.service.FinanceAnalyticsService.AnalyticsResponse;
 import com.personal_tracker.app.service.FinanceCategoryService;
 import com.personal_tracker.app.service.FinanceCategoryService.CategoryDto;
 import com.personal_tracker.app.service.FinanceOperationService;
 import com.personal_tracker.app.service.FinanceOperationService.ImportResult;
-import com.personal_tracker.app.service.UserService;
+import com.personal_tracker.app.service.CurrentUserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,36 +30,35 @@ import java.util.List;
 @RestController
 public class FinanceOperationController {
 
-    private static final String USER_ID_SESSION_KEY = "userId";
     private static final int MAX_UPLOAD_FILES = 20;
 
+    private final CurrentUserService currentUserService;
     private final FinanceAnalyticsService financeAnalyticsService;
     private final FinanceCategoryService financeCategoryService;
     private final FinanceOperationService financeOperationService;
-    private final UserService userService;
 
     public FinanceOperationController(
+            CurrentUserService currentUserService,
             FinanceAnalyticsService financeAnalyticsService,
             FinanceCategoryService financeCategoryService,
-            FinanceOperationService financeOperationService,
-            UserService userService
+            FinanceOperationService financeOperationService
     ) {
+        this.currentUserService = currentUserService;
         this.financeAnalyticsService = financeAnalyticsService;
         this.financeCategoryService = financeCategoryService;
         this.financeOperationService = financeOperationService;
-        this.userService = userService;
     }
 
     @GetMapping("/finance/operations")
     public ResponseEntity<List<FinanceOperation>> getOperations(HttpSession session) {
-        return getCurrentUser(session)
+        return currentUserService.get(session)
                 .map(user -> ResponseEntity.ok(financeOperationService.getOperations(user.getId())))
                 .orElseGet(() -> ResponseEntity.status(401).build());
     }
 
     @GetMapping("/finance/categories")
     public ResponseEntity<List<CategoryDto>> getCategories(HttpSession session) {
-        return getCurrentUser(session)
+        return currentUserService.get(session)
                 .map(user -> ResponseEntity.ok(financeCategoryService.getUserCategories(user.getId())))
                 .orElseGet(() -> ResponseEntity.status(401).build());
     }
@@ -74,7 +72,7 @@ public class FinanceOperationController {
             @RequestParam(value = "categoryKeys", required = false) List<String> categoryKeys,
             HttpSession session
     ) {
-        return getCurrentUser(session)
+        return currentUserService.get(session)
                 .map(user -> ResponseEntity.ok(financeAnalyticsService.buildAnalytics(
                         user.getId(),
                         from,
@@ -92,7 +90,7 @@ public class FinanceOperationController {
             @RequestParam(value = "file", required = false) MultipartFile file,
             HttpSession session
     ) {
-        return getCurrentUser(session)
+        return currentUserService.get(session)
                 .map(user -> {
                     try {
                         List<MultipartFile> uploadFiles = collectUploadFiles(files, file);
@@ -146,7 +144,7 @@ public class FinanceOperationController {
             @RequestBody ManualOperationRequest request,
             HttpSession session
     ) {
-        return getCurrentUser(session)
+        return currentUserService.get(session)
                 .map(user -> {
                     try {
                         FinanceOperation operation = financeOperationService.createManualOperation(
@@ -171,7 +169,7 @@ public class FinanceOperationController {
             @RequestBody DeleteOperationsRequest request,
             HttpSession session
     ) {
-        return getCurrentUser(session)
+        return currentUserService.get(session)
                 .map(user -> {
                     long deletedCount = financeOperationService.deleteOperations(user.getId(), request.ids());
                     return ResponseEntity.ok(new DeleteResult(deletedCount));
@@ -185,7 +183,7 @@ public class FinanceOperationController {
             @RequestBody UpdateOperationRequest request,
             HttpSession session
     ) {
-        return getCurrentUser(session)
+        return currentUserService.get(session)
                 .map(user -> {
                     try {
                         FinanceOperation operation = financeOperationService.updateOperation(
@@ -208,7 +206,7 @@ public class FinanceOperationController {
             @RequestBody DeletePeriodRequest request,
             HttpSession session
     ) {
-        return getCurrentUser(session)
+        return currentUserService.get(session)
                 .map(user -> {
                     try {
                         long deletedCount = financeOperationService.deleteOperationsByPeriod(
@@ -222,14 +220,6 @@ public class FinanceOperationController {
                     }
                 })
                 .orElseGet(() -> ResponseEntity.status(401).build());
-    }
-
-    private java.util.Optional<User> getCurrentUser(HttpSession session) {
-        Object userId = session.getAttribute(USER_ID_SESSION_KEY);
-        if (!(userId instanceof Long id)) {
-            return java.util.Optional.empty();
-        }
-        return userService.getUser(id);
     }
 
     public record UploadResult(int importedCount, int skippedCount) {
