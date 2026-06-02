@@ -205,17 +205,24 @@ class RuleEngineTest {
     }
 
     @Test
-    void validatorAllowsOnlyCurrentUserCategories() {
-        RuleDefinition rule = new RuleDefinition(
-                "Known globally but not for user",
+    void validatorAllowsNewTargetCategoryButRejectsUnknownSourceCategory() {
+        RuleDefinition newTargetCategoryRule = new RuleDefinition(
+                "New target category",
                 0.9,
                 new RuleConditions(List.of("steam"), List.of(), "all", null, null, List.of()),
                 new RuleActions("Игры", false, null, false, null)
         );
+        RuleDefinition unknownSourceCategoryRule = new RuleDefinition(
+                "Unknown source category",
+                0.9,
+                new RuleConditions(List.of(), List.of("Игры"), "all", null, null, List.of()),
+                new RuleActions("Супермаркеты", false, null, false, null)
+        );
 
-        assertThatThrownBy(() -> validator.validate(rule, List.of("Супермаркеты")))
+        assertThatNoException().isThrownBy(() -> validator.validate(newTargetCategoryRule, List.of("Супермаркеты")));
+        assertThatThrownBy(() -> validator.validate(unknownSourceCategoryRule, List.of("Супермаркеты")))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Неизвестная категория в действии: Игры");
+                .hasMessage("Неизвестная категория в условиях: Игры");
     }
 
     private RuleDefinition rule(RuleConditions conditions, RuleActions actions) {

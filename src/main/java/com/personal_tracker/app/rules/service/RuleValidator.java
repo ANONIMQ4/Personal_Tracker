@@ -87,9 +87,5 @@ public class RuleValidator {
                 throw new IllegalArgumentException("Неизвестная категория в условиях: " + category);
             }
         }
-        String setCategory = rule.actions().setCategory();
-        if (setCategory != null && !allowedCategories.contains(setCategory)) {
-            throw new IllegalArgumentException("Неизвестная категория в действии: " + setCategory);
-        }
     }
 }

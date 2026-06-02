@@ -59,6 +59,22 @@ CREATE TABLE IF NOT EXISTS rules (
 ALTER TABLE rules
     ADD COLUMN IF NOT EXISTS last_applied_count BIGINT NOT NULL DEFAULT 0;
 
+CREATE TABLE IF NOT EXISTS rule_applications (
+    id BIGSERIAL PRIMARY KEY,
+    rule_id BIGINT NOT NULL REFERENCES rules(id) ON DELETE CASCADE,
+    operation_id BIGINT NOT NULL REFERENCES finance_operations(id) ON DELETE CASCADE,
+    before_category VARCHAR(255),
+    before_exclude_from_analytics BOOLEAN NOT NULL DEFAULT FALSE,
+    before_counterparty VARCHAR(255),
+    before_description TEXT,
+    after_category VARCHAR(255),
+    after_exclude_from_analytics BOOLEAN NOT NULL DEFAULT FALSE,
+    after_counterparty VARCHAR(255),
+    after_description TEXT,
+    applied_at TIMESTAMP,
+    CONSTRAINT uq_rule_applications_rule_operation UNIQUE (rule_id, operation_id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_finance_operations_user_date
     ON finance_operations (user_id, operation_date DESC);
 
@@ -70,3 +86,6 @@ CREATE INDEX IF NOT EXISTS idx_finance_operations_user_category
 
 CREATE INDEX IF NOT EXISTS idx_rules_user_created
     ON rules (user_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_rule_applications_rule
+    ON rule_applications (rule_id);

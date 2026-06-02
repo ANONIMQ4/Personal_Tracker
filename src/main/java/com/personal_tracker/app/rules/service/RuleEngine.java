@@ -59,10 +59,14 @@ public class RuleEngine {
 
     public void apply(FinanceOperation operation, RuleDefinition rule) {
         OperationState after = previewAfter(operation, rule);
-        operation.setCategory(after.category());
-        operation.setExcludeFromAnalytics(after.excludeFromAnalytics());
-        operation.setCounterparty(after.counterparty());
-        operation.setDescription(after.description());
+        restore(operation, after);
+    }
+
+    public void restore(FinanceOperation operation, OperationState state) {
+        operation.setCategory(state.category());
+        operation.setExcludeFromAnalytics(state.excludeFromAnalytics());
+        operation.setCounterparty(state.counterparty());
+        operation.setDescription(state.description());
     }
 
     private boolean matchesType(FinanceOperation operation, String type) {

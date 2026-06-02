@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
@@ -59,6 +60,8 @@ public class RuleAiClient {
             RuleDefinition rule = readRuleDefinition(jsonText);
             validateRule(rule);
             return rule;
+        } catch (HttpTimeoutException exception) {
+            throw new IllegalStateException("OpenAI API не ответил за 60 секунд", exception);
         } catch (IOException exception) {
             throw new IllegalArgumentException("LLM вернул невалидный JSON", exception);
         } catch (InterruptedException exception) {
@@ -92,7 +95,7 @@ public class RuleAiClient {
         );
 
         HttpRequest request = HttpRequest.newBuilder(responsesUri)
-                .timeout(Duration.ofSeconds(30))
+                .timeout(Duration.ofSeconds(60))
                 .header("Authorization", "Bearer " + apiKey)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))

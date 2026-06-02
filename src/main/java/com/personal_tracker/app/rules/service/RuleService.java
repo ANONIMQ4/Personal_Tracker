@@ -10,11 +10,14 @@ import com.personal_tracker.app.rules.dto.ApplyRuleRequest;
 import com.personal_tracker.app.rules.dto.ParsedRuleResponse;
 import com.personal_tracker.app.rules.dto.RuleDto;
 import com.personal_tracker.app.rules.dto.RulePreviewResponse;
+import com.personal_tracker.app.rules.dto.RulePreviewResponse.OperationState;
+import com.personal_tracker.app.rules.entity.RuleApplicationEntity;
 import com.personal_tracker.app.rules.entity.RuleEntity;
 import com.personal_tracker.app.rules.llm.RuleAiClient;
 import com.personal_tracker.app.rules.model.RuleActions;
 import com.personal_tracker.app.rules.model.RuleConditions;
 import com.personal_tracker.app.rules.model.RuleDefinition;
+import com.personal_tracker.app.rules.repository.RuleApplicationRepository;
 import com.personal_tracker.app.rules.repository.RuleRepository;
 import com.personal_tracker.app.service.FinanceOperationService;
 import org.springframework.stereotype.Service;
@@ -23,16 +26,25 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class RuleService {
+
+    private static final Pattern CATEGORY_RENAME_PATTERN = Pattern.compile(
+            "^\\s*(?:переименовать|переименуй)\\s+(.+?)\\s+в\\s+(.+?)\\s*$",
+            Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
+    );
 
     private final RuleAiClient ruleParserClient;
     private final RuleValidator ruleValidator;
     private final RulePreviewService rulePreviewService;
     private final RuleEngine ruleEngine;
     private final RuleRepository ruleRepository;
+    private final RuleApplicationRepository ruleApplicationRepository;
     private final FinanceOperationRepository financeOperationRepository;
     private final FinanceOperationService financeOperationService;
     private final ObjectMapper objectMapper;
@@ -43,6 +55,7 @@ public class RuleService {
             RulePreviewService rulePreviewService,
             RuleEngine ruleEngine,
             RuleRepository ruleRepository,
+            RuleApplicationRepository ruleApplicationRepository,
             FinanceOperationRepository financeOperationRepository,
             FinanceOperationService financeOperationService
     ) {
@@ -51,6 +64,7 @@ public class RuleService {
         this.rulePreviewService = rulePreviewService;
         this.ruleEngine = ruleEngine;
         this.ruleRepository = ruleRepository;
+        this.ruleApplicationRepository = ruleApplicationRepository;
         this.financeOperationRepository = financeOperationRepository;
         this.financeOperationService = financeOperationService;
         this.objectMapper = JsonMapper.builder().findAndAddModules().build();
@@ -65,8 +79,9 @@ public class RuleService {
         }
 
         Collection<String> categories = allowedCategories(user.getId());
+        Optional<CategoryRenameIntent> renameIntent = categoryRenameIntent(prompt.trim(), categories);
         RuleDefinition parsedRule = ruleParserClient.parse(prompt.trim(), categories);
-        RuleDefinition rule = normalizeRule(parsedRule, categories);
+        RuleDefinition rule = normalizeRule(applyCategoryRenameIntent(parsedRule, renameIntent), categories);
         ruleValidator.validate(rule, categories);
 
         List<String> warnings = new ArrayList<>();
@@ -90,13 +105,17 @@ public class RuleService {
         ruleValidator.validate(rule, categories);
         RulePreviewResponse preview = rulePreviewService.preview(user.getId(), rule);
         List<FinanceOperation> operations = rulePreviewService.affectedOperations(user.getId(), rule);
-        operations.forEach(operation -> {
-            ruleEngine.apply(operation, rule);
-            financeOperationService.refreshOperationKey(user.getId(), operation);
-        });
+        RuleEntity savedRule = request.saveRule()
+                ? saveRule(user, rule, request.originalPrompt(), preview.affectedCount())
+                : null;
+        List<RuleApplicationEntity> applications = applyToOperations(user.getId(), savedRule, rule, operations);
+        if (savedRule != null) {
+            savedRule.setLastAppliedCount(applications.size());
+            ruleRepository.save(savedRule);
+        }
         financeOperationRepository.saveAll(operations);
-        if (request.saveRule()) {
-            saveRule(user, rule, request.originalPrompt(), preview.affectedCount());
+        if (!applications.isEmpty()) {
+            ruleApplicationRepository.saveAll(applications);
         }
         return preview;
     }
@@ -115,10 +134,21 @@ public class RuleService {
     public RuleDto setEnabled(User user, Long ruleId, boolean enabled) {
         RuleEntity entity = ruleRepository.findByIdAndUserId(ruleId, user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Правило не найдено"));
+        if (entity.isEnabled() == enabled) {
+            Collection<String> categories = allowedCategories(user.getId());
+            RuleDefinition rule = toDefinition(entity, categories);
+            return toDto(entity, rule, rulePreviewService.preview(user.getId(), rule).affectedCount());
+        }
+
+        Collection<String> categories = allowedCategories(user.getId());
+        RuleDefinition rule = toDefinition(entity, categories);
+        if (enabled) {
+            enableRule(user.getId(), entity, rule);
+        } else {
+            rollbackRule(user.getId(), entity);
+        }
         entity.setEnabled(enabled);
         RuleEntity savedEntity = ruleRepository.save(entity);
-        Collection<String> categories = allowedCategories(user.getId());
-        RuleDefinition rule = toDefinition(savedEntity, categories);
         return toDto(savedEntity, rule, rulePreviewService.preview(user.getId(), rule).affectedCount());
     }
 
@@ -126,7 +156,53 @@ public class RuleService {
     public void delete(User user, Long ruleId) {
         RuleEntity entity = ruleRepository.findByIdAndUserId(ruleId, user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Правило не найдено"));
+        rollbackRule(user.getId(), entity);
         ruleRepository.delete(entity);
+    }
+
+    private void enableRule(Long userId, RuleEntity entity, RuleDefinition rule) {
+        List<FinanceOperation> operations = rulePreviewService.affectedOperations(userId, rule);
+        List<RuleApplicationEntity> applications = applyToOperations(userId, entity, rule, operations);
+        entity.setLastAppliedCount(applications.size());
+        financeOperationRepository.saveAll(operations);
+        if (!applications.isEmpty()) {
+            ruleApplicationRepository.saveAll(applications);
+        }
+    }
+
+    private List<RuleApplicationEntity> applyToOperations(
+            Long userId,
+            RuleEntity savedRule,
+            RuleDefinition rule,
+            List<FinanceOperation> operations
+    ) {
+        List<RuleApplicationEntity> applications = new ArrayList<>();
+        for (FinanceOperation operation : operations) {
+            OperationState before = ruleEngine.stateOf(operation);
+            ruleEngine.apply(operation, rule);
+            OperationState after = ruleEngine.stateOf(operation);
+            financeOperationService.refreshOperationKey(userId, operation);
+            if (savedRule != null && !sameState(before, after)) {
+                applications.add(application(savedRule, operation, before, after));
+            }
+        }
+        return applications;
+    }
+
+    private void rollbackRule(Long userId, RuleEntity entity) {
+        List<RuleApplicationEntity> applications = ruleApplicationRepository.findByRuleId(entity.getId());
+        List<FinanceOperation> operationsToSave = new ArrayList<>();
+        for (RuleApplicationEntity application : applications) {
+            FinanceOperation operation = application.getOperation();
+            if (sameState(ruleEngine.stateOf(operation), afterState(application))) {
+                ruleEngine.restore(operation, beforeState(application));
+                financeOperationService.refreshOperationKey(userId, operation);
+                operationsToSave.add(operation);
+            }
+        }
+        financeOperationRepository.saveAll(operationsToSave);
+        ruleApplicationRepository.deleteByRuleId(entity.getId());
+        entity.setLastAppliedCount(0);
     }
 
     private RuleEntity saveRule(User user, RuleDefinition rule, String originalPrompt, long lastAppliedCount) {
@@ -159,6 +235,51 @@ public class RuleService {
         );
     }
 
+    private RuleApplicationEntity application(
+            RuleEntity rule,
+            FinanceOperation operation,
+            OperationState before,
+            OperationState after
+    ) {
+        RuleApplicationEntity application = new RuleApplicationEntity();
+        application.setRule(rule);
+        application.setOperation(operation);
+        application.setBeforeCategory(before.category());
+        application.setBeforeExcludeFromAnalytics(before.excludeFromAnalytics());
+        application.setBeforeCounterparty(before.counterparty());
+        application.setBeforeDescription(before.description());
+        application.setAfterCategory(after.category());
+        application.setAfterExcludeFromAnalytics(after.excludeFromAnalytics());
+        application.setAfterCounterparty(after.counterparty());
+        application.setAfterDescription(after.description());
+        return application;
+    }
+
+    private OperationState beforeState(RuleApplicationEntity application) {
+        return new OperationState(
+                application.getBeforeCategory(),
+                application.isBeforeExcludeFromAnalytics(),
+                application.getBeforeCounterparty(),
+                application.getBeforeDescription()
+        );
+    }
+
+    private OperationState afterState(RuleApplicationEntity application) {
+        return new OperationState(
+                application.getAfterCategory(),
+                application.isAfterExcludeFromAnalytics(),
+                application.getAfterCounterparty(),
+                application.getAfterDescription()
+        );
+    }
+
+    private boolean sameState(OperationState first, OperationState second) {
+        return first.excludeFromAnalytics() == second.excludeFromAnalytics()
+                && java.util.Objects.equals(first.category(), second.category())
+                && java.util.Objects.equals(first.counterparty(), second.counterparty())
+                && java.util.Objects.equals(first.description(), second.description());
+    }
+
     private RuleDefinition toDefinition(RuleEntity entity, Collection<String> allowedCategories) {
         try {
             return normalizeRule(new RuleDefinition(
@@ -183,7 +304,7 @@ public class RuleService {
         RuleConditions conditions = rule.conditions();
         RuleActions actions = rule.actions();
         return new RuleDefinition(
-                rule.name() == null ? "Новое правило" : rule.name().trim(),
+                cleanName(rule.name()),
                 rule.confidence(),
                 conditions == null ? null : new RuleConditions(
                         cleanList(conditions.descriptionContains()),
@@ -226,5 +347,49 @@ public class RuleService {
 
     private String cleanString(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private String cleanName(String value) {
+        return value == null || value.isBlank() ? "Новое правило" : value.trim();
+    }
+
+    private RuleDefinition applyCategoryRenameIntent(RuleDefinition rule, Optional<CategoryRenameIntent> intent) {
+        if (intent.isEmpty()) {
+            return rule;
+        }
+        CategoryRenameIntent rename = intent.get();
+        return new RuleDefinition(
+                cleanName(rule == null ? null : rule.name()),
+                Math.max(rule == null ? 0 : rule.confidence(), 0.95),
+                new RuleConditions(List.of(), List.of(rename.sourceCategory()), "all", null, null, List.of()),
+                new RuleActions(rename.targetCategory(), false, null, false, null)
+        );
+    }
+
+    private Optional<CategoryRenameIntent> categoryRenameIntent(String prompt, Collection<String> allowedCategories) {
+        Matcher matcher = CATEGORY_RENAME_PATTERN.matcher(prompt);
+        if (!matcher.matches()) {
+            return Optional.empty();
+        }
+        String sourceCategory = normalizeCategory(matcher.group(1), allowedCategories);
+        if (sourceCategory == null || !allowedCategories.contains(sourceCategory)) {
+            return Optional.empty();
+        }
+        String targetCategory = cleanCategoryName(matcher.group(2));
+        if (targetCategory == null) {
+            return Optional.empty();
+        }
+        return Optional.of(new CategoryRenameIntent(sourceCategory, normalizeCategory(targetCategory, allowedCategories)));
+    }
+
+    private String cleanCategoryName(String value) {
+        String cleaned = cleanString(value);
+        if (cleaned == null) {
+            return null;
+        }
+        return cleaned.substring(0, 1).toUpperCase(java.util.Locale.ROOT) + cleaned.substring(1);
+    }
+
+    private record CategoryRenameIntent(String sourceCategory, String targetCategory) {
     }
 }
