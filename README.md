@@ -2,12 +2,12 @@
 
 Personal Tracker — личный финансовый трекер для импорта операций, анализа расходов и автоматизации обработки транзакций.
 
-## Demo
+## Демо
 
 [https://5.34.208.74](https://5.34.208.74)  
 можно использовать  
 пользователя: test  
-password: test
+пароль: test
 
 ## Возможности
 
@@ -15,12 +15,12 @@ password: test
 - импорт операций из XLS/XLSX
 - ручное добавление, редактирование и удаление операций
 - фильтры, поиск, сортировка и экспорт CSV
-- dashboard с аналитикой доходов, расходов и категорий
+- дашборд с аналитикой доходов, расходов и категорий
 - Smart Rules — автоматическая обработка операций через текстовые правила
 
 ## Стек
 
-### Backend
+### Бэкенд
 
 - Java 17+
 - Spring Boot 4
@@ -30,12 +30,12 @@ password: test
 - PostgreSQL
 - Apache POI
 
-### Frontend
+### Фронтенд
 
 - HTML/CSS
 - JavaScript
 
-### AI
+### ИИ
 
 - OpenAI Responses API
 
@@ -53,9 +53,19 @@ password: test
 
 - `/` — главная страница и регистрация
 - `/login` — вход
-- `/myacc` — dashboard
+- `/myacc` — дашборд
 - `/operations` — управление операциями
 - `/rules` — Smart Rules
+
+## Скриншоты
+
+| Главная | Дашборд |
+| --- | --- |
+| <img src="docs/screenshots/01_landing.png" alt="Главная страница" width="360"> | <img src="docs/screenshots/02_dashboard.png" alt="Дашборд" width="360"> |
+
+| Операции | Smart Rules |
+| --- | --- |
+| <img src="docs/screenshots/03_operations.png" alt="Операции" width="360"> | <img src="docs/screenshots/04_rules.png" alt="Smart Rules" width="260"> |
 
 ## Локальный запуск
 
